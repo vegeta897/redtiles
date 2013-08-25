@@ -1,4 +1,5 @@
-redtiles
+Redtiles
 ========
 
-For my final web project at Fully Sail University
+Devin Spikowski
+For my final web project at Full Sail University
