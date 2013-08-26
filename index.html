@@ -6,15 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- CSS -->
     <link href="css/normalize.css" rel="stylesheet" media="screen">
-    <link href="css/main.css" rel="stylesheet" media="screen">
     <link href="css/foundation.css" rel="stylesheet" media="screen">
-    <link href="css/override.css" rel="stylesheet" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+    <link href="css/main.css" rel="stylesheet" media="screen">
+
+    <script src="js/vendor/custom.modernizr.js"></script>
   </head>  
   <body>
-  	<div ng-view></div>
+  	<div class="wrapper" ng-view></div>
     
     <!-- Foundation -->
-    <script src="js/foundation.min.js"></script>
+    <script>
+        document.write('<script src=' +
+                ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+                '.js><\/script>')
+    </script>
+    <script src="js/foundation/foundation.js"></script>
+    <script src="js/foundation/foundation.alerts.js"></script>
+    <script src="js/foundation/foundation.clearing.js"></script>
+    <script src="js/foundation/foundation.cookie.js"></script>
+    <script src="js/foundation/foundation.dropdown.js"></script>
+    <script src="js/foundation/foundation.forms.js"></script>
+    <script src="js/foundation/foundation.joyride.js"></script>
+    <script src="js/foundation/foundation.magellan.js"></script>
+    <script src="js/foundation/foundation.orbit.js"></script>
+    <script src="js/foundation/foundation.placeholder.js"></script>
+    <script src="js/foundation/foundation.reveal.js"></script>
+    <script src="js/foundation/foundation.section.js"></script>
+    <script src="js/foundation/foundation.tooltips.js"></script>
+    <script src="js/foundation/foundation.topbar.js"></script>
+    <script src="js/foundation/foundation.interchange.js"></script>
     <!-- AngularJS -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
     <script src="js/localStorageModule.js"></script> <!-- Makes local storage easier in Angular -->
@@ -23,5 +44,8 @@
     <script src="js/controllers.js"></script>
     <script src="js/services.js"></script>
     <script src="js/directives.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
   </body>
 </html>
