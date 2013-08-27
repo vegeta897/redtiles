@@ -51,7 +51,7 @@ h1.logo {
 }
 
 .side-bar .subreddits {
-    padding-left: 4px;
+    padding-left: 2px;
 }
 
 .side-bar .subreddits ul {
@@ -90,6 +90,7 @@ h1.logo {
     height: 32px;
     width: 142px;
     font-size: 14px;
+    margin-bottom: 0.8em;
 }
 
 .side-bar section#gallery .controls {
@@ -101,11 +102,11 @@ h1.logo {
     line-height: 22px;
     text-decoration: underline;
     display: inline-block;
-    padding-left: 1.7em;
+    padding-left: 23px;
 }
 
 .side-bar section#gallery .controls i {
-    padding-left: 3px;
+    padding-left: 1px;
     position: relative;
     top: 1px;
     color: #aaa;
@@ -122,6 +123,24 @@ h1.logo {
 .side-bar section#gallery {
     border-bottom: 1px #ccc solid;
     margin-bottom: 12px;
+}
+
+.side-bar section#popular .page-nav { margin-top: 6px; }
+.side-bar section#popular .page-nav * { display: inline-block; font-weight: bold; }
+.side-bar section#popular .page-nav a { color: #666; }
+.side-bar section#popular .page-nav a:hover { color: #999; }
+.side-bar section#popular .page-nav a:first-child { margin-right: 0.4em; }
+.side-bar section#popular .page-nav a:first-child i { margin-right: 0.2em; }
+.side-bar section#popular .page-nav span {
+    font-weight: normal;
+    cursor: default;
+    color: #aaa;
+}
+.side-bar section#popular .page-nav a:last-child { margin-left: 0.4em; }
+.side-bar section#popular .page-nav a:last-child i { margin-left: 0.2em; }
+.side-bar section#popular .page-nav .disabled, .side-bar section#popular .page-nav .disabled:hover {
+    cursor: default;
+    color: #aaa;
 }
 
 /* --- Topbar --- */
