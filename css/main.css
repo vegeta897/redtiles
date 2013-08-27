@@ -1,46 +1,22 @@
 html {
     height: 100%;
+    background: #2d2d2d;
 }
 
 body {
-    background: #2d2d2d;
     height: 100%;
+    background: #2d2d2d;
     font-family: 'Roboto', sans-serif;
 }
 
-
-.wrapper {
-    padding-left: 205px;
-    height: 100%;
-}
-
-.top-bar {
-    background: #484848;
-    color: #999;
-    height: 35px;
-    padding: 10px 12px;
-    margin: 0;
-    font-size: 15px;
-    line-height: inherit;
-    position: fixed;
-    width: 100%;
-}
-
-.top-bar a {
-    color: #ccc;
-    text-decoration: underline;
-}
-
-.top-bar a:hover { color: #fff; text-decoration: none; }
-.top-bar a:active { color: #aaa; text-decoration: none; }
+/* --- Sidebar --- */
 
 .side-bar {
+    z-index: 100;
+    position: fixed;
     background: white;
     width: 205px;
     height: 100%;
-    position: fixed;
-    left: 0;
-    top: 0;
     padding: 8px 10px;
     float: left;
 }
@@ -50,9 +26,217 @@ h1.logo {
     font-size: 24px;
 }
 
+.side-bar {
+    font-size: 14px;
+}
+
+.side-bar h2 {
+    margin: 0 0 2px;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.side-bar h2 a {
+    color: #666;
+}
+
+.side-bar h2 a i {
+    font-size: 16px;
+    color: #aaa;
+    margin-right: 0.5em;
+}
+
+.side-bar form, .side-bar form.custom, .side-bar form.custom .custom.dropdown {
+    margin-bottom: 0.2em;
+}
+
+.side-bar .subreddits {
+    padding-left: 4px;
+}
+
+.side-bar .subreddits ul {
+    list-style: none;
+    margin-bottom: 2px;
+}
+
+.side-bar .subreddits ul li a {
+    font-size: 16px;
+    color: #fd4400;
+}
+.side-bar .subreddits ul li a:hover, .side-bar .subreddits ul li a:focus { color: #e43d00; }
+
+.side-bar .subreddits ul li i {
+    color: #aaa;
+    margin-right: 0.8em;
+}
+
+.side-bar .subreddits .add-subreddit i {
+    float: left;
+    width: 18px;
+    height: 32px;
+    line-height: 32px;
+    color: #aaa;
+}
+
+.side-bar .subreddits .add-subreddit .prefix {
+    font-size: 13px;
+    float: left;
+    width: 21px;
+    height: 32px;
+    color: #aaa;
+}
+
+.side-bar .subreddits .add-subreddit input {
+    height: 32px;
+    width: 142px;
+    font-size: 14px;
+}
+
+.side-bar section#gallery .controls {
+    margin-bottom: 1em;
+}
+
+.side-bar section#gallery .controls a {
+    color: #aaa;
+    line-height: 22px;
+    text-decoration: underline;
+    display: inline-block;
+    padding-left: 1.7em;
+}
+
+.side-bar section#gallery .controls i {
+    padding-left: 3px;
+    position: relative;
+    top: 1px;
+    color: #aaa;
+    line-height: 22px;
+}
+
+.side-bar section#gallery .controls #manage {
+    color: #666;
+    text-decoration: underline;
+    display: inline-block;
+    padding-left: 0.5em;
+}
+
+.side-bar section#gallery {
+    border-bottom: 1px #ccc solid;
+    margin-bottom: 12px;
+}
+
+/* --- Topbar --- */
+
+.top-bar {
+    position: fixed;
+    background: #484848;
+    color: #999;
+    height: 36px;
+    padding: 3px 12px 3px 217px;
+    margin: 0;
+    font-size: 15px;
+    line-height: inherit;
+    width: 100%;
+}
+
+.top-bar a { color: #ccc; text-decoration: underline; }
+.top-bar a:hover { color: #fff; text-decoration: none; }
+.top-bar a:active { color: #aaa; text-decoration: none; }
+
+.top-bar .sorting {
+    float: left;
+    width: 15%;
+    line-height: 30px;
+}
+
+.top-bar .sizing {
+    vertical-align: top;
+    float: left;
+    margin-left: 5%;
+    width: 170px;
+    font-size: 12px;
+    line-height: 30px;
+    height: 30px;
+}
+
+.top-bar .sizing ul {
+    display: inline-block;
+    font-size: inherit;
+    line-height: 30px;
+    height: 30px;
+    margin: 0 4px;
+    width: 65px;
+}
+
+.top-bar .sizing ul li { height: 30px; }
+
+.top-bar .sizing .button {
+    color: #999;
+    font-size: 18px;
+    height: 30px;
+    top: 0;
+    line-height: 30px;
+    text-decoration: none;
+    background-color: #484848;
+    border-color: #333;
+}
+
+.top-bar .sizing .button:hover, .top-bar .sizing .button:focus {
+    color: #fff;
+    background-color: #666;
+}
+
+.top-bar .sizing .button i {
+    vertical-align: top;
+    line-height: 30px;
+    position: relative;
+    display: inline-block;
+}
+
+.top-bar .sizing .button i.icon-plus { left: -3px; } /* Icon alignment adjust */
+
+.top-bar .user {
+    height: 30px;
+    width: 15%;
+    text-align: right;
+}
+
+.top-bar .user .button {
+    color: #fff;
+    font-size: 16px;
+    height: 30px;
+    top: 0;
+    line-height: 30px;
+    text-decoration: none;
+    background-color: #fd4400;
+    border-color: #7a2100;
+}
+
+.top-bar .user .button:hover, .top-bar .user .button:focus { background-color: #e43d00; }
+
+/* --- Tile area --- */
+
 .tile-area {
     color: #aaa;
     width: 100%;
-    height: 100%;
-    padding: 47px 12px 12px;
+    padding: 48px 12px 12px 217px;
+}
+
+.tile-area img {
+    float: left;
+    width: 101px;
+    height: 101px;
+    margin: 0 4px 4px 0;
+    -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
+}
+
+/* --- Foundation overrides --- */
+
+.button { /* Dim the button highlight a bit */
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+}
+.button:active {
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; 
 }

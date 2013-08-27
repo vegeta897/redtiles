@@ -3,4 +3,9 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
 		$routeProvider.
 			when('/', {templateUrl: 'partials/main.html', controller: 'Default'}). // Main page
 		    otherwise({redirectTo: ''}); // Redirect to main page if none of the above match
-	}]);
+	}])
+    .run(function($rootScope) {
+        $rootScope.$on('$viewContentLoaded', function() {
+            $(document).foundation();
+        })
+    });
