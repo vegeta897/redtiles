@@ -27,8 +27,17 @@
             </div>
         </div>
         <div class="controls">
-            <a href="#">Save as new</a>
-            <a href="#">Share</a>
+            <div>
+                <a href="#saveAsNew">Save as new</a>
+                <a href="#share">Share</a>
+                <div class="hidden" id="saveAsNew">
+                    <input type="text" placeholder="New Collection">
+                    <button>Save</button>
+                </div>
+                <div class="hidden" id="share">
+                    
+                </div>
+            </div>
             <div><i class="icon-list"></i><a id="manage" href="#">Manage Collections</a></div>
         </div>
         
@@ -54,7 +63,12 @@
         
 <div class="top-bar">
     <div class="sorting">
-        Sort by: <a href="#">Hot</a>
+        Sort by: <a data-dropdown="sortDrop" href="#">Hot</a>
+        <ul id="sortDrop" class="f-dropdown" data-dropdown-content>
+            <li><a href="#">New</a></li>
+            <li><a href="#">Controversial</a></li>
+            <li><a href="#">Top</a></li>
+        </ul>
     </div>
     <div class="sizing">
         smaller<ul class="button-group round even-2">

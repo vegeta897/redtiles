@@ -9,6 +9,10 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
+.hidden {
+    display: none;
+}
+
 /* --- Sidebar --- */
 
 .side-bar {
@@ -73,21 +77,22 @@ h1.logo {
 .side-bar .subreddits .add-subreddit i {
     float: left;
     width: 18px;
-    height: 32px;
-    line-height: 32px;
+    height: 28px;
+    line-height: 28px;
     color: #aaa;
 }
 
 .side-bar .subreddits .add-subreddit .prefix {
     font-size: 13px;
+    line-height: 26px;
     float: left;
     width: 21px;
-    height: 32px;
+    height: 28px;
     color: #aaa;
 }
 
 .side-bar .subreddits .add-subreddit input {
-    height: 32px;
+    height: 28px;
     width: 142px;
     font-size: 14px;
     margin-bottom: 0.8em;
@@ -111,6 +116,27 @@ h1.logo {
     top: 1px;
     color: #aaa;
     line-height: 22px;
+}
+
+.side-bar section#gallery .controls div:first-child div {
+    margin-top: 6px;
+    margin-left: 20px;
+}
+
+.side-bar section#gallery .controls #saveAsNew input {
+    font-size: 14px;
+    float: left;
+    width: 127px;
+    height: 28px;
+}
+
+.side-bar section#gallery .controls #saveAsNew button {
+    box-sizing: border-box;
+    height: 28px;
+    width: 36px;
+    font-size: 12px;
+    float: left;
+    padding: 0;
 }
 
 .side-bar section#gallery .controls #manage {
@@ -237,7 +263,7 @@ h1.logo {
 .tile-area {
     color: #aaa;
     width: 100%;
-    padding: 48px 12px 12px 217px;
+    padding: 48px 8px 12px 217px;
 }
 
 .tile-area img {
@@ -254,8 +280,35 @@ h1.logo {
 .button { /* Dim the button highlight a bit */
     -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+    -webkit-transition: color 300ms ease-out, background-color 300ms ease-out;
+    -moz-transition: color 300ms ease-out, background-color 300ms ease-out;
+    transition: color 300ms ease-out, background-color 300ms ease-out;
 }
 .button:active {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; 
+}
+
+.f-dropdown {
+    background: #2d2d2d;
+    border: solid 1px #666;
+    margin-top: 6px;
+    width: 8em;
+}
+
+.f-dropdown:before { /* Arrow above dropdown box */
+    border-color: transparent transparent #2d2d2d transparent;
+}
+.f-dropdown:after { /* Arrow outline above dropdown box */
+    border-color: transparent transparent #666 transparent;
+}
+
+.f-dropdown li a {
+    color: #999;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.f-dropdown li:hover, .f-dropdown li:focus {
+    background: #484848; 
 }

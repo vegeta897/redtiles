@@ -7,5 +7,15 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
     .run(function($rootScope) {
         $rootScope.$on('$viewContentLoaded', function() {
             $(document).foundation();
-        })
+            $('#gallery').children('.controls').children('div').on('click', 'a', function(e) {
+                event.preventDefault();
+                var target = $(e.target.hash);
+                if(!target.hasClass('hidden')) {
+                    target.addClass('hidden');
+                } else {
+                    target.siblings('div').addClass('hidden');
+                    target.removeClass('hidden');
+                }
+            });
+        });
     });
