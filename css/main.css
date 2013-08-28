@@ -123,20 +123,26 @@ h1.logo {
     margin-left: 20px;
 }
 
-.side-bar section#gallery .controls #saveAsNew input {
+.side-bar section#gallery .controls input {
     font-size: 14px;
     float: left;
     width: 127px;
     height: 28px;
 }
 
-.side-bar section#gallery .controls #saveAsNew button {
+.side-bar section#gallery .controls button {
     box-sizing: border-box;
     height: 28px;
     width: 36px;
     font-size: 12px;
     float: left;
     padding: 0;
+    background: #666;
+    border-color: #515151;
+}
+
+.side-bar section#gallery .controls #share input {
+    font-size: 10px;
 }
 
 .side-bar section#gallery .controls #manage {
