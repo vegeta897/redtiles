@@ -78,7 +78,7 @@
         </ul>bigger
     </div>
     <div class="user right">
-        <a href="#" class="small button">reddit login</a>
+        <a href="#" data-reveal-id="modalLogin" class="small button">reddit login</a>
     </div>
 </div> <!-- /.top-bar -->
         
@@ -194,3 +194,45 @@
     <img src="http://placehold.it/101/999999/333333" />
     <img src="http://placehold.it/101/999999/333333" />
 </div> <!-- /.tile-area -->
+        
+<!-- Modals -->
+
+<div id="modalLogin" class="reveal-modal">
+    <h2>Log In <span class="small">with reddit</span></h2>
+    <form>
+        <div class="row">
+            <div class="large-12 columns">
+                Log in with your reddit account
+            </div>
+        </div>
+        <fieldset>
+            <div class="row">
+                <div class="large-6 columns">
+                    <label for="loginUser" class="right inline">Username</label>
+                </div>
+                <div class="large-6 columns">
+                    <input id="loginUser" type="text" placeholder="cooldude">
+                </div>
+            </div>
+            <div class="row">
+                <div class="large-6 columns">
+                    <label for="loginPass" class="right inline">Password</label>
+                </div>
+                <div class="large-6 columns">
+                    <input id="loginPass" type="password">
+                </div>
+            </div>
+        </fieldset>
+        <div class="row align-bottom">
+            <div class="large-6 columns">
+                <p>Don't have a reddit account? <br/>
+                    <a target="_blank" href="http://www.reddit.com/register">Create one here!</a>
+                </p>
+            </div>
+            <div class="large-6 columns">
+                <input id="loginSubmit" type="submit" class="button" value="Log In">
+            </div>
+        </div>
+    </form>
+    <a class="close-reveal-modal"><i class="icon-remove"></i></a>
+</div>

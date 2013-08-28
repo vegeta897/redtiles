@@ -16,7 +16,7 @@ body {
 /* --- Sidebar --- */
 
 .side-bar {
-    z-index: 100;
+    z-index: 10;
     position: fixed;
     background: white;
     width: 205px;
@@ -229,6 +229,10 @@ h1.logo {
     text-decoration: none;
     background-color: #484848;
     border-color: #333;
+    /* Dim the button highlight a bit */
+    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+    
 }
 
 .top-bar .sizing .button:hover, .top-bar .sizing .button:focus {
@@ -281,15 +285,102 @@ h1.logo {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
 }
 
+/* --- Modal Windows --- */
+
+#modalLogin {
+    position: fixed;
+    width: 275px;
+    top: 50%;
+    left: 50%;
+    margin: 133px 0 0 -138px;
+}
+
+.reveal-modal {
+    padding: 11px 15px 15px;
+    font-size: 14px;
+    color: #666666;
+}
+
+.reveal-modal form {
+    margin-bottom: 0;
+}
+
+.reveal-modal h2 {
+    font-size: 28px;
+    color: #666;
+}
+
+.reveal-modal h2 span {
+    display: inline-block;
+    margin-left: 0.3em;
+    font-size: 14px;
+    font-weight: normal;
+    color: #fd4400;
+}
+
+.reveal-modal .columns { padding: 0; }
+
+.reveal-modal fieldset label {
+    font-size: 14px;
+    margin-right: 1em;
+}
+
+.reveal-modal fieldset input { font-size: 14px; }
+
+.reveal-modal fieldset .row:last-child input, .reveal-modal fieldset .row:last-child label {
+    margin-bottom: 12px;
+}
+
+.reveal-modal p {
+    float: left;
+    width: 106px;
+    font-size: 13px;
+    line-height: 16px;
+    margin-bottom: 0;
+}
+
+.reveal-modal p a {
+    color: #fd4400;
+    text-decoration: underline;
+}
+
+.reveal-modal p a:hover, .reveal-modal p a:focus {
+    color: #7a2100;
+    text-decoration: none;
+}
+
+.reveal-modal input.button {
+    position: absolute;
+    right: 0;
+    bottom: -47px;
+    font-size: 20px;
+    font-weight: bold;
+    background: #fd4400;
+    border-color: #7a2100;
+    height: 35px;
+    line-height: 31px;
+    padding: 0 20px;
+    margin-bottom: 0;
+}
+
+.reveal-modal input.button:hover, .reveal-modal input.button:focus { background-color: #e43d00; }
+
+.reveal-modal .close-reveal-modal {
+    top: 6px;
+    right: 11px;
+    font-size: 27px;
+}
+
+.reveal-modal .close-reveal-modal:hover { color: #999; }
+
 /* --- Foundation overrides --- */
 
-.button { /* Dim the button highlight a bit */
-    -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
-    -webkit-transition: color 300ms ease-out, background-color 300ms ease-out;
-    -moz-transition: color 300ms ease-out, background-color 300ms ease-out;
-    transition: color 300ms ease-out, background-color 300ms ease-out;
+.button {
+    -webkit-transition: color 250ms ease-out, background-color 250ms ease-out;
+    -moz-transition: color 250ms ease-out, background-color 250ms ease-out;
+    transition: color 250ms ease-out, background-color 250ms ease-out;
 }
+
 .button:active {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; 
@@ -317,4 +408,9 @@ h1.logo {
 
 .f-dropdown li:hover, .f-dropdown li:focus {
     background: #484848; 
+}
+
+fieldset {
+    border: none;
+    padding: 0;
 }
