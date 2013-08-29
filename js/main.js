@@ -19,5 +19,13 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
                     target.removeClass('hidden');
                 }
             });
+            
+            // Initialize Masonry for image tiles
+            var tileArea = document.querySelector('.tile-area');
+            var tileMasonry = new Masonry( tileArea, {
+                itemSelector: '.tile',
+                columnWidth: 101,
+                gutter: 4
+            });
         });
     });
