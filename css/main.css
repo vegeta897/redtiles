@@ -200,14 +200,13 @@ h1.logo {
 
 .top-bar .sorting {
     float: left;
-    width: 15%;
+    width: 180px;
     line-height: 30px;
 }
 
 .top-bar .sizing {
     vertical-align: top;
     float: left;
-    margin-left: 5%;
     width: 170px;
     font-size: 12px;
     line-height: 30px;
@@ -230,6 +229,7 @@ h1.logo {
     font-size: 18px;
     height: 30px;
     top: 0;
+    padding: 0 10px;
     line-height: 30px;
     text-decoration: none;
     background-color: #484848;
@@ -256,15 +256,17 @@ h1.logo {
 
 .top-bar .user {
     height: 30px;
-    width: 15%;
+    width: 103px;
     text-align: right;
 }
 
 .top-bar .user .button {
     color: #fff;
     font-size: 16px;
+    width: 103px;
     height: 30px;
     top: 0;
+    padding: 0 10px;
     line-height: 30px;
     text-decoration: none;
     background-color: #fd4400;
