@@ -7,6 +7,8 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
     .run(function($rootScope) {
         $rootScope.$on('$viewContentLoaded', function() {
             $(document).foundation();
+            
+            // Gallery controls show/hide logic
             $('#gallery').children('.controls').children('div').on('click', 'a', function(e) {
                 event.preventDefault();
                 var target = $(e.target.hash);

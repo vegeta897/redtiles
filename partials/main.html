@@ -34,12 +34,15 @@
                     <input type="text" placeholder="New Collection">
                     <button>Save</button>
                 </div>
-                <div class="hidden" id="share">
-                    <input type="text" value="redtiles.com/cooldude/c/MyCollection">
+                <div class="hidden share" id="share">
+                    <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
                     <button>Copy</button>
                 </div>
             </div>
-            <div><i class="icon-list"></i><a id="manage" href="#">Manage Collections</a></div>
+            <div>
+                <i class="icon-list"></i>
+                <a id="manage" data-reveal-id="modalCollections" href="#">Manage Collections</a>
+            </div>
         </div>
         
     </section>
@@ -223,7 +226,7 @@
                 </div>
             </div>
         </fieldset>
-        <div class="row align-bottom">
+        <div class="row">
             <div class="large-6 columns">
                 <p>Don't have a reddit account? <br/>
                     <a target="_blank" href="http://www.reddit.com/register">Create one here!</a>
@@ -234,5 +237,87 @@
             </div>
         </div>
     </form>
+    <a class="close-reveal-modal"><i class="icon-remove"></i></a>
+</div>
+
+<div id="modalCollections" class="reveal-modal">
+    <h2>My Collections</h2>
+    <div class="row">
+        <div class="large-12 columns">
+            <label for="editedCollection">Choose a collection to edit</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-6 columns">
+            <form class="custom">
+                <select id="editedCollection">
+                    <option>My Collection</option>
+                    <option>Another Collection</option>
+                    <option>Super secret</option>
+                </select>
+            </form>
+        </div>
+        <div class="small-2 columns">
+            <a href="#" class="tiny secondary button">Clone</a>
+        </div>
+        <div class="small-2 columns">
+            <a href="#" class="tiny secondary button">Clear</a>
+        </div>
+        <div class="small-2 columns">
+            <a href="#" class="tiny secondary button">Delete</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Subreddits in this collection</h3>
+            <div class="subreddits">
+                <ul>
+                    <li><i class="icon-minus"></i><a href="#">/r/pics</a></li>
+                    <li><i class="icon-minus"></i><a href="#">/r/funny</a></li>
+                    <li><i class="icon-minus"></i><a href="#">/r/1000words</a></li>
+                    <li><i class="icon-minus"></i><a href="#">/r/wallpapers</a></li>
+                </ul>
+                <div class="add-subreddit">
+                    <i class="icon-plus"></i>
+                    <span class="prefix">/r/</span>
+                    <input type="text" placeholder="add new">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Add a popular subreddit to this collection</h3>
+            <div class="add-subreddit">
+                <form class="custom">
+                    <i class="icon-plus"></i>
+                    <select id="popularDropdown">
+                        <option>/r/itookapicture</option>
+                        <option>/r/FiftyFifty</option>
+                        <option>/r/tumblr</option>
+                        <option>/r/awwnime</option>
+                        <option>/r/cosplay</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-12 columns">
+            <h3>Share this collection</h3>
+            <div class="share">
+                <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
+                <button>Copy</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="large-5 large-offset-4 columns">
+            <p>Changes are saved automatically</p>
+        </div>
+        <div class="large-3 columns">
+            <a id="collectionsDone" href="#" class="button close-reveal-modal secondary">Done</a>
+        </div>
+    </div>
     <a class="close-reveal-modal"><i class="icon-remove"></i></a>
 </div>

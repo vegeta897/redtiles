@@ -54,27 +54,27 @@ h1.logo {
     margin-bottom: 0.2em;
 }
 
-.side-bar .subreddits {
+.subreddits {
     padding-left: 2px;
 }
 
-.side-bar .subreddits ul {
+.subreddits ul {
     list-style: none;
     margin-bottom: 2px;
 }
 
-.side-bar .subreddits ul li a {
+.subreddits ul li a {
     font-size: 16px;
     color: #fd4400;
 }
-.side-bar .subreddits ul li a:hover, .side-bar .subreddits ul li a:focus { color: #e43d00; }
+.subreddits ul li a:hover, .side-bar .subreddits ul li a:focus { color: #e43d00; }
 
-.side-bar .subreddits ul li i {
+.subreddits ul li i {
     color: #aaa;
     margin-right: 0.8em;
 }
 
-.side-bar .subreddits .add-subreddit i {
+.add-subreddit i {
     float: left;
     width: 18px;
     height: 28px;
@@ -82,7 +82,7 @@ h1.logo {
     color: #aaa;
 }
 
-.side-bar .subreddits .add-subreddit .prefix {
+.add-subreddit .prefix {
     font-size: 13px;
     line-height: 26px;
     float: left;
@@ -91,7 +91,7 @@ h1.logo {
     color: #aaa;
 }
 
-.side-bar .subreddits .add-subreddit input {
+.add-subreddit input {
     height: 28px;
     width: 142px;
     font-size: 14px;
@@ -123,14 +123,14 @@ h1.logo {
     margin-left: 20px;
 }
 
-.side-bar section#gallery .controls input {
+.side-bar section#gallery .controls input, #modalCollections .share input {
     font-size: 14px;
     float: left;
     width: 127px;
     height: 28px;
 }
 
-.side-bar section#gallery .controls button {
+.side-bar section#gallery .controls button, #modalCollections .share button {
     box-sizing: border-box;
     height: 28px;
     width: 36px;
@@ -141,15 +141,19 @@ h1.logo {
     border-color: #515151;
 }
 
-.side-bar section#gallery .controls #share input {
+.side-bar section#gallery .controls .share input, #modalCollections .share input {
     font-size: 10px;
+}
+
+.share input[disabled] {
+    background-color: #eee;
 }
 
 .side-bar section#gallery .controls #manage {
     color: #666;
     text-decoration: underline;
     display: inline-block;
-    padding-left: 0.5em;
+    padding-left: 5px;
 }
 
 .side-bar section#gallery {
@@ -295,6 +299,88 @@ h1.logo {
     margin: 133px 0 0 -138px;
 }
 
+#modalCollections {
+    position: fixed;
+    width: 410px;
+    top: 50%;
+    left: 50%;
+    margin: 0 0 0 -205px;
+}
+
+#modalCollections label {
+    color: #999;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+#modalCollections .small-2 {
+    text-align: right;
+}
+
+#modalCollections a.tiny.secondary.button {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+    height: 23px;
+    padding-top: 4px;
+    padding-right: 0;
+    padding-left: 0;
+    width: 53px;
+    font-weight: normal;
+}
+
+#modalCollections h3 {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 0;
+}
+
+#modalCollections .subreddits, #modalCollections .add-subreddit form, #modalCollections .share {
+    padding-top: 4px;
+    padding-left: 14px;
+}
+
+#modalCollections .add-subreddit form.custom .custom.dropdown {
+    color: #fd4400;
+    height: 28px;
+    width: 164px;
+    font-size: 14px;
+    margin-left: 18px;
+    margin-bottom: 0.8em;
+}
+
+#modalCollections .add-subreddit form.custom .custom.dropdown .current {
+    line-height: 26px;
+    color: #fd4400;
+    margin-left: 7px;
+}
+
+#modalCollections .add-subreddit form.custom .custom.dropdown .selector {
+    height: 28px;
+}
+
+#modalCollections .share input { width: 146px; }
+
+#modalCollections p {
+    text-align: right;
+    color: #999;
+    width: auto;
+    padding-top: 1px;
+    padding-right: 1em;
+}
+
+#modalCollections #collectionsDone {
+    position: static;
+    background: #666;
+    color: white;
+    background: #666;
+    border-color: #515151;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 8px 25px;
+    margin-bottom: 0;
+}
+
 .reveal-modal {
     padding: 11px 15px 15px;
     font-size: 14px;
@@ -365,13 +451,15 @@ h1.logo {
 
 .reveal-modal input.button:hover, .reveal-modal input.button:focus { background-color: #e43d00; }
 
-.reveal-modal .close-reveal-modal {
+.reveal-modal .close-reveal-modal:not(.button) {
     top: 6px;
     right: 11px;
     font-size: 27px;
 }
 
 .reveal-modal .close-reveal-modal:hover { color: #999; }
+
+
 
 /* --- Foundation overrides --- */
 
@@ -413,4 +501,8 @@ h1.logo {
 fieldset {
     border: none;
     padding: 0;
+}
+
+.reveal-modal-bg {
+    background: rgba(0,0,0,0.65);
 }
