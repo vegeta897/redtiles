@@ -20,6 +20,11 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
                 return false;
             });
             
+            // Opening collection manager modal
+            $('#manage').on('click', function(e) {
+                $('#modalCollections').foundation('reveal', 'open');
+            });
+            
             // Initialize Masonry for image tiles
             var tileArea = document.querySelector('.tile-area');
             var tileMasonry = new Masonry( tileArea, {
