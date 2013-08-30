@@ -309,7 +309,7 @@ h1.logo {
 #modalLogin {
     position: fixed;
     width: 275px;
-    top: 50%;
+    top: 20%;
     left: 50%;
     margin: 133px 0 0 -138px;
 }
@@ -317,7 +317,7 @@ h1.logo {
 #modalCollections {
     position: fixed;
     width: 410px;
-    top: 50%;
+    top: 30%;
     left: 50%;
     margin: 0 0 0 -205px;
 }
