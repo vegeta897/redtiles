@@ -9,7 +9,7 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
             $(document).foundation();
             
             // Gallery controls show/hide logic
-            $('#gallery').children('.controls').children('div').on('click', 'a', function(e) {
+            $('#gallery').children('.controls').children('div').on('click', 'a:not(#manage)', function(e) {
                 var target = $(e.target.hash);
                 if(!target.hasClass('hidden')) {
                     target.addClass('hidden');
@@ -18,11 +18,6 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
                     target.removeClass('hidden');
                 }
                 return false;
-            });
-            
-            // Opening collection manager modal
-            $('#manage').on('click', function(e) {
-                $('#modalCollections').foundation('reveal', 'open');
             });
             
             // Initialize Masonry for image tiles
