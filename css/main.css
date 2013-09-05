@@ -288,20 +288,100 @@ h1.logo {
 }
 
 .tile-area .tile {
-    float: left;
+    background-color: #111;
     margin: 0 0 4px 0;
+    width: 101px;
+    height: 101px;
     -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
 }
 
-.tile-area .tile img.small {
-    width: 101px;
-    height: 101px;
-}
-
-.tile-area .tile img.big {
+.tile-area .big-tile {
     width: 206px;
     height: 206px;
+}
+
+.tile-area .tile .tile-image {
+    width: 101px;
+    height: 101px;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    -ms-interpolation-mode: bicubic;
+}
+
+.tile-area .big-tile .tile-image {
+    width: 206px;
+    height: 206px;
+}
+
+.tile-area .tile .tile-overlay {
+    background: rgba(45,45,45,0.7);
+    position: absolute;
+    width: 101px;
+    height: 101px;
+    display: none;
+}
+
+.tile-area .big-tile .tile-overlay {
+    width: 206px;
+    height: 206px;
+}
+
+.tile-area .tile .tile-overlay .post-info {
+    position: relative;
+    top: 85px;
+    width: 101px;
+    height: 16px;
+    background: rgba(45,45,45,0.5);
+    padding: 1px 3px 0;
+}
+
+.tile-area .big-tile .tile-overlay .post-info {
+    top: 172px;
+    width: 206px;
+    height: 34px;
+    padding: 3px 4px 0;
+}
+
+.tile-area .big-tile .tile-overlay .post-info .post-date {
+    color: #ccc;
+    font-size: 11px;
+}
+
+.tile-area .tile .tile-overlay .post-info .post-link {
+    line-height: 16px;
+    color: #eee;
+    font-size: 10px;
+}
+
+.tile-area .big-tile .tile-overlay .post-info .post-link {
+    line-height: 20px;
+    color: #eee;
+    font-size: 14px;
+}
+
+.tile-area .tile .tile-overlay .post-info .post-link span {
+    display: block;
+    float: left;
+    max-width: 85px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.tile-area .big-tile .tile-overlay .post-info .post-link span {
+    max-width: 180px;
+}
+
+.tile-area .tile .tile-overlay .post-info .post-link i {
+    margin-top: 0.2em;
+    float: right;
+}
+
+.tile-area .tile .tile-overlay .post-info .post-link:hover span, .tile-area .tile .tile-overlay .post-info .post-link:focus span {
+    color: #fff;
+    text-decoration: underline;
 }
 
 /* --- Modal Windows --- */

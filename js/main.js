@@ -1,4 +1,4 @@
-angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtiles.directives'])
+angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtiles.directives', 'wu.masonry'])
 	.config(['$routeProvider', function($routeProvider) { // Set up URL page routing
 		$routeProvider.
 			when('/', {templateUrl: 'partials/main.html', controller: 'Default'}). // Main page
@@ -7,7 +7,7 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
     .run(function($rootScope) {
         $rootScope.$on('$viewContentLoaded', function() {
             $(document).foundation();
-            
+
             // Gallery controls show/hide logic
             $('#gallery').children('.controls').children('div').on('click', 'a:not(#manage)', function(e) {
                 var target = $(e.target.hash);
@@ -18,14 +18,6 @@ angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtil
                     target.removeClass('hidden');
                 }
                 return false;
-            });
-            
-            // Initialize Masonry for image tiles
-            var tileArea = document.querySelector('.tile-area');
-            var tileMasonry = new Masonry( tileArea, {
-                itemSelector: '.tile',
-                columnWidth: 101,
-                gutter: 4
             });
         });
     });
