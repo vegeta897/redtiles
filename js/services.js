@@ -37,9 +37,9 @@ angular.module('Redtiles.services', [])
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;
                         var isImage = false;
-
-                        if(post.ups/post.downs>2) { post.popular = true; }
-                        var size = post.popular ? 'l' : 'b';
+                        // If a post has 2.5x more upvotes than downvotes, it's popular
+                        if(post.ups/post.downs>2.5) { post.popular = true; }
+                        var size = post.popular ? 'm' : 'b';
                         
                         // TODO: Replace this stuff with regular expressions
                         
