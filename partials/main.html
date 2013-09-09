@@ -85,12 +85,12 @@
         <a href="#" data-reveal-id="modalLogin" class="small button">reddit login</a>
     </div>
 </div> <!-- /.top-bar -->
-<div data-masonry data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
-    <div class="masonry-brick tile" ng-repeat="image in imageTiles">
+<div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
+    <div style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div class="tile-overlay">
             <div class="post-info">
                 <div ng-show="image.popular" class="post-date">{{ image.created_utc*1000 | date:'shortDate' }}</div>
-                <a class="post-link" ng-href="http://reddit.com{{ image.permalink }}">
+                <a title="{{ image.title }}" target="_blank" class="post-link" ng-href="http://reddit.com{{ image.permalink }}">
                     <span>{{ image.title }}</span><i class="icon-external-link"></i>
                 </a>
             </div>
@@ -98,6 +98,7 @@
         <img class="tile-image" ng-src="{{ image.thumbURL }}" />
     </div>
 </div> <!-- /.tile-area -->
+<div class=""
         
 <!-- Modals -->
         

@@ -1,4 +1,4 @@
-angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtiles.directives', 'wu.masonry'])
+angular.module('Redtiles', ['Redtiles.controllers', 'Redtiles.services', 'Redtiles.directives'])
 	.config(['$routeProvider', function($routeProvider) { // Set up URL page routing
 		$routeProvider.
 			when('/', {templateUrl: 'partials/main.html', controller: 'Default'}). // Main page

@@ -2,21 +2,25 @@
 'use strict';
 
 angular.module('Redtiles.services', [])
-    .service('reddit', function($http, $q, parse) {
-        var deferred = $q.defer();
+    .factory('reddit', function($http, $q, parse) {
         return {
-            getPosts: function(subreddits, page) {
+            getPosts: function(subreddits, afterID, count, sort) {
+                var deferred = $q.defer();
                 var baseURL = 'http://reddit.com/r/';
-                var request = subreddits.join('+');
+                var request = subreddits.join('+') + '/';
+                var sorting = '/';
+                if(jQuery.inArray(sort,['new','rising','controversial','top']) > -1) {
+                    sorting = sort + '/';
+                }
                 var params = {
                     jsonp: 'JSON_CALLBACK',
                     limit: 100,
-                    sort: 'hot'
+                    count: count
                 };
+                params.after = afterID ? afterID : null;
                 var results = {};
-                $http.jsonp(baseURL+request+'.json', {params: params})
+                $http.jsonp(baseURL+request+sorting+'.json', {params: params})
                     .success(function(data) {
-                        console.log(data);
                         deferred.resolve(parse.postList(data));
                     }).error(function() {
                         results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
@@ -39,31 +43,43 @@ angular.module('Redtiles.services', [])
                         var post = unparsed.data.children[i].data;
                         var isImage = false;
                         // If a post has 2.5x more upvotes than downvotes, it's popular
-                        if(post.ups/post.downs>2.5) { post.popular = true; }
+                        if(post.ups/post.downs>3) { post.popular = true; }
                         var size = post.popular ? 'm' : 'b';
                         
                         // TODO: Replace this stuff with regular expressions
                         
                         // Is the URL a jpg, gif, or png?
-                        if(post.url.indexOf('.jpg') > 0 || 
+                        if(post.url.indexOf('.jpg') > 0 ||
+                            post.url.indexOf('.jpeg') > 0 ||
                             post.url.indexOf('.gif') > 0 || 
                             post.url.indexOf('.png') > 0) {
                             post.thumbURL = post.url;
                         } else {
-                            // Is it an imgur album?
-                            if(post.url.indexOf('http://imgur.com/a') == 0) {
-                                
+                            // Is it an imgur album/gallery?
+                            if(post.url.indexOf('http://imgur.com/a') == 0 || post.url.indexOf('http://imgur.com/gallery') == 0) {
+                                // TODO: Album/Gallery stuff here
                             // Or is it just an imgur page?
                             } else if(post.url.indexOf('http://imgur.com') == 0) {
-                                post.thumbURL = 'http://i.imgur.com/' + 
-                                    post.url.substr(17,post.url.length) + size + '.jpg';
+                                // Is it a list of image IDs?
+                                if(post.url.indexOf(',') >= 17) {
+                                    post.thumbURL = 'http://i.imgur.com/' +
+                                        post.url.substring(17,post.url.indexOf(',')) + size + '.jpg';
+                                } else {
+                                    post.thumbURL = 'http://i.imgur.com/' +
+                                        post.url.substring(17,post.url.length) + size + '.jpg';
+                                }
+                                
                                 isImage = true;
+                            // Is it an i.imgur URL without an extension?
+                            } else if(post.url.indexOf('http://i.imgur.com/') == 0) {
+                                post.thumbURL = 'http://i.imgur.com/' +
+                                    post.url.substring(19,post.url.length) + size + '.jpg';
                             }
                         }
-                        // If a non-gif imgur post, use the thumbnail version
+                        // If a gif imgur post, use the thumbnail version
                         if(post.url.indexOf('http://i.imgur.com') == 0 && post.url.indexOf('.gif') < 0) {
                             post.thumbURL = post.url.substr(0,post.url.lastIndexOf('.')) + size + 
-                                post.url.substr(post.url.lastIndexOf('.'),post.url.length)
+                                post.url.substring(post.url.lastIndexOf('.'),post.url.length)
                         }
                         // Qualify the image if a thumbnail URL was created
                         if(post.hasOwnProperty('thumbURL')) { 

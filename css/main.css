@@ -284,13 +284,10 @@ h1.logo {
 .tile-area {
     color: #aaa;
     margin-left: 205px;
-    padding: 48px 8px 8px 12px;
+    padding: 48px 8px 48px 12px;
 }
 
 .tile-area .tile {
-    background-image: url('../img/loading.gif');
-    background-repeat: no-repeat;
-    background-position: center;
     background-color: #111;
     margin: 0 0 4px 0;
     width: 101px;
