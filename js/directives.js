@@ -7,7 +7,7 @@ angular.module('Redtiles.directives', [])
             link: function(scope, element, attrs) {
                 var length = 101;
                 var overlay = element.children('.tile-overlay');
-                var image = element.children('.tile-image-container').children('.tile-image');
+                var image = element.children('.tile-image');
                 if(scope.image.popular) {
                     element.addClass('big-tile');
                     length = 206;
@@ -21,11 +21,17 @@ angular.module('Redtiles.directives', [])
                 function onImageLoad() { // When the image is loaded
                     element.css('background-image','none'); // Remove loading image
                     var realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
+                    console.log('image url:',image.attr('src'));
+                    console.log('real size:',realSize);
+                    console.log('image props init:',[image.prop('width'),image.prop('height')]);
                     var ratio = realSize[0]/realSize[1];
-                    image.css({'max-width':'100%','height':'auto'}); // Default to max-width
-                    if(ratio > 1) { // If the width is larger, set max-height
-                        image.css({'max-width':'inherit','height':'inherit','max-height':'100%','width':'auto'});
+                    
+                    if(ratio > 1) {
+                        image.prop({'width':length*ratio,'height':length})
+                    } else {
+                        image.prop({'width':length,'height':length/ratio})
                     }
+                    
                     // Image width isn't small enough to letterbox
                     if(realSize[0] > length*0.8 && ratio < 1) {
                         image.prop({'width':length,'height':length/ratio});
@@ -34,6 +40,7 @@ angular.module('Redtiles.directives', [])
                     if(realSize[1] > length*0.8 && ratio > 1) {
                         image.prop({'width':length*ratio,'height':length});
                     }
+                    console.log('image props after letterbox fix:',[image.prop('width'),image.prop('height')]);
 
                     var displaySize = [image.prop('width'),image.prop('height')]; // Display dimensions
                     image.css({ // Center the image in the tile

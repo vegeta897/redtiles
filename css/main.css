@@ -297,19 +297,13 @@ h1.logo {
     height: 101px;
     -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
+    position: relative;
+    overflow: hidden;
 }
 
 .tile-area .big-tile {
     width: 206px;
     height: 206px;
-}
-
-.tile-area .tile .tile-image-container {
-    z-index: 5;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
 }
 
 .tile-area .tile .tile-image {

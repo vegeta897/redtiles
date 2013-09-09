@@ -10,7 +10,8 @@ angular.module('Redtiles.services', [])
                 var request = subreddits.join('+');
                 var params = {
                     jsonp: 'JSON_CALLBACK',
-                    limit: 100
+                    limit: 100,
+                    sort: 'hot'
                 };
                 var results = {};
                 $http.jsonp(baseURL+request+'.json', {params: params})
