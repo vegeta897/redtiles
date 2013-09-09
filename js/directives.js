@@ -18,7 +18,7 @@ angular.module('Redtiles.directives', [])
             }
         }
     })
-    .directive('tile', function($timeout) {
+    .directive('tile', function() {
         return {
             restrict: 'C',
             require: '^tileArea',
@@ -72,6 +72,19 @@ angular.module('Redtiles.directives', [])
                     });
                 }
                 element.imagesLoaded(onImageLoad); // When the image loads...
+            }
+        }
+    })
+    .directive('loadStatus', function() {
+        return {
+            restrict: 'C',
+            require: '^tileArea',
+            link: function(scope, element) {
+                var container = element.parent();
+                var onResize = function() {
+                    element.css({'top':container.height()});
+                };
+                container.resize(onResize); // Keep at bottom of container
             }
         }
     })

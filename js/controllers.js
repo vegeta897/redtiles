@@ -11,17 +11,18 @@ angular.module('Redtiles.controllers', [])
         $scope.imageTiles = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
         $scope.sortBy = 'hot';
+        $scope.loadStatus = 'loading...';
 
         var imageIDs = [];
         var lastID = '';
         var msnry = null;
-        var loadBuffer = true;
         var listCount = 0;
-        var imgsLoaded = 0;
+        var imagesLoaded = 0;
         var allImagesLoaded = false;
         var noMoreResults = false;
         
         reddit.getPosts($scope.subreddits, null, listCount, $scope.sortBy).then(function (response) {
+            $scope.loadStatus = '';
             console.log(response);
             for(var i = 0; i < response.posts.length; i++) {
                 var postID = response.posts[i].id;
@@ -39,8 +40,8 @@ angular.module('Redtiles.controllers', [])
         // Append a tile to the masonry layout
         this.appendTile = function appendTile(element) {
             msnry.appended(element);
-            imgsLoaded += 1;
-            if(imgsLoaded >= $scope.imageTiles.length) {
+            imagesLoaded += 1;
+            if(imagesLoaded >= $scope.imageTiles.length) {
                 allImagesLoaded = true;
             }
         };
@@ -60,6 +61,7 @@ angular.module('Redtiles.controllers', [])
             listCount += 100;
             allImagesLoaded = false;
             reddit.getPosts($scope.subreddits, lastID, listCount, $scope.sortBy).then(function (response) {
+                $scope.loadStatus = '';
                 console.log(response);
                 var addCount = 0;
                 for(var i = 0; i < response.posts.length; i++) {
@@ -73,6 +75,7 @@ angular.module('Redtiles.controllers', [])
                 if(addCount == 0) {
                     noMoreResults = true;
                     console.log('no more results!');
+                    $scope.loadStatus = 'no more images to load!';
                 }
                 lastID = response.after;
                 console.log('there are',imageIDs.length,'images');
@@ -83,18 +86,17 @@ angular.module('Redtiles.controllers', [])
         // When the load buffer is finished
         var onLoadBuffer = function() {
             console.log('buffer complete');
-            loadBuffer = false;
             var jqWindow = $(window);
             var tileArea = $('.tile-area');
             var tileAreaBottom = tileArea.offset().top + tileArea.height();
             var onScroll = function() {
-                if(!loadBuffer && allImagesLoaded && !noMoreResults) {
+                if(allImagesLoaded && !noMoreResults) {
                     checkScroll();
                 }
             };
             var checkScroll = function() {
                 if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
-                    loadBuffer = true;
+                    $scope.loadStatus = 'loading more...';
                     getMoreTiles();
                     jqWindow.off('scroll', onScroll);
                 }

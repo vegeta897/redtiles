@@ -296,6 +296,7 @@ h1.logo {
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.38);
     position: relative;
     overflow: hidden;
+    z-index: 1;
 }
 
 .tile-area .big-tile {
@@ -378,6 +379,15 @@ h1.logo {
 .tile-area .tile .tile-overlay .post-info .post-link:hover span, .tile-area .tile .tile-overlay .post-info .post-link:focus span {
     color: #fff;
     text-decoration: underline;
+}
+
+.tile-area .load-status {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    font-size: 42px;
+    color: #666666;
+    text-align: center;
 }
 
 /* --- Modal Windows --- */
