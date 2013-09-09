@@ -38,12 +38,22 @@ angular.module('Redtiles.services', [])
                     parsed.after = unparsed.data.after;
                     parsed.before = unparsed.data.before;
                     parsed.posts = [];
-                    parsed.subreddits = {};
+                    var voteRatios = []; // Array of upvote/downvote ratios
+                    // Populate the voteRatios array
+                    for(var j = 0; j < unparsed.data.children.length; j++) {
+                        var prePost = unparsed.data.children[j].data;
+                        voteRatios.push(prePost.ups/prePost.downs);
+                    }
+                    // Sort the ratios in ascending order
+                    voteRatios.sort(function(a,b) { return a - b; });
+                    // Set minimum popularity to the top 20%
+                    var minPopularity = voteRatios[Math.floor(voteRatios.length*0.8)];
+                    // Main parsing loop
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;
                         var isImage = false;
-                        // If a post has 2.5x more upvotes than downvotes, it's popular
-                        if(post.ups/post.downs>3) { post.popular = true; }
+                        // If a post has more than the minimum popularity, tag it popular
+                        if(post.ups/post.downs>minPopularity) { post.popular = true; }
                         var size = post.popular ? 'm' : 'b';
                         
                         // TODO: Replace this stuff with regular expressions
