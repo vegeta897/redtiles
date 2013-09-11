@@ -8,8 +8,8 @@ angular.module('Redtiles.services', [])
                 var baseURL = 'http://reddit.com/r/';
                 var subs = subreddits.join('+') + '/';
                 var sorting = '';
-                if(jQuery.inArray(sort,['new','rising','controversial','top']) > -1) {
-                    sorting = sort + '/';
+                if(jQuery.inArray(sort,['New','Rising','Controversial','Top']) > -1) {
+                    sorting = sort.toLowerCase() + '/';
                 }
                 var params = {
                     jsonp: 'JSON_CALLBACK',
@@ -45,8 +45,8 @@ angular.module('Redtiles.services', [])
                     }
                     // Sort the ratios in ascending order
                     voteRatios.sort(function(a,b) { return a - b; });
-                    // Set minimum popularity to the top 20%
-                    var minPopularity = voteRatios[Math.floor(voteRatios.length*0.8)];
+                    // Set minimum popularity to the top 25%
+                    var minPopularity = voteRatios[Math.floor(voteRatios.length*0.75)];
                     // Main parsing loop
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;

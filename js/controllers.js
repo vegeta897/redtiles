@@ -11,7 +11,7 @@ angular.module('Redtiles.controllers', [])
         $scope.imageTiles = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
         $scope.popularSubs = ['itookapicture','FiftyFifty','tumblr','awwnime','cosplay']; // Placeholder
-        $scope.sortBy = 'hot';
+        $scope.sortBy = 'Hot';
         $scope.loadStatus = 'loading...';
         $scope.addSubName = '';
         $scope.addSubToggle = false;
@@ -27,16 +27,22 @@ angular.module('Redtiles.controllers', [])
         var lastID = null;
         var msnry = null;
         var imagesAdded = 0;
-        var allImagesLoaded = false;
+        var allImagesAdded = false;
         var noMoreResults = false;
         var loadBuffer = true;
         
         var jqWindow = $(window); // jQuery object for the window
         var htmlBody = $('html, body');
         var tileArea = $('.tile-area'); // jQuery object for the tile area
-
+        
+        $scope.updateSort = function(sortby) {
+            console.log('sorting by:',sortby);
+            $scope.sortBy = sortby;
+            clearTiles();
+            getTiles();
+        };
+        
         $scope.addSub = function(sub) {
-            console.log('adding sub!',sub);
             $scope.addSubName = sub;
             // If sub name not empty and not already in sub list
             if($scope.addSubName !== '' && jQuery.inArray($scope.addSubName,$scope.subreddits) == -1) {
@@ -44,24 +50,16 @@ angular.module('Redtiles.controllers', [])
                 localStorageService.set('defaultSubreddits',$scope.subreddits);
                 $scope.addSubName = '';
                 $scope.addSubToggle = !$scope.addSubToggle;
-                $timeout(function() { // Using timeout to force scope refresh
-                    $scope.loadStatus = 'loading...';
-                }, 0);
                 clearTiles();
                 getTiles();
             }
         };
         $scope.removeSub = function(sub) {
-            console.log($scope.subreddits);
-            console.log('hello!',$scope.subreddits.length);
             if($scope.subreddits.length == 1) { return; } // Cancel if last subreddit
             var position = jQuery.inArray(sub,$scope.subreddits);
             if(position > -1) { // If in the sub list
                 $scope.subreddits.splice(position,1); // remove subreddit from collection
                 localStorageService.set('defaultSubreddits',$scope.subreddits);
-                $timeout(function() { // Using timeout to force scope refresh
-                    $scope.loadStatus = 'loading...';
-                }, 0);
                 clearTiles();
                 getTiles();
             }
@@ -72,6 +70,9 @@ angular.module('Redtiles.controllers', [])
         };
         // Clear tile area and reset necessary variables
         var clearTiles = function() {
+            $timeout(function() { // Using timeout to force scope refresh
+                $scope.loadStatus = 'loading...';
+            }, 0);
             htmlBody.animate({ scrollTop: 0 }, "slow"); // Scroll to top of page
             lastID = null;
             noMoreResults = false;
@@ -89,13 +90,13 @@ angular.module('Redtiles.controllers', [])
         };
         // Get posts from reddit. Remixing argument is for adding/subtracting subreddits from collection
         var getTiles = function() {
-            allImagesLoaded = false;
+            allImagesAdded = false;
             loadBuffer = true;
             // Refresh masonry layout to fill any gaps left by previous deletions
             if(imagesAdded > 0) { msnry.layout(); }
             reddit.getPosts($scope.subreddits, lastID, $scope.sortBy).then(function (response) {
                 $scope.loadStatus = '';
-                $timeout(onLoadBuffer, 4000); // Can't make a request for 4 seconds
+                $timeout(onLoadBuffer, 3000); // Can't make a request for 3 seconds
                 console.log(response);
                 lastID = response['after'];
                 if(response.posts.length == 0) { // No more results if there are no posts
@@ -130,8 +131,7 @@ angular.module('Redtiles.controllers', [])
             imagesAdded += 1;
             msnry.appended(element);
             if(imagesAdded >= $scope.imageTiles.length) {
-                console.log('retiling');
-                allImagesLoaded = true;
+                allImagesAdded = true;
                 msnry.layout();
             }
         };
@@ -167,4 +167,5 @@ angular.module('Redtiles.controllers', [])
             loadBuffer = false;
             onScroll(); // Manually fire the onScroll method
         };
-    }]);
+    }])
+;

@@ -21,6 +21,18 @@ angular.module('Redtiles.directives', [])
             }
         }
     })
+    .directive('sortDrop', function($parse) {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                element.children('#sortDrop').click(function(event) {
+                    event.preventDefault();
+                    var invoker = $parse(attrs.sortFn);
+                    invoker(scope, {arg1: event.target.innerText} );
+                });
+            }
+        };
+    })
     .directive('tileArea', function() {
         return {
             restrict: 'C',
@@ -33,6 +45,7 @@ angular.module('Redtiles.directives', [])
                     gutter: attrOptions.gutter,
                     transitionDuration: '0.6s'
                 });
+                console.log(ctrl);
                 element.masonry(options);
                 ctrl.initMasonry(element);
             }

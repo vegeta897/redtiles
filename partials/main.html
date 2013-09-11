@@ -66,10 +66,12 @@
 </div> <!-- /.side-bar -->
         
 <div class="top-bar">
-    <div class="sorting">
-        Sort by: <a data-dropdown="sortDrop" href="#">Hot</a>
+    <div data-sort-drop data-sort-fn="updateSort(arg1)" class="sorting">
+        Sort by: <a data-dropdown="sortDrop" href="#">{{ sortBy }}</a>
         <ul id="sortDrop" class="f-dropdown" data-dropdown-content>
+            <li><a href="#">Hot</a></li>
             <li><a href="#">New</a></li>
+            <li><a href="#">Rising</a></li>
             <li><a href="#">Controversial</a></li>
             <li><a href="#">Top</a></li>
         </ul>
