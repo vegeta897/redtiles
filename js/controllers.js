@@ -10,20 +10,26 @@ angular.module('Redtiles.controllers', [])
         
         $scope.imageTiles = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
-        $scope.popularSubs = ['itookapicture','FiftyFifty','tumblr','awwnime','cosplay']; // Placeholder
+        $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay']; // Placeholder
         $scope.sortBy = 'Hot';
         $scope.loadStatus = 'loading...';
         $scope.addSubName = '';
         $scope.addSubToggle = false;
 
-        // LocalStorage initialization
+        // LocalStorage initialization TODO: Make this a looping array of params
         if(localStorageService.get('defaultSubreddits')) { // Check for subreddits in localstorage/cookies
             $scope.subreddits = localStorageService.get('defaultSubreddits'); // Get subreddits
         } else { // If not found, initialize
             localStorageService.set('defaultSubreddits',$scope.subreddits); // Set subreddits
         }
+        if(localStorageService.get('defaultSort')) { // Check for sortBy in localstorage/cookies
+            $scope.sortBy = localStorageService.get('defaultSort'); // Get sortBy
+        } else { // If not found, initialize
+            localStorageService.set('defaultSort',$scope.sortBy); // Set sortBy
+        }
 
         var imageIDs = [];
+        var gathering = false;
         var lastID = null;
         var msnry = null;
         var imagesAdded = 0;
@@ -98,6 +104,8 @@ angular.module('Redtiles.controllers', [])
         };
         // Get posts from reddit. Remixing argument is for adding/subtracting subreddits from collection
         var getTiles = function() {
+            if(gathering) { return; }
+            gathering = true;
             allImagesAdded = false;
             loadBuffer = true;
             // Refresh masonry layout to fill any gaps left by previous deletions
@@ -123,7 +131,7 @@ angular.module('Redtiles.controllers', [])
                     }
                 }
                 if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
-                
+                gathering = false;
                 console.log('added',addCount,'- there are',imageIDs.length,'image tiles');
             });
         };
@@ -146,6 +154,7 @@ angular.module('Redtiles.controllers', [])
         // Remove a tile from tile list and masonry layout
         this.removeTile = function removeTile(element) {
             msnry.remove(element);
+            msnry.layout();
         };
         this.reLayout = function reLayout() {
             msnry.layout();
