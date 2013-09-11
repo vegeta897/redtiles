@@ -1,25 +1,24 @@
 /* Services */
 'use strict';
-
 angular.module('Redtiles.services', [])
     .factory('reddit', function($http, $q, parse) {
         return {
-            getPosts: function(subreddits, afterID, count, sort) {
+            getPosts: function(subreddits, afterID, sort) {
                 var deferred = $q.defer();
                 var baseURL = 'http://reddit.com/r/';
-                var request = subreddits.join('+') + '/';
-                var sorting = '/';
+                var subs = subreddits.join('+') + '/';
+                var sorting = '';
                 if(jQuery.inArray(sort,['new','rising','controversial','top']) > -1) {
                     sorting = sort + '/';
                 }
                 var params = {
                     jsonp: 'JSON_CALLBACK',
-                    limit: 100,
-                    count: count
+                    limit: 100
                 };
-                params.after = afterID ? afterID : null;
+                params.after = afterID ? afterID : undefined;
                 var results = {};
-                $http.jsonp(baseURL+request+sorting+'.json', {params: params})
+            //    console.log(baseURL+subs+sorting+'.json'+'?limit='+params.limit+'&jsonp='+params.jsonp+'&after='+params.after);
+                $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
                     .success(function(data) {
                         deferred.resolve(parse.postList(data));
                     }).error(function() {

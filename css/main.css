@@ -60,7 +60,7 @@ h1.logo {
 
 .subreddits ul {
     list-style: none;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .subreddits ul li a {
@@ -70,11 +70,21 @@ h1.logo {
 .subreddits ul li a:hover, .side-bar .subreddits ul li a:focus { color: #e43d00; }
 
 .subreddits ul li i {
+    padding: 1px 2px 0;
+    height: 18px;
+    border-radius: 2px; 
     color: #aaa;
-    margin-right: 0.8em;
+    margin-right: 0.4em;
+}
+
+.subreddits ul li i.hover {
+    background-color: #d17474;
+    color: white;
 }
 
 .add-subreddit i {
+    padding: 1px 2px 0;
+    border-radius: 2px;
     float: left;
     width: 18px;
     height: 28px;
@@ -161,6 +171,10 @@ h1.logo {
     margin-bottom: 12px;
 }
 
+section#popular .subreddits ul li i.hover {
+    background-color: #91d070;
+    color: white;
+}
 .side-bar section#popular .page-nav { margin-top: 6px; }
 .side-bar section#popular .page-nav * { display: inline-block; font-weight: bold; }
 .side-bar section#popular .page-nav a { color: #666; }
@@ -192,6 +206,8 @@ h1.logo {
     font-size: 15px;
     line-height: inherit;
     width: 100%;
+    -webkit-box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.78);
+    box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.78);
 }
 
 .top-bar a { color: #ccc; text-decoration: underline; }
@@ -288,7 +304,7 @@ h1.logo {
 }
 
 .tile-area .tile {
-    background-color: #111;
+    background: #111 url('../img/loading.gif') no-repeat center;
     margin: 0 0 4px 0;
     width: 101px;
     height: 101px;
@@ -305,6 +321,7 @@ h1.logo {
 }
 
 .tile-area .tile .tile-image {
+    visibility: hidden;
     position: absolute;
     top: 50%;
     left: 50%;

@@ -1,6 +1,26 @@
 /* Directives and Filters */
 
 angular.module('Redtiles.directives', [])
+    .directive('hover', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element) {
+                element.hover(function() {
+                    element.children('i').toggleClass('hover')
+                });
+            }
+        }
+    })
+    .directive('preventDefault', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element) {
+                element.click(function(event) {
+                    event.preventDefault();
+                });
+            }
+        }
+    })
     .directive('tileArea', function() {
         return {
             restrict: 'C',
@@ -11,7 +31,7 @@ angular.module('Redtiles.directives', [])
                     itemSelector: attrOptions.itemSelector || '.tile',
                     columnWidth: attrOptions.columnWidth,
                     gutter: attrOptions.gutter,
-                    transitionDuration: '0.4s'
+                    transitionDuration: '0.6s'
                 });
                 element.masonry(options);
                 ctrl.initMasonry(element);
@@ -38,16 +58,14 @@ angular.module('Redtiles.directives', [])
 
                 
                 function onImageLoad() { // When the image is loaded
-                    element.css('display','block');
-                    ctrl.appendTile(element); // Append tile to masonry
                     var realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
-                    // If the image failed to load, remove the tile
-                    if(realSize[0] == 0) {
+                    if(realSize[0] == 0) { // If the image failed to load, don't add the tile
+                        ctrl.removeTile(element);
                         console.log('post id',element.attr('id'),'did not load');
-                        ctrl.removeTile(element.attr('id'), element);
                         return;
                     }
-                    var ratio = realSize[0]/realSize[1];
+                    image.css('visibility','visible');
+                    var ratio = realSize[0]/realSize[1]; // Width/height ratio
                     // Size image in frame based on ratio
                     if(ratio > 1) {
                         var maxHeight = Math.min(realSize[1],length);
@@ -71,6 +89,8 @@ angular.module('Redtiles.directives', [])
                         'margin-top': displaySize[1]*-0.5
                     });
                 }
+                element.css('display','block'); // Display the tile
+                ctrl.appendTile(element); // Append tile to masonry
                 element.imagesLoaded(onImageLoad); // When the image loads...
             }
         }
@@ -82,10 +102,17 @@ angular.module('Redtiles.directives', [])
             link: function(scope, element) {
                 var container = element.parent();
                 var onResize = function() {
-                    element.css({'top':container.height()});
+                    element.css({'top':container.height()+20});
                 };
                 container.resize(onResize); // Keep at bottom of container
             }
         }
+    })
+    .directive('blur', function () {
+        return function (scope, element, attrs) {
+            scope.$watch(attrs.blur, function () {
+                element[0].blur();
+            });
+        };
     })
 ;

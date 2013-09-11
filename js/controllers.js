@@ -1,37 +1,125 @@
 /* Controllers */
-
+'use strict';
 angular.module('Redtiles.controllers', [])
 	.controller('Default', ['$scope', function($scope) {
-        
+
         // Default page controller stuff
         
     }])
-    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', function($scope, $timeout, $element, reddit) {
+    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'localStorageService',function($scope, $timeout, $element, reddit, localStorageService) {
         
         $scope.imageTiles = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
+        $scope.popularSubs = ['itookapicture','FiftyFifty','tumblr','awwnime','cosplay']; // Placeholder
         $scope.sortBy = 'hot';
         $scope.loadStatus = 'loading...';
+        $scope.addSubName = '';
+        $scope.addSubToggle = false;
+
+        // LocalStorage initialization
+        if(localStorageService.get('defaultSubreddits')) { // Check for subreddits in localstorage/cookies
+            $scope.subreddits = localStorageService.get('defaultSubreddits'); // Get subreddits
+        } else { // If not found, initialize
+            localStorageService.set('defaultSubreddits',$scope.subreddits); // Set subreddits
+        }
 
         var imageIDs = [];
-        var lastID = '';
+        var lastID = null;
         var msnry = null;
-        var listCount = 0;
-        var imagesLoaded = 0;
+        var imagesAdded = 0;
         var allImagesLoaded = false;
         var noMoreResults = false;
+        var loadBuffer = true;
         
-        reddit.getPosts($scope.subreddits, null, listCount, $scope.sortBy).then(function (response) {
-            $scope.loadStatus = '';
-            console.log(response);
-            for(var i = 0; i < response.posts.length; i++) {
-                var postID = response.posts[i].id;
-                imageIDs.push(postID);
+        var jqWindow = $(window); // jQuery object for the window
+        var htmlBody = $('html, body');
+        var tileArea = $('.tile-area'); // jQuery object for the tile area
+
+        $scope.addSub = function(sub) {
+            console.log('adding sub!',sub);
+            $scope.addSubName = sub;
+            // If sub name not empty and not already in sub list
+            if($scope.addSubName !== '' && jQuery.inArray($scope.addSubName,$scope.subreddits) == -1) {
+                $scope.subreddits.push($scope.addSubName); // Add subreddit to collection
+                localStorageService.set('defaultSubreddits',$scope.subreddits);
+                $scope.addSubName = '';
+                $scope.addSubToggle = !$scope.addSubToggle;
+                $timeout(function() { // Using timeout to force scope refresh
+                    $scope.loadStatus = 'loading...';
+                }, 0);
+                clearTiles();
+                getTiles();
             }
-            lastID = response.after;
-            $scope.imageTiles = response.posts;
-            $timeout(onLoadBuffer, 2000);
-        });
+        };
+        $scope.removeSub = function(sub) {
+            console.log($scope.subreddits);
+            console.log('hello!',$scope.subreddits.length);
+            if($scope.subreddits.length == 1) { return; } // Cancel if last subreddit
+            var position = jQuery.inArray(sub,$scope.subreddits);
+            if(position > -1) { // If in the sub list
+                $scope.subreddits.splice(position,1); // remove subreddit from collection
+                localStorageService.set('defaultSubreddits',$scope.subreddits);
+                $timeout(function() { // Using timeout to force scope refresh
+                    $scope.loadStatus = 'loading...';
+                }, 0);
+                clearTiles();
+                getTiles();
+            }
+        };
+        // Filters out subreddits already in collection from the popular subs list
+        $scope.filterPopular = function(item) {
+            return jQuery.inArray(item,$scope.subreddits) < 0;
+        };
+        // Clear tile area and reset necessary variables
+        var clearTiles = function() {
+            htmlBody.animate({ scrollTop: 0 }, "slow"); // Scroll to top of page
+            lastID = null;
+            noMoreResults = false;
+            imagesAdded = 0;
+            $scope.imageTiles = [];
+            imageIDs = [];
+            msnry.remove(msnry.getItemElements());
+            msnry.layout();
+        };
+        // Function run when there are no more results
+        var onLastResults = function() {
+            noMoreResults = true;
+            console.log('no more results!');
+            $scope.loadStatus = 'no more images to load!'; // Tell the user
+        };
+        // Get posts from reddit. Remixing argument is for adding/subtracting subreddits from collection
+        var getTiles = function() {
+            allImagesLoaded = false;
+            loadBuffer = true;
+            // Refresh masonry layout to fill any gaps left by previous deletions
+            if(imagesAdded > 0) { msnry.layout(); }
+            reddit.getPosts($scope.subreddits, lastID, $scope.sortBy).then(function (response) {
+                $scope.loadStatus = '';
+                $timeout(onLoadBuffer, 4000); // Can't make a request for 4 seconds
+                console.log(response);
+                lastID = response['after'];
+                if(response.posts.length == 0) { // No more results if there are no posts
+                    onLastResults();
+                    return;
+                }
+
+                var addCount = 0; // Keeps track of how many posts are added to the tile pool
+                // Iterate through each post in the response
+                for(var i = 0; i < response.posts.length; i++) {
+                    var postID = response.posts[i].id;
+                    if(jQuery.inArray(postID,imageIDs) == -1) { // If image isn't already in pool
+                        addCount += 1;
+                        $scope.imageTiles.push(response.posts[i]);
+                        imageIDs.push(postID);
+                    }
+                }
+                if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
+                
+                console.log('added',addCount,'- there are',imageIDs.length,'image tiles');
+            });
+        };
+        
+        getTiles(); // Get tiles when app starts
         
         // Executed by directive, sets masonry variable for manipulation in this controller
         this.initMasonry = function initMasonry(element) {
@@ -39,69 +127,44 @@ angular.module('Redtiles.controllers', [])
         };
         // Append a tile to the masonry layout
         this.appendTile = function appendTile(element) {
+            imagesAdded += 1;
             msnry.appended(element);
-            imagesLoaded += 1;
-            if(imagesLoaded >= $scope.imageTiles.length) {
+            if(imagesAdded >= $scope.imageTiles.length) {
+                console.log('retiling');
                 allImagesLoaded = true;
+                msnry.layout();
             }
         };
         // Remove a tile from tile list and masonry layout
-        this.removeTile = function removeTile(id, element) {
-            for(var i = 0; i< $scope.imageTiles.length; i++) {
-                if($scope.imageTiles[i].id == id) {
-                    $scope.imageTiles.splice(i,1);
-                    break;
-                }
-            }
+        this.removeTile = function removeTile(element) {
+//            for(var i = 0; i< $scope.imageTiles.length; i++) {
+//                if($scope.imageTiles[i].id == id) {
+//                    $scope.imageTiles[i]['disabled'] = true;
+//                    break;
+//                }
+//            }
             msnry.remove(element);
-            msnry.layout();
+//            msnry.layout();
         };
-        
-        var getMoreTiles = function() {
-            listCount += 100;
-            allImagesLoaded = false;
-            reddit.getPosts($scope.subreddits, lastID, listCount, $scope.sortBy).then(function (response) {
-                $scope.loadStatus = '';
-                console.log(response);
-                var addCount = 0;
-                for(var i = 0; i < response.posts.length; i++) {
-                    var postID = response.posts[i].id;
-                    if(jQuery.inArray(postID,imageIDs) == -1) {
-                        addCount += 1;
-                        imageIDs.push(postID);
-                        $scope.imageTiles.push(response.posts[i]);
-                    }
+        // Function run on each scroll event to determine whether to get more images
+        var onScroll = function() {
+            var tileAreaBottom = tileArea.offset().top + tileArea.height();
+            if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
+                if(!noMoreResults) {
+                    $timeout(function() { // Using timeout to force scope refresh
+                        $scope.loadStatus = 'loading more...';
+                    }, 0);
+                    // Get more tiles if all images are loaded and load buffer ended
+                    if(!loadBuffer) { console.log('loading more');getTiles(); } 
                 }
-                if(addCount == 0) {
-                    noMoreResults = true;
-                    console.log('no more results!');
-                    $scope.loadStatus = 'no more images to load!';
-                }
-                lastID = response.after;
-                console.log('there are',imageIDs.length,'images');
-                $timeout(onLoadBuffer, 3000)
-            });
+                
+            }
         };
+        jqWindow.scroll(onScroll); // Bind scrolling to onScroll function
         
         // When the load buffer is finished
         var onLoadBuffer = function() {
-            console.log('buffer complete');
-            var jqWindow = $(window);
-            var tileArea = $('.tile-area');
-            var tileAreaBottom = tileArea.offset().top + tileArea.height();
-            var onScroll = function() {
-                if(allImagesLoaded && !noMoreResults) {
-                    checkScroll();
-                }
-            };
-            var checkScroll = function() {
-                if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
-                    $scope.loadStatus = 'loading more...';
-                    getMoreTiles();
-                    jqWindow.off('scroll', onScroll);
-                }
-            };
-            onScroll();
-            jqWindow.scroll(onScroll);
+            loadBuffer = false;
+            onScroll(); // Manually fire the onScroll method
         };
     }]);
