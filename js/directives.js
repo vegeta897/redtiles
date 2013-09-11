@@ -43,7 +43,7 @@ angular.module('Redtiles.directives', [])
                     itemSelector: attrOptions.itemSelector || '.tile',
                     columnWidth: attrOptions.columnWidth,
                     gutter: attrOptions.gutter,
-                    transitionDuration: '0.6s'
+                    transitionDuration: '0.3s'
                 });
                 console.log(ctrl);
                 element.masonry(options);
@@ -62,6 +62,10 @@ angular.module('Redtiles.directives', [])
                 if(scope.image.popular) {
                     element.addClass('big-tile');
                     length = 206;
+                    if(scope.image.superPopular) {
+                        element.addClass('huge-tile');
+                        length = 311;
+                    }
                 }
                 element.hover(function() {
                     overlay.fadeIn(100);
@@ -101,6 +105,17 @@ angular.module('Redtiles.directives', [])
                         'margin-left': displaySize[0]*-0.5,
                         'margin-top': displaySize[1]*-0.5
                     });
+                    
+                    overlay.click(function(e) {
+                        e.stopPropagation();
+                        if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
+                            element.removeClass('big-tile').addClass('huge-tile');
+                            var msnry = element.parent().data('masonry');
+                        //    ctrl.reLayout();
+                            msnry.layout();
+                            console.log(msnry);
+                        }
+                    })
                 }
                 element.css('display','block'); // Display the tile
                 ctrl.appendTile(element); // Append tile to masonry

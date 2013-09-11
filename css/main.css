@@ -320,6 +320,11 @@ section#popular .subreddits ul li i.hover {
     height: 206px;
 }
 
+.tile-area .huge-tile {
+    width: 311px;
+    height: 311px;
+}
+
 .tile-area .tile .tile-image {
     visibility: hidden;
     position: absolute;
@@ -332,20 +337,15 @@ section#popular .subreddits ul li i.hover {
     z-index: 10;
     background: rgba(45,45,45,0.7);
     position: absolute;
-    width: 101px;
-    height: 101px;
+    width: 100%;
+    height: 100%;
     display: none;
-}
-
-.tile-area .big-tile .tile-overlay {
-    width: 206px;
-    height: 206px;
 }
 
 .tile-area .tile .tile-overlay .post-info {
     position: relative;
     top: 85px;
-    width: 101px;
+    width: 100%;
     height: 16px;
     background: rgba(45,45,45,0.5);
     padding: 1px 3px 0;
@@ -353,7 +353,12 @@ section#popular .subreddits ul li i.hover {
 
 .tile-area .big-tile .tile-overlay .post-info {
     top: 172px;
-    width: 206px;
+    height: 34px;
+    padding: 3px 4px 0;
+}
+
+.tile-area .huge-tile .tile-overlay .post-info {
+    top: 277px;
     height: 34px;
     padding: 3px 4px 0;
 }
@@ -386,6 +391,10 @@ section#popular .subreddits ul li i.hover {
 
 .tile-area .big-tile .tile-overlay .post-info .post-link span {
     max-width: 180px;
+}
+
+.tile-area .huge-tile .tile-overlay .post-info .post-link span {
+    max-width: 285px;
 }
 
 .tile-area .tile .tile-overlay .post-info .post-link i {

@@ -41,19 +41,23 @@ angular.module('Redtiles.services', [])
                     // Populate the voteRatios array
                     for(var j = 0; j < unparsed.data.children.length; j++) {
                         var prePost = unparsed.data.children[j].data;
-                        voteRatios.push(prePost.ups/prePost.downs);
+                        voteRatios.push(prePost.ups/(prePost.downs+1));
                     }
                     // Sort the ratios in ascending order
                     voteRatios.sort(function(a,b) { return a - b; });
                     // Set minimum popularity to the top 25%
                     var minPopularity = voteRatios[Math.floor(voteRatios.length*0.75)];
+                    // Set minimum super popularity to the top 25%
+                    var minSuperPopularity = voteRatios[Math.floor(voteRatios.length*0.95)];
                     // Main parsing loop
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;
                         var isImage = false;
                         // If a post has more than the minimum popularity, tag it popular
-                        if(post.ups/post.downs>minPopularity) { post.popular = true; }
+                        if(post.ups/(post.downs+1)>minPopularity) { post.popular = true; }
+                        if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }
                         var size = post.popular ? 'm' : 'b';
+                        size = post.superPopular ? 'l' : size;
                         
                         // TODO: Replace this stuff with regular expressions
                         

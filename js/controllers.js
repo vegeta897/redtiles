@@ -137,14 +137,10 @@ angular.module('Redtiles.controllers', [])
         };
         // Remove a tile from tile list and masonry layout
         this.removeTile = function removeTile(element) {
-//            for(var i = 0; i< $scope.imageTiles.length; i++) {
-//                if($scope.imageTiles[i].id == id) {
-//                    $scope.imageTiles[i]['disabled'] = true;
-//                    break;
-//                }
-//            }
             msnry.remove(element);
-//            msnry.layout();
+        };
+        this.reLayout = function reLayout() {
+            msnry.layout();
         };
         // Function run on each scroll event to determine whether to get more images
         var onScroll = function() {
