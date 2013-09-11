@@ -35,11 +35,19 @@ angular.module('Redtiles.controllers', [])
         var htmlBody = $('html, body');
         var tileArea = $('.tile-area'); // jQuery object for the tile area
         
+        $scope.viewImage = function(img) {
+            $scope.imageViewed = img;
+        };
+        
         $scope.updateSort = function(sortby) {
             console.log('sorting by:',sortby);
             $scope.sortBy = sortby;
             clearTiles();
             getTiles();
+        };
+        
+        $scope.getNewtile = function(imageID) {
+            // TODO: Get limit=1 with current afterID, replacing old image (imageID)
         };
         
         $scope.addSub = function(sub) {

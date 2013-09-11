@@ -342,6 +342,77 @@ section#popular .subreddits ul li i.hover {
     display: none;
 }
 
+.tile-area .tile .tile-overlay .new-tile {
+    position: absolute;
+    left: 0;
+    width: 31px;
+    color: #ccc;
+    text-align: center;
+    font-size: 26px;
+    padding: 3px;
+}
+
+.tile-area .big-tile .tile-overlay .new-tile {
+    width: 41px;
+    font-size: 33px;
+    padding: 3px;
+}
+
+.tile-area .tile .tile-overlay .new-tile:hover, .tile-area .tile .tile-overlay .new-tile:focus {
+    color: #eee;
+}
+
+.tile-area .tile .tile-overlay .reddit-controls {
+    position: absolute;
+    right: 0;
+    width: 27px;
+    color: #ccc;
+    text-align: center;
+    font-size: 9px;
+    font-weight: bold;
+    padding: 3px;
+}
+
+.tile-area .big-tile .tile-overlay .reddit-controls {
+    width: 35px;
+    font-size: 14px;
+    padding: 6px 4px;
+}
+
+.tile-area .tile .tile-overlay .reddit-controls .upvote, .tile-area .tile .tile-overlay .reddit-controls .downvote {
+    display: block;
+    width: 21px;
+    height: 11px;
+    background: rgba(45,255,45,0.5);
+}
+
+.tile-area .tile .tile-overlay .reddit-controls .downvote {
+    background: rgba(255,45,45,0.5);
+}
+
+.tile-area .big-tile .tile-overlay .reddit-controls .upvote, .tile-area .big-tile .tile-overlay .reddit-controls .downvote {
+    width: 27px;
+    height: 15px;
+}
+
+.tile-area .tile .tile-overlay .reddit-controls .control {
+     display: block;
+     margin-top: 3px;
+     line-height: 17px;
+     color: #ccc;
+     font-size: 18px;
+ }
+
+.tile-area .big-tile .tile-overlay .reddit-controls .control {
+    margin-top: 8px;
+    line-height: 24px;
+    font-size: 26px;
+}
+
+.tile-area .tile .tile-overlay .reddit-controls .control:hover, .tile-area .tile .tile-overlay .reddit-controls .control:focus {
+    color: #eee;
+}
+
 .tile-area .tile .tile-overlay .post-info {
     position: relative;
     top: 85px;
@@ -432,6 +503,22 @@ section#popular .subreddits ul li i.hover {
     top: 30%;
     left: 50%;
     margin: 0 0 0 -205px;
+}
+
+#modalImage {
+    background-color: #2e2e2e;
+    border: none;
+    position: fixed;
+    width: 90%;
+    height: 90%;
+    top: 5%;
+    left: 5%;
+    margin: 0 0 0 0;
+}
+
+#modalImage img {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 #modalCollections label {

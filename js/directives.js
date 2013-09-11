@@ -26,7 +26,6 @@ angular.module('Redtiles.directives', [])
             restrict: 'A',
             link: function(scope, element, attrs) {
                 element.children('#sortDrop').click(function(event) {
-                    event.preventDefault();
                     var invoker = $parse(attrs.sortFn);
                     invoker(scope, {arg1: event.target.innerText} );
                 });
@@ -45,7 +44,6 @@ angular.module('Redtiles.directives', [])
                     gutter: attrOptions.gutter,
                     transitionDuration: '0.3s'
                 });
-                console.log(ctrl);
                 element.masonry(options);
                 ctrl.initMasonry(element);
             }
@@ -109,11 +107,7 @@ angular.module('Redtiles.directives', [])
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
-                            element.removeClass('big-tile').addClass('huge-tile');
-                            var msnry = element.parent().data('masonry');
-                        //    ctrl.reLayout();
-                            msnry.layout();
-                            console.log(msnry);
+                            $('#modalImage').foundation('reveal', 'open');
                         }
                     })
                 }

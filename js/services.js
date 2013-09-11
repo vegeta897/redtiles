@@ -23,6 +23,7 @@ angular.module('Redtiles.services', [])
                         deferred.resolve(parse.postList(data));
                     }).error(function() {
                         results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
+                        console.log('error!');
                         deferred.reject(results);
                     });
                 return deferred.promise;
@@ -47,12 +48,11 @@ angular.module('Redtiles.services', [])
                     voteRatios.sort(function(a,b) { return a - b; });
                     // Set minimum popularity to the top 25%
                     var minPopularity = voteRatios[Math.floor(voteRatios.length*0.75)];
-                    // Set minimum super popularity to the top 25%
-                    var minSuperPopularity = voteRatios[Math.floor(voteRatios.length*0.95)];
+                    // Set minimum super popularity to the top 3%
+                    var minSuperPopularity = voteRatios[Math.floor(voteRatios.length*0.97)];
                     // Main parsing loop
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;
-                        var isImage = false;
                         // If a post has more than the minimum popularity, tag it popular
                         if(post.ups/(post.downs+1)>minPopularity) { post.popular = true; }
                         if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }
@@ -67,6 +67,7 @@ angular.module('Redtiles.services', [])
                             post.url.indexOf('.gif') > 0 || 
                             post.url.indexOf('.png') > 0) {
                             post.thumbURL = post.url;
+                            post.fixedURL = post.url;
                         } else {
                             // Is it an imgur album/gallery?
                             if(post.url.indexOf('http://imgur.com/a') == 0 || post.url.indexOf('http://imgur.com/gallery') == 0) {
@@ -77,16 +78,21 @@ angular.module('Redtiles.services', [])
                                 if(post.url.indexOf(',') >= 17) {
                                     post.thumbURL = 'http://i.imgur.com/' +
                                         post.url.substring(17,post.url.indexOf(',')) + size + '.jpg';
+                                    post.fixedURL = 'http://i.imgur.com/' +
+                                        post.url.substring(17,post.url.indexOf(',')) + '.jpg';
                                 } else {
                                     post.thumbURL = 'http://i.imgur.com/' +
                                         post.url.substring(17,post.url.length) + size + '.jpg';
+                                    post.fixedURL = 'http://i.imgur.com/' +
+                                        post.url.substring(17,post.url.length) + '.jpg';
                                 }
                                 
-                                isImage = true;
                             // Is it an i.imgur URL without an extension?
                             } else if(post.url.indexOf('http://i.imgur.com/') == 0) {
                                 post.thumbURL = 'http://i.imgur.com/' +
                                     post.url.substring(19,post.url.length) + size + '.jpg';
+                                post.fixedURL = 'http://i.imgur.com/' +
+                                    post.url.substring(19,post.url.length) + '.jpg';
                             }
                         }
                         // If a gif imgur post, use the thumbnail version
@@ -98,7 +104,7 @@ angular.module('Redtiles.services', [])
                         if(post.hasOwnProperty('thumbURL')) { 
                             parsed.posts.push(post);
                         } else {
-                            
+                            // No image URL found
                         }
                     }
                 } else {
