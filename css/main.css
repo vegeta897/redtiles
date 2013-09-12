@@ -325,7 +325,7 @@ section#popular .subreddits ul li i.hover {
     height: 311px;
 }
 
-.tile-area .tile .tile-image {
+.tile-image {
     visibility: hidden;
     position: absolute;
     top: 50%;
@@ -333,7 +333,7 @@ section#popular .subreddits ul li i.hover {
     -ms-interpolation-mode: bicubic;
 }
 
-.tile-area .tile .tile-overlay {
+.tile-overlay {
     z-index: 10;
     background: rgba(45,45,45,0.7);
     position: absolute;
@@ -342,7 +342,7 @@ section#popular .subreddits ul li i.hover {
     display: none;
 }
 
-.tile-area .tile .tile-overlay .new-tile {
+.tile-overlay .new-tile {
     position: absolute;
     left: 0;
     width: 31px;
@@ -352,17 +352,17 @@ section#popular .subreddits ul li i.hover {
     padding: 3px;
 }
 
-.tile-area .big-tile .tile-overlay .new-tile {
+.big-tile .tile-overlay .new-tile {
     width: 41px;
     font-size: 33px;
     padding: 3px;
 }
 
-.tile-area .tile .tile-overlay .new-tile:hover, .tile-area .tile .tile-overlay .new-tile:focus {
+.tile-overlay .new-tile:hover, .tile-overlay .new-tile:focus {
     color: #eee;
 }
 
-.tile-area .tile .tile-overlay .reddit-controls {
+.tile-overlay .reddit-controls {
     position: absolute;
     right: 0;
     width: 27px;
@@ -373,29 +373,52 @@ section#popular .subreddits ul li i.hover {
     padding: 3px;
 }
 
-.tile-area .big-tile .tile-overlay .reddit-controls {
+.big-tile .tile-overlay .reddit-controls {
     width: 35px;
     font-size: 14px;
     padding: 6px 4px;
 }
 
-.tile-area .tile .tile-overlay .reddit-controls .upvote, .tile-area .tile .tile-overlay .reddit-controls .downvote {
+.reddit-controls .upvote, .reddit-controls .downvote {
     display: block;
-    width: 21px;
-    height: 11px;
-    background: rgba(45,255,45,0.5);
+    width: 19px;
+    height: 9px;
+    margin-left: 2px;
+    background: url('../img/redtiles-icons.png') no-repeat -116px 0;
 }
 
-.tile-area .tile .tile-overlay .reddit-controls .downvote {
-    background: rgba(255,45,45,0.5);
+.reddit-controls .downvote {
+    background-position: -135px 0;
 }
 
-.tile-area .big-tile .tile-overlay .reddit-controls .upvote, .tile-area .big-tile .tile-overlay .reddit-controls .downvote {
-    width: 27px;
-    height: 15px;
+.reddit-controls .upvote:hover, .reddit-controls .upvote:focus {
+    background-position: -154px 0;
 }
 
-.tile-area .tile .tile-overlay .reddit-controls .control {
+.reddit-controls .downvote:hover, .reddit-controls .downvote:focus {
+    background-position: -173px 0;
+}
+
+.big-tile .reddit-controls .upvote, .big-tile .reddit-controls .downvote {
+    background-position: 0 0;
+    width: 29px;
+    height: 14px;
+    margin-left: 0;
+}
+
+.big-tile .reddit-controls .upvote:hover, .reddit-controls .upvote:focus {
+    background-position: -29px 0;
+}
+
+.big-tile .reddit-controls .downvote:hover, .reddit-controls .downvote:focus {
+    background-position: -87px 0;
+}
+
+.big-tile .reddit-controls .downvote {
+    background-position: -58px 0;
+}
+
+.reddit-controls .control {
      display: block;
      margin-top: 3px;
      line-height: 17px;
@@ -403,17 +426,17 @@ section#popular .subreddits ul li i.hover {
      font-size: 18px;
  }
 
-.tile-area .big-tile .tile-overlay .reddit-controls .control {
+.big-tile .reddit-controls .control {
     margin-top: 8px;
     line-height: 24px;
     font-size: 26px;
 }
 
-.tile-area .tile .tile-overlay .reddit-controls .control:hover, .tile-area .tile .tile-overlay .reddit-controls .control:focus {
+.reddit-controls .control:hover, .reddit-controls .control:focus {
     color: #eee;
 }
 
-.tile-area .tile .tile-overlay .post-info {
+.tile-overlay .post-info {
     position: relative;
     top: 85px;
     width: 100%;
@@ -422,36 +445,36 @@ section#popular .subreddits ul li i.hover {
     padding: 1px 3px 0;
 }
 
-.tile-area .big-tile .tile-overlay .post-info {
+.big-tile .tile-overlay .post-info {
     top: 172px;
     height: 34px;
     padding: 3px 4px 0;
 }
 
-.tile-area .huge-tile .tile-overlay .post-info {
+.huge-tile .tile-overlay .post-info {
     top: 277px;
     height: 34px;
     padding: 3px 4px 0;
 }
 
-.tile-area .big-tile .tile-overlay .post-info .post-date {
+.big-tile .tile-overlay .post-info .post-date {
     color: #ccc;
     font-size: 11px;
 }
 
-.tile-area .tile .tile-overlay .post-info .post-link {
+.tile-overlay .post-info .post-link {
     line-height: 16px;
     color: #eee;
     font-size: 10px;
 }
 
-.tile-area .big-tile .tile-overlay .post-info .post-link {
+.big-tile .tile-overlay .post-info .post-link {
     line-height: 20px;
     color: #eee;
     font-size: 14px;
 }
 
-.tile-area .tile .tile-overlay .post-info .post-link span {
+.tile-overlay .post-info .post-link span {
     display: block;
     float: left;
     max-width: 85px;
@@ -460,20 +483,20 @@ section#popular .subreddits ul li i.hover {
     overflow: hidden;
 }
 
-.tile-area .big-tile .tile-overlay .post-info .post-link span {
+.big-tile .tile-overlay .post-info .post-link span {
     max-width: 180px;
 }
 
-.tile-area .huge-tile .tile-overlay .post-info .post-link span {
+.huge-tile .tile-overlay .post-info .post-link span {
     max-width: 285px;
 }
 
-.tile-area .tile .tile-overlay .post-info .post-link i {
+.tile-overlay .post-info .post-link i {
     margin-top: 0.2em;
     float: right;
 }
 
-.tile-area .tile .tile-overlay .post-info .post-link:hover span, .tile-area .tile .tile-overlay .post-info .post-link:focus span {
+.tile-overlay .post-info .post-link:hover span, .tile-overlay .post-info .post-link:focus span {
     color: #fff;
     text-decoration: underline;
 }
