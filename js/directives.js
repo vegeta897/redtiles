@@ -137,4 +137,16 @@ angular.module('Redtiles.directives', [])
             });
         };
     })
+    .directive('subredditAutocomplete', function () {
+        return function (scope, element, attrs) {
+            element.autocomplete({
+                lookup: ['pics','pictures','itookapicture','awwwnime','gifs','cosplay','wallpapers','memes','fffffffuuuuuuuuuuuu','aww','wtf','gaming','earthporn','roomporn','food','art','woahdude','comics','4chan','abandonedporn','cars','cats','cityporn','albumartporn','firstworldanarchists','foodporn','gentlemanboners','ladyboners','graffiti','humanporn','historyporn','machineporn','mapporn','quotesporn','spaceporn','tattoos','adviceanimals','lolcats','ecards','boardgames','books','circlejerk','creepy','facepalm','cringepics','freebies','frugal','geek','getmotivated','history','humor','jokes','justiceporn','shutupandtakemymoney','offbeat','philosophy','photography','nosleep','scifi'],
+                onSelect: function (suggestion) {
+                    // When a suggestion is selected
+                    scope.addSubName = suggestion.value;
+                },
+                tabDisabled: false
+            });
+        };
+    })
 ;

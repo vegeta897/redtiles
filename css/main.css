@@ -421,6 +421,7 @@ section#popular .subreddits ul li i.hover {
 .reddit-controls .control {
      display: block;
      margin-top: 3px;
+     margin-left: 1px;
      line-height: 17px;
      color: #ccc;
      font-size: 18px;
@@ -751,3 +752,8 @@ fieldset {
 .reveal-modal-bg {
     background: rgba(0,0,0,0.65);
 }
+
+.autocomplete-suggestions { border: 1px solid #999; background: #fff; overflow: auto; font-size: 14px; }
+.autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+.autocomplete-selected { background: #eee; }
+.autocomplete-suggestions strong { font-weight: normal; color: #e43d00; }

@@ -10,7 +10,7 @@ angular.module('Redtiles.controllers', [])
         
         $scope.imageTiles = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
-        $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay']; // Placeholder
+        $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay','pics','cats','art']; // Placeholder
         $scope.sortBy = 'Hot';
         $scope.loadStatus = 'loading...';
         $scope.addSubName = '';
@@ -57,13 +57,13 @@ angular.module('Redtiles.controllers', [])
         };
         
         $scope.addSub = function(sub) {
-            $scope.addSubName = sub;
+            $scope.addSubName = sub.toLowerCase();
             // If sub name not empty and not already in sub list
             if($scope.addSubName !== '' && jQuery.inArray($scope.addSubName,$scope.subreddits) == -1) {
                 $scope.subreddits.push($scope.addSubName); // Add subreddit to collection
-                localStorageService.set('defaultSubreddits',$scope.subreddits);
-                $scope.addSubName = '';
-                $scope.addSubToggle = !$scope.addSubToggle;
+                localStorageService.set('defaultSubreddits',$scope.subreddits); // Store in localstorage
+                $scope.addSubName = ''; // Clear the field
+                $scope.addSubToggle = !$scope.addSubToggle; // Blur the field
                 clearTiles();
                 getTiles();
             }
