@@ -9,6 +9,8 @@ angular.module('Redtiles.controllers', [])
     .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'localStorageService',function($scope, $timeout, $element, reddit, localStorageService) {
         
         $scope.imageTiles = [];
+        $scope.imageIDs = [];
+        $scope.fullImages = [];
         $scope.subreddits = ['pics','funny','1000words','wallpapers'];
         $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay','pics','cats','art']; // Placeholder
         $scope.sortBy = 'Hot';
@@ -28,7 +30,6 @@ angular.module('Redtiles.controllers', [])
             localStorageService.set('defaultSort',$scope.sortBy); // Set sortBy
         }
 
-        var imageIDs = [];
         var gathering = false;
         var lastID = null;
         var msnry = null;
@@ -92,7 +93,7 @@ angular.module('Redtiles.controllers', [])
             noMoreResults = false;
             imagesAdded = 0;
             $scope.imageTiles = [];
-            imageIDs = [];
+            $scope.imageIDs = [];
             msnry.remove(msnry.getItemElements());
             msnry.layout();
         };
@@ -123,16 +124,21 @@ angular.module('Redtiles.controllers', [])
                 var addCount = 0; // Keeps track of how many posts are added to the tile pool
                 // Iterate through each post in the response
                 for(var i = 0; i < response.posts.length; i++) {
-                    var postID = response.posts[i].id;
-                    if(jQuery.inArray(postID,imageIDs) == -1) { // If image isn't already in pool
+                    var post = response.posts[i];
+                    var postID = post.id;
+                    if(jQuery.inArray(postID,$scope.imageIDs) == -1) { // If image isn't already in pool
                         addCount += 1;
-                        $scope.imageTiles.push(response.posts[i]);
-                        imageIDs.push(postID);
+                        $scope.imageTiles.push(post);
+                        $scope.imageIDs.push(postID);
+                        $scope.fullImages.push({
+                            href: post.fixedURL,
+                            title: post.title
+                        })
                     }
                 }
                 if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
                 gathering = false;
-                console.log('added',addCount,'- there are',imageIDs.length,'image tiles');
+                console.log('added',addCount,'- there are',$scope.imageIDs.length,'image tiles');
             });
         };
         

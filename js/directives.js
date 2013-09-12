@@ -107,7 +107,9 @@ angular.module('Redtiles.directives', [])
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
-                            $('#modalImage').foundation('reveal', 'open');
+                        //    $('#modalImage').foundation('reveal', 'open');
+                            var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
+                            $.fancybox.open(scope.fullImages, { index: imageIndex });
                         }
                     })
                 }
@@ -144,8 +146,7 @@ angular.module('Redtiles.directives', [])
                 onSelect: function (suggestion) {
                     // When a suggestion is selected
                     scope.addSubName = suggestion.value;
-                },
-                tabDisabled: false
+                }
             });
         };
     })
