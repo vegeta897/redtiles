@@ -4,49 +4,51 @@
             <img src="img/redtiles-logo.png" alt="Redtiles" title="Redtiles" />
         </a>
     </h1>
-    <section id="gallery">
+    <section data-section-toggle id="gallery">
         <h2><a><i class="icon-chevron-down"></i>Gallery</a></h2>
-        <form class="custom">
-            <select id="collectionSelect">
-                <option data-prevent-default>My Collection</option>
-                <option data-prevent-default>Another Collection</option>
-                <option data-prevent-default>Super secret</option>
-            </select>
-        </form>
-        <div class="subreddits">
-            <ul>
-                <li ng-repeat="sub in subreddits">
-                    <a ng-click="removeSub(sub)" data-hover>
-                        <i class="icon-minus"></i>/r/{{ sub }}
-                    </a>
-                </li>
-            </ul>
-            <form name="addSubForm" ng-submit="addSub(addSubName)" class="add-subreddit">
-                <i class="icon-plus"></i>
-                <span class="prefix">/r/</span>
-                <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add new">
+        <div>
+            <form class="custom">
+                <select id="collectionSelect">
+                    <option data-prevent-default>My Collection</option>
+                    <option data-prevent-default>Another Collection</option>
+                    <option data-prevent-default>Super secret</option>
+                </select>
             </form>
-        </div>
-        <div class="controls">
-            <div>
-                <a href="#saveAsNew">Save as new</a>
-                <a href="#share">Share</a>
-                <div class="hidden" id="saveAsNew">
-                    <input type="text" placeholder="New Collection">
-                    <button>Save</button>
-                </div>
-                <div class="hidden share" id="share">
-                    <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
-                    <button>Copy</button>
-                </div>
+            <div class="subreddits">
+                <ul>
+                    <li ng-repeat="sub in subreddits">
+                        <a ng-click="removeSub(sub)" data-hover>
+                            <i class="icon-minus"></i>/r/{{ sub }}
+                        </a>
+                    </li>
+                </ul>
+                <form name="addSubForm" ng-submit="addSub(addSubName)" class="add-subreddit">
+                    <i class="icon-plus"></i>
+                    <span class="prefix">/r/</span>
+                    <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add new">
+                </form>
             </div>
-            <div>
-                <i class="icon-list"></i>
-                <a data-reveal-id="modalCollections" id="manage">Manage Collections</a>
+            <div class="controls">
+                <div>
+                    <a href="#saveAsNew">Save as new</a>
+                    <a href="#share">Share</a>
+                    <div class="hidden" id="saveAsNew">
+                        <input type="text" placeholder="New Collection">
+                        <button>Save</button>
+                    </div>
+                    <div class="hidden share" id="share">
+                        <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
+                        <button>Copy</button>
+                    </div>
+                </div>
+                <div>
+                    <i class="icon-list"></i>
+                    <a data-reveal-id="modalCollections" id="manage">Manage Collections</a>
+                </div>
             </div>
         </div>
     </section>
-    <section id="popular">
+    <section data-section-toggle id="popular">
         <h2><a><i class="icon-chevron-down"></i>Popular</a></h2>
         <div class="subreddits">
             <ul>
@@ -91,11 +93,10 @@
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
     <div ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div ng-click="viewImage(image)" class="tile-overlay">
-            <a ng-click="newTile(image.id)" class="new-tile"><i class="icon-repeat"></i></a>
+            <a class="add-favorite"><i class="icon-star-empty"></i></a>
             <div class="reddit-controls">
                 <a class="upvote"></a>{{ image.score }}<a class="downvote"></a>
-                <a class="control"><i class="icon-star-empty"></i></a>
-                <a class="control"><i class="icon-eye-close"></i></a>
+                <a ng-click="hideTile(image.id)" class="hide-tile"><i class="icon-eye-close"></i></a>
             </div>
             <div class="post-info">
                 <div ng-show="image.popular" class="post-date">{{ image.created_utc*1000 | date:'shortDate' }}</div>
@@ -229,9 +230,5 @@
             <a id="collectionsDone" class="button close-reveal-modal secondary">Done</a>
         </div>
     </div>
-    <a class="close-reveal-modal"><i class="icon-remove"></i></a>
-</div>
-<div id="modalImage" class="reveal-modal">
-    <img class="modal-image" ng-src="{{ imageViewed.fixedURL }}" />
     <a class="close-reveal-modal"><i class="icon-remove"></i></a>
 </div>

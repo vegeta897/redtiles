@@ -47,7 +47,7 @@ h1.logo {
 .side-bar h2 a i {
     font-size: 16px;
     color: #aaa;
-    margin-right: 0.5em;
+    margin-right: 8px;
 }
 
 .side-bar form, .side-bar form.custom, .side-bar form.custom .custom.dropdown {
@@ -342,7 +342,7 @@ section#popular .subreddits ul li i.hover {
     display: none;
 }
 
-.tile-overlay .new-tile {
+.tile-overlay .add-favorite {
     position: absolute;
     left: 0;
     width: 31px;
@@ -352,13 +352,13 @@ section#popular .subreddits ul li i.hover {
     padding: 3px;
 }
 
-.big-tile .tile-overlay .new-tile {
+.big-tile .tile-overlay .add-favorite {
     width: 41px;
     font-size: 33px;
     padding: 3px;
 }
 
-.tile-overlay .new-tile:hover, .tile-overlay .new-tile:focus {
+.tile-overlay .add-favorite:hover, .tile-overlay .add-favorite:focus {
     color: #eee;
 }
 
@@ -418,22 +418,22 @@ section#popular .subreddits ul li i.hover {
     background-position: -58px 0;
 }
 
-.reddit-controls .control {
+.reddit-controls .hide-tile {
      display: block;
-     margin-top: 3px;
+     margin-top: 10px;
      margin-left: 1px;
      line-height: 17px;
      color: #ccc;
      font-size: 18px;
  }
 
-.big-tile .reddit-controls .control {
-    margin-top: 8px;
+.big-tile .reddit-controls .hide-tile {
+    margin-top: 16px;
     line-height: 24px;
     font-size: 26px;
 }
 
-.reddit-controls .control:hover, .reddit-controls .control:focus {
+.reddit-controls .hide-tile:hover, .reddit-controls .hide-tile:focus {
     color: #eee;
 }
 
@@ -527,22 +527,6 @@ section#popular .subreddits ul li i.hover {
     top: 30%;
     left: 50%;
     margin: 0 0 0 -205px;
-}
-
-#modalImage {
-    background-color: #2e2e2e;
-    border: none;
-    position: fixed;
-    width: 90%;
-    height: 90%;
-    top: 5%;
-    left: 5%;
-    margin: 0 0 0 0;
-}
-
-#modalImage img {
-    max-width: 100%;
-    max-height: 100%;
 }
 
 #modalCollections label {
@@ -703,7 +687,7 @@ section#popular .subreddits ul li i.hover {
 
 
 
-/* --- Foundation overrides --- */
+/* --- Foundation/other overrides --- */
 
 img {
     max-width: inherit;
@@ -753,6 +737,7 @@ fieldset {
     background: rgba(0,0,0,0.65);
 }
 
+/* Autocomplete styling */
 .autocomplete-suggestions { border: 1px solid #999; background: #fff; overflow: auto; font-size: 14px; }
 .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
 .autocomplete-selected { background: #eee; }

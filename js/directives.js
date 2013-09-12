@@ -21,6 +21,26 @@ angular.module('Redtiles.directives', [])
             }
         }
     })
+    .directive('sectionToggle', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element) {
+                var chevron = element.children('h2').find('i');
+                var sectionContent = element.children('h2').siblings();
+                element.children('h2').click(function() {
+                    if(sectionContent.is(':hidden')) { // Reveal
+                        chevron.addClass('icon-chevron-down').removeClass('icon-chevron-right')
+                            .css('margin-right','8px');
+                        sectionContent.slideDown();
+                    } else { // Hide
+                        chevron.removeClass('icon-chevron-down').addClass('icon-chevron-right')
+                            .css('margin-right','13px'); // Adjust spacing from section title
+                        sectionContent.slideUp();
+                    }
+                });
+            }
+        }
+    })
     .directive('sortDrop', function($parse) {
         return {
             restrict: 'A',

@@ -3,7 +3,7 @@
 angular.module('Redtiles.services', [])
     .factory('reddit', function($http, $q, parse) {
         return {
-            getPosts: function(subreddits, afterID, sort) {
+            getPosts: function(subreddits, limit, afterID, sort) {
                 var deferred = $q.defer();
                 var baseURL = 'http://reddit.com/r/';
                 var subs = subreddits.join('+') + '/';
@@ -13,7 +13,7 @@ angular.module('Redtiles.services', [])
                 }
                 var params = {
                     jsonp: 'JSON_CALLBACK',
-                    limit: 100
+                    limit: limit
                 };
                 params.after = afterID ? afterID : undefined;
                 var results = {};
@@ -53,6 +53,7 @@ angular.module('Redtiles.services', [])
                     // Main parsing loop
                     for(var i = 0; i < unparsed.data.children.length; i++) {
                         var post = unparsed.data.children[i].data;
+                        if(post.hidden) { continue; } // Skip the post if marked as hidden
                         // If a post has more than the minimum popularity, tag it popular
                         if(post.ups/(post.downs+1)>minPopularity) { post.popular = true; }
                         if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }

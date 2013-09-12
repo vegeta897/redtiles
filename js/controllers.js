@@ -45,16 +45,17 @@ angular.module('Redtiles.controllers', [])
         $scope.viewImage = function(img) {
             $scope.imageViewed = img;
         };
+        // When a user clicks the hide button on a tile
+        $scope.hideTile = function(imgID) {
+            that.removeTile($('#'+imgID)); // Remove the tile from the masonry layout
+            // TODO: Mark this post as hidden on the user's reddit account
+        };
         
         $scope.updateSort = function(sortby) {
             console.log('sorting by:',sortby);
             $scope.sortBy = sortby;
             clearTiles();
             getTiles();
-        };
-        
-        $scope.getNewtile = function(imageID) {
-            // TODO: Get limit=1 with current afterID, replacing old image (imageID)
         };
         
         $scope.addSub = function(sub) {
@@ -103,7 +104,7 @@ angular.module('Redtiles.controllers', [])
             console.log('no more results!');
             $scope.loadStatus = 'no more images to load!'; // Tell the user
         };
-        // Get posts from reddit. Remixing argument is for adding/subtracting subreddits from collection
+        // Get posts from reddit
         var getTiles = function() {
             if(gathering) { return; }
             gathering = true;
@@ -111,9 +112,9 @@ angular.module('Redtiles.controllers', [])
             loadBuffer = true;
             // Refresh masonry layout to fill any gaps left by previous deletions
             if(imagesAdded > 0) { msnry.layout(); }
-            reddit.getPosts($scope.subreddits, lastID, $scope.sortBy).then(function (response) {
+            reddit.getPosts($scope.subreddits, 100, lastID, $scope.sortBy).then(function (response) {
                 $scope.loadStatus = '';
-                $timeout(onLoadBuffer, 3000); // Can't make a request for 3 seconds
+                $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
                 console.log(response);
                 lastID = response['after'];
                 if(response.posts.length == 0) { // No more results if there are no posts
@@ -161,6 +162,7 @@ angular.module('Redtiles.controllers', [])
         this.removeTile = function removeTile(element) {
             msnry.remove(element);
             msnry.layout();
+            onScroll(); // Manually fire the onScroll method
         };
         this.reLayout = function reLayout() {
             msnry.layout();
@@ -186,5 +188,7 @@ angular.module('Redtiles.controllers', [])
             loadBuffer = false;
             onScroll(); // Manually fire the onScroll method
         };
+
+        var that = this; // Store the this.functions in a variable that other functions can access
     }])
 ;
