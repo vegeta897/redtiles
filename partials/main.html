@@ -81,8 +81,8 @@
     <div class="sizing">
         <div class="size-label">smaller</div>
         <ul class="button-group round even-2">
-            <li><a class="small button size-minus"><i class="icon-minus"></i></a></li>
-            <li><a class="small button size-plus"><i class="icon-plus"></i></a></li>
+            <li><a ng-click="changeSize(-1)" ng-class="{disabled:sizeLevel==0}" class="small button size-minus"><i class="icon-minus"></i></a></li>
+            <li><a ng-click="changeSize(1)" ng-class="{disabled:sizeLevel==4}" class="small button size-plus"><i class="icon-plus"></i></a></li>
         </ul>
         <div class="size-label">bigger</div>
     </div>
@@ -91,7 +91,7 @@
     </div>
 </div> <!-- /.top-bar -->
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
-    <div ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
+    <div data-display-size="{{ image.displaySize }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div ng-click="viewImage(image)" class="tile-overlay">
             <a class="add-favorite"><i class="icon-star-empty"></i></a>
             <div class="reddit-controls">

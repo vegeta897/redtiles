@@ -21,9 +21,10 @@ angular.module('Redtiles.services', [])
                 $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
                     .success(function(data) {
                         deferred.resolve(parse.postList(data));
-                    }).error(function() {
+                    }).error(function(error) {
                         results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
-                        console.log('error!');
+                        console.log('error!',error);
+                        // TODO: Error handling/display
                         deferred.reject(results);
                     });
                 return deferred.promise;
@@ -57,8 +58,7 @@ angular.module('Redtiles.services', [])
                         // If a post has more than the minimum popularity, tag it popular
                         if(post.ups/(post.downs+1)>minPopularity) { post.popular = true; }
                         if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }
-                        var size = post.popular ? 'm' : 'b';
-                        size = post.superPopular ? 'l' : size;
+                        var size = 'l'; // Imgur sizing suffix
                         
                         // TODO: Replace this stuff with regular expressions
                         

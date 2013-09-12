@@ -261,8 +261,13 @@ section#popular .subreddits ul li i.hover {
     
 }
 
-.top-bar .sizing .button:hover, .top-bar .sizing .button:focus {
+.top-bar .sizing .button:hover:not(.disabled), .top-bar .sizing .button:focus:not(.disabled) {
     color: #fff;
+    background-color: #666;
+}
+
+.top-bar .sizing .button:active:not(.disabled) {
+    color: #aaa;
     background-color: #666;
 }
 
@@ -694,9 +699,9 @@ img {
 }
 
 .button {
-    -webkit-transition: color 250ms ease-out, background-color 250ms ease-out;
-    -moz-transition: color 250ms ease-out, background-color 250ms ease-out;
-    transition: color 250ms ease-out, background-color 250ms ease-out;
+    -webkit-transition: color 200ms ease-out, background-color 200ms ease-out;
+    -moz-transition: color 200ms ease-out, background-color 200ms ease-out;
+    transition: color 200ms ease-out, background-color 200ms ease-out;
 }
 
 .button:active {

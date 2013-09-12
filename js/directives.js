@@ -73,34 +73,37 @@ angular.module('Redtiles.directives', [])
         return {
             restrict: 'C',
             require: '^tileArea',
+//            scope: {
+//                displaySize: '='
+//            },
             link: function(scope, element, attrs, ctrl) {
                 var length = 101;
                 var overlay = element.children('.tile-overlay');
                 var image = element.children('.tile-image');
-                if(scope.image.popular) {
-                    element.addClass('big-tile');
-                    length = 206;
-                    if(scope.image.superPopular) {
-                        element.addClass('huge-tile');
-                        length = 311;
+                var realSize = [];
+                var ratio = 0;
+                // Applies/removes tile size classes depending on image's display size
+                var applySize = function() {
+                    switch(scope.image.displaySize) {
+                        case 'small':
+                            element.removeClass('big-tile');
+                            element.removeClass('huge-tile');
+                            length = 101;
+                            break;
+                        case 'big':
+                            element.addClass('big-tile');
+                            element.removeClass('huge-tile');
+                            length = 206;
+                            break;
+                        case 'huge':
+                            element.addClass('big-tile');
+                            element.addClass('huge-tile');
+                            length = 311;
+                            break;
                     }
-                }
-                element.hover(function() {
-                    overlay.fadeIn(100);
-                }, function() {
-                    overlay.fadeOut(100);
-                });
-
-                
-                function onImageLoad() { // When the image is loaded
-                    var realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
-                    if(realSize[0] == 0) { // If the image failed to load, don't add the tile
-                        ctrl.removeTile(element);
-                        console.log('post id',element.attr('id'),'did not load');
-                        return;
-                    }
-                    image.css('visibility','visible');
-                    var ratio = realSize[0]/realSize[1]; // Width/height ratio
+                };
+                // Fits the image inside tile, scaling and cropping as necessary
+                var fitImage = function() {
                     // Size image in frame based on ratio
                     if(ratio > 1) {
                         var maxHeight = Math.min(realSize[1],length);
@@ -118,12 +121,34 @@ angular.module('Redtiles.directives', [])
                         image.prop({'width':length*ratio,'height':length});
                     }
 
-                    var displaySize = [image.prop('width'),image.prop('height')]; // Display dimensions
                     image.css({ // Center the image in the tile
-                        'margin-left': displaySize[0]*-0.5,
-                        'margin-top': displaySize[1]*-0.5
+                        'margin-left': image.prop('width')*-0.5,
+                        'margin-top': image.prop('height')*-0.5
                     });
-                    
+                };
+                applySize(); // Apply on first load
+                // Apply new classes and refit images when image's display size changes
+                attrs.$observe('displaySize',function(){
+                    applySize();
+                    fitImage();
+                });
+                // Show overlay when hovering on image
+                element.hover(function() {
+                    overlay.fadeIn(100);
+                }, function() {
+                    overlay.fadeOut(100);
+                });
+                
+                function onImageLoad() { // When the image is loaded
+                    realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
+                    if(realSize[0] == 0) { // If image failed to load, don't add tile
+                        ctrl.removeTile(element);
+                        console.log('post id',element.attr('id'),'did not load');
+                        return;
+                    }
+                    image.css('visibility','visible');
+                    ratio = realSize[0]/realSize[1]; // Width/height ratio
+                    fitImage(); // Fit image inside tile
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
@@ -133,9 +158,9 @@ angular.module('Redtiles.directives', [])
                         }
                     })
                 }
-                element.css('display','block'); // Display the tile
+                element.css('display','block'); // Display tile
                 ctrl.appendTile(element); // Append tile to masonry
-                element.imagesLoaded(onImageLoad); // When the image loads...
+                element.imagesLoaded(onImageLoad); // When image loads...
             }
         }
     })
