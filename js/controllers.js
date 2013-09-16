@@ -34,6 +34,15 @@ angular.module('Redtiles.controllers', [])
         if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
             $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
         }
+        // Check for reddit session info
+        if(localStorageService.get('redditSession')) { // Check for redditSession in localstorage/cookies
+            var redditSession = localStorageService.get('redditSession'); // Get redditSession
+            reddit.autoLogin(redditSession.modhash, redditSession.cookie).then(function(response) {
+                $scope.redditUser = response['data'];
+                console.log($scope.redditUser);
+                localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
+            });
+        }
 
         var gathering = false; // Keeps track of whether an API request is in process
         var lastID = null; // Last image ID, used in reddit API request
@@ -46,6 +55,8 @@ angular.module('Redtiles.controllers', [])
         var jqWindow = $(window); // jQuery object for the window
         var htmlBody = $('html, body');
         var tileArea = $('.tile-area'); // jQuery object for the tile area
+        
+        // When clicking on an image for full view
         $scope.viewImage = function(img) {
             $scope.imageViewed = img;
         };
@@ -53,10 +64,35 @@ angular.module('Redtiles.controllers', [])
         $scope.login = function(username, password) {
             reddit.login(username,password).then(function(response) {
                 console.log(response);
-                $scope.redditUser = response.data;
+                $scope.redditUser = response.userInfo['data'];
                 localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
-                if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
-                    $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
+                localStorageService.set('redditSession',response.session); // Set redditSession
+            });
+        };
+        // Log the user out of reddit
+        $scope.logout = function() {
+            reddit.logout().then(function(response) {
+                console.log(response);
+                $scope.redditUser = null;
+                localStorageService.remove('redditUser'); // Remove redditUser from localstorage/cookies
+            });
+        };
+        // Votes on a post through reddit
+        $scope.vote = function(img, dir) {
+            if(img.voted == dir) { // If the image was already voted on
+                img.score -= dir; // Undo the score change
+                dir = 0; // Passing dir 0 into vote function will cancel the previous vote
+            } else if(img.voted == dir*-1) { // If the image was already voted in the opposite direction
+                img.score += dir*2; // Increment twice to undo previous and apply the vote
+            } else {
+                img.score += dir; // Apply the vote score change
+            }
+            img.voted = dir; // Indicate the image was voted on, or voting undone
+            reddit.vote(img.name,dir).then(function(response) { // Send the vote request to reddit
+                if(jQuery.isEmptyObject(response)) {
+                    console.log('vote successful!');
+                } else {
+                    console.log('vote failed!');
                 }
             });
         };

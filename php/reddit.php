@@ -14,15 +14,20 @@ class reddit{
     private $modHash = null;
     private $session = null;
 
+    public function resume($modhash = null,$cookie = null) {
+        $this->modHash = $modhash;
+        $this->session = $cookie;
+    }
+    
     /**
-     * Class Constructor
+     * Log in
      *
      * Construct the class and simultaneously log a user in.
      * @link https://github.com/reddit/reddit/wiki/API%3A-login
      * @param string $username The username to be logged into
      * @param string $password The password to be used to log in
      */
-    public function __construct($username = null, $password = null){
+    public function login($username = null, $password = null){
         $urlLogin = "{$this->apiHost}/login/$username";
 
         $postData = sprintf("api_type=json&user=%s&passwd=%s",
@@ -35,7 +40,7 @@ class reddit{
         } else {
             $this->modHash = $response->json->data->modhash;
             $this->session = $response->json->data->cookie;
-            return $this->modHash;
+            return $response->json->data;
         }
     }
 

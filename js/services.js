@@ -39,7 +39,36 @@ angular.module('Redtiles.services', [])
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
                     .success(function (data, status, headers, config) {
-                        console.log('login:',data);
+                        deferred.resolve(data);
+                    }).error(function (data, status, headers, config) {
+                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        deferred.reject(data);
+                    });
+                return deferred.promise;
+            },
+            logout: function() {
+                var deferred = $q.defer();
+                var params = {
+                    action: 'logout'
+                };
+                $http({method: 'GET', url: phpEndpoint, params: params})
+                    .success(function (data, status, headers, config) {
+                        deferred.resolve(data);
+                    }).error(function (data, status, headers, config) {
+                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        deferred.reject(data);
+                    });
+                return deferred.promise;
+            },
+            autoLogin: function(modhash, cookie) {
+                var deferred = $q.defer();
+                var params = {
+                    action: 'autoLogin',
+                    modhash: modhash,
+                    cookie: cookie
+                };
+                $http({method: 'GET', url: phpEndpoint, params: params})
+                    .success(function (data, status, headers, config) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
                         console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
@@ -57,8 +86,10 @@ angular.module('Redtiles.services', [])
                 $http({method: 'GET', url: phpEndpoint, params: params})
                     .success(function (data, status, headers, config) {
                         console.log('vote:',data);
+                        deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
                         console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        deferred.reject(data);
                     });
                 return deferred.promise;
             }

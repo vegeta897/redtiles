@@ -408,17 +408,11 @@ section#popular .subreddits ul li i.hover {
     background: url('../img/redtiles-icons.png') no-repeat -116px 0;
 }
 
-.reddit-controls .downvote {
-    background-position: -135px 0;
-}
-
-.reddit-controls .upvote:hover, .reddit-controls .upvote:focus {
-    background-position: -154px 0;
-}
-
-.reddit-controls .downvote:hover, .reddit-controls .downvote:focus {
-    background-position: -173px 0;
-}
+.reddit-controls .downvote { background-position: -135px 0; }
+.reddit-controls .upvote:hover, .reddit-controls .upvote:focus { background-position: -154px 0; }
+.reddit-controls .downvote:hover, .reddit-controls .downvote:focus { background-position: -173px 0; }
+.reddit-controls .upvote.voted { background-position: -250px 0; }
+.reddit-controls .downvote.voted { background-position: -269px 0; }
 
 .big-tile .reddit-controls .upvote, .big-tile .reddit-controls .downvote {
     background-position: 0 0;
@@ -427,17 +421,11 @@ section#popular .subreddits ul li i.hover {
     margin-left: 0;
 }
 
-.big-tile .reddit-controls .upvote:hover, .reddit-controls .upvote:focus {
-    background-position: -29px 0;
-}
-
-.big-tile .reddit-controls .downvote:hover, .reddit-controls .downvote:focus {
-    background-position: -87px 0;
-}
-
-.big-tile .reddit-controls .downvote {
-    background-position: -58px 0;
-}
+.big-tile .reddit-controls .upvote:hover, .reddit-controls .upvote:focus { background-position: -29px 0; }
+.big-tile .reddit-controls .downvote:hover, .reddit-controls .downvote:focus { background-position: -87px 0; }
+.big-tile .reddit-controls .downvote { background-position: -58px 0; }
+.big-tile .reddit-controls .upvote.voted { background-position: -192px 0; }
+.big-tile .reddit-controls .downvote.voted { background-position: -221px 0; }
 
 .reddit-controls .hide-tile {
      display: block;
