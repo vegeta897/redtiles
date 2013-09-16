@@ -87,7 +87,11 @@
         <div class="size-label">bigger</div>
     </div>
     <div class="user right">
-        <a data-reveal-id="modalLogin" class="small button">reddit login</a>
+        <a ng-hide="redditUser" data-reveal-id="modalLogin" class="small button">reddit login</a>
+        <p ng-show="redditUser">Welcome back, <a data-dropdown="userDrop">{{ redditUser.name }}</a></p>
+        <ul id="userDrop" class="f-dropdown" data-dropdown-content>
+            <li><a>Log Out</a></li>
+        </ul>
     </div>
 </div> <!-- /.top-bar -->
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
@@ -114,7 +118,7 @@
         
 <div id="modalLogin" class="reveal-modal">
     <h2>Log In <span class="small">with reddit</span></h2>
-    <form>
+    <form id="loginForm" ng-submit="login(loginUser, loginPass)">
         <div class="row">
             <div class="large-12 columns">
                 Log in with your reddit account
@@ -123,18 +127,18 @@
         <fieldset>
             <div class="row">
                 <div class="large-6 columns">
-                    <label for="loginUser" class="right inline">Username</label>
+                    <label for="inputLoginUser" class="right inline">Username</label>
                 </div>
                 <div class="large-6 columns">
-                    <input id="loginUser" type="text" placeholder="cooldude">
+                    <input ng-model="loginUser" id="inputLoginUser" type="text" placeholder="cooldude">
                 </div>
             </div>
             <div class="row">
                 <div class="large-6 columns">
-                    <label for="loginPass" class="right inline">Password</label>
+                    <label for="inputLoginPass" class="right inline">Password</label>
                 </div>
                 <div class="large-6 columns">
-                    <input id="loginPass" type="password">
+                    <input ng-model="loginPass" id="inputLoginPass" type="password">
                 </div>
             </div>
         </fieldset>
@@ -145,7 +149,7 @@
                 </p>
             </div>
             <div class="large-6 columns">
-                <input id="loginSubmit" type="submit" class="button" value="Log In">
+                <input ng-disabled="logging" id="loginSubmit" type="submit" class="button" value="Log In">
             </div>
         </div>
     </form>

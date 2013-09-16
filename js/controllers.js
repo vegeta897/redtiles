@@ -6,8 +6,8 @@ angular.module('Redtiles.controllers', [])
         // Default page controller stuff
         
     }])
-    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'localStorageService',function($scope, $timeout, $element, reddit, localStorageService) {
-        
+    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'localStorageService', function($scope, $timeout, $element, reddit, localStorageService) {
+
         $scope.imageTiles = []; // List of image tiles currently loaded/shown
         $scope.imageIDs = []; // List of image IDs currently loaded/shown
         $scope.fullImages = []; // List of full size URLs to images, used in FancyBox image display
@@ -30,6 +30,10 @@ angular.module('Redtiles.controllers', [])
         } else { // If not found, initialize
             localStorageService.set('defaultSize',$scope.sizeLevel); // Set sizeLevel
         }
+        // Check for reddit user info
+        if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
+            $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
+        }
 
         var gathering = false; // Keeps track of whether an API request is in process
         var lastID = null; // Last image ID, used in reddit API request
@@ -44,6 +48,17 @@ angular.module('Redtiles.controllers', [])
         var tileArea = $('.tile-area'); // jQuery object for the tile area
         $scope.viewImage = function(img) {
             $scope.imageViewed = img;
+        };
+        // Authenticates the user with reddit
+        $scope.login = function(username, password) {
+            reddit.login(username,password).then(function(response) {
+                console.log(response);
+                $scope.redditUser = response.data;
+                localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
+                if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
+                    $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
+                }
+            });
         };
         // When a user clicks the hide button on a tile
         $scope.hideTile = function(imgID) {

@@ -2,6 +2,7 @@
 'use strict';
 angular.module('Redtiles.services', [])
     .factory('reddit', function($http, $q, parse) {
+        var phpEndpoint = './php/endpoint.php';
         return {
             getPosts: function(subreddits, limit, afterID, sort) {
                 var deferred = $q.defer();
@@ -19,13 +20,45 @@ angular.module('Redtiles.services', [])
                 var results = {};
             //    console.log(baseURL+subs+sorting+'.json'+'?limit='+params.limit+'&jsonp='+params.jsonp+'&after='+params.after);
                 $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
-                    .success(function(data) {
+                    .success(function(data, status, headers, config) {
                         deferred.resolve(parse.postList(data));
-                    }).error(function(error) {
+                    }).error(function(data, status, headers, config) {
                         results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
-                        console.log('error!',error);
+                        console.log('error!', data, status, headers, config);
                         // TODO: Error handling/display
                         deferred.reject(results);
+                    });
+                return deferred.promise;
+            },
+            login: function(username, password) {
+                var deferred = $q.defer();
+                var params = {
+                    action: 'login',
+                    user: username,
+                    pass: password
+                };
+                $http({method: 'GET', url: phpEndpoint, params: params})
+                    .success(function (data, status, headers, config) {
+                        console.log('login:',data);
+                        deferred.resolve(data);
+                    }).error(function (data, status, headers, config) {
+                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        deferred.reject(data);
+                    });
+                return deferred.promise;
+            },
+            vote: function(postID, direction) {
+                var deferred = $q.defer();
+                var params = {
+                    action: 'cast_vote',
+                    id: postID,
+                    dir: direction
+                };
+                $http({method: 'GET', url: phpEndpoint, params: params})
+                    .success(function (data, status, headers, config) {
+                        console.log('vote:',data);
+                    }).error(function (data, status, headers, config) {
+                        console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                     });
                 return deferred.promise;
             }

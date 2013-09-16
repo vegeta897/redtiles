@@ -220,6 +220,10 @@ section#popular .subreddits ul li i.hover {
     line-height: 30px;
 }
 
+.top-bar .sorting .f-dropdown {
+    width: 8em;
+}
+
 .top-bar .sizing {
     float: left;
     width: 170px;
@@ -282,8 +286,20 @@ section#popular .subreddits ul li i.hover {
 
 .top-bar .user {
     height: 30px;
-    width: 123px;
     text-align: right;
+}
+
+.top-bar .user .f-dropdown {
+    width: 5em;
+}
+
+.top-bar .user .f-dropdown:before { /* Arrow above dropdown box */
+    left: auto;
+    right: 10px;
+}
+.top-bar .user .f-dropdown:after { /* Arrow outline above dropdown box */
+    left: auto;
+    right: 9px;
 }
 
 .top-bar .user .button {
@@ -713,7 +729,6 @@ img {
     background: #2d2d2d;
     border: solid 1px #666;
     margin-top: 6px;
-    width: 8em;
 }
 
 .f-dropdown:before { /* Arrow above dropdown box */
