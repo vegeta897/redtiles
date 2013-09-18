@@ -98,14 +98,14 @@
         })
         .on('click.fndtn.forms', 'form.custom div.custom.dropdown a.current, form.custom div.custom.dropdown a.selector', function (e) {
           var $this = $(this),
-              $dropdown = $this.closest('div.custom.dropdown'),
-              $select = getFirstPrevSibling($dropdown, 'select');
+              $dropdown = $this.closest('div.custom.dropdown')
+          //    $select = getFirstPrevSibling($dropdown, 'select');
 
           // make sure other dropdowns close
           if (!$dropdown.hasClass('open')) $(self.scope).trigger('click');
 
           e.preventDefault();
-          if (false === $select.is(':disabled')) {
+          if (1==1) {
             $dropdown.toggleClass('open');
 
             if ($dropdown.hasClass('open')) {
@@ -146,18 +146,18 @@
                 selectedIndex = index;
               }
             });
-            $select[0].selectedIndex = selectedIndex;
+            //$select[0].selectedIndex = selectedIndex;
 
             //store the old value in data
-            $select.data('prevalue', $oldThis.html());
+            //$select.data('prevalue', $oldThis.html());
             
             // Kick off full DOM change event
             if (typeof (document.createEvent) != 'undefined') {
               var event = document.createEvent('HTMLEvents');
               event.initEvent('change', true, true);
-              $select[0].dispatchEvent(event);
+              //$select[0].dispatchEvent(event);
             } else {
-              $select[0].fireEvent('onchange'); // for IE
+              //$select[0].fireEvent('onchange'); // for IE
             }
           }
       });

@@ -20,11 +20,15 @@ angular.module('Redtiles.controllers', [])
         var jqWindow = $(window); // jQuery object for the window
         var htmlBody = $('html, body');
         var tileArea = $('.tile-area'); // jQuery object for the tile area
-        
+
+        $scope.selectedColl = 'Default Collection'; // Default selected collection name
+        $scope.collections = {'Another Collection':['blah']}; // Collections object, indexed by collection name
+        $scope.collections[$scope.selectedColl] = ['pics','funny','wallpapers']; // Add default subs
+        $scope.subreddits = $scope.collections['Default Collection']; // Get default subs
+        $scope.collectionList = ['Default Collection', 'Another Collection'];
         $scope.imageTiles = []; // List of image tiles currently loaded/shown
         $scope.imageIDs = []; // List of image IDs currently loaded/shown
         $scope.fullImages = []; // List of full size URLs to images, used in FancyBox image display
-        $scope.subreddits = ['pics','funny','1000words','wallpapers']; // Default collection
         $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay','pics','cats','art']; // Placeholder
         $scope.sortBy = 'Hot'; // Sort parameter used in reddit API request
         $scope.loadStatus = 'loading...'; // Status text displayed to user
@@ -148,14 +152,29 @@ angular.module('Redtiles.controllers', [])
             }
         };
         // When a new sort option is selected
-        $scope.updateSort = function(sortby) {
+        $scope.changeSort = function(sortby) {
             console.log('sorting by:',sortby);
             $timeout(function() { // Using timeout to force scope refresh
                 $scope.sortBy = sortby;
+                if($scope.subreddits.length == 0) { return; }
+                clearTiles();
+                getTiles(); // Sorting is a reddit function, so we need to make a new request
             }, 0);
-            if($scope.subreddits.length == 0) { return; }
-            clearTiles();
-            getTiles();
+        };
+        // When a new collection is selected
+        $scope.changeColl = function(coll) {
+            $timeout(function() { // Using timeout to force scope refresh
+                $scope.selectedColl = coll;
+                if(!$scope.collections.hasOwnProperty(coll)) {
+                    console.log(coll,'not found in',$scope.collections);
+                    return;
+                }
+                $scope.subreddits = $scope.collections[coll];
+                if($scope.subreddits.length == 0) { return; }
+                console.log('selected:',coll,'which contains:',$scope.subreddits,'also heres this',$scope.collections);
+                clearTiles();
+                getTiles();
+            }, 0);
         };
         // When one of the sizing buttons are clicked (amount is -1 or 1)
         $scope.changeSize = function(amount) {
@@ -228,6 +247,7 @@ angular.module('Redtiles.controllers', [])
                 $scope.loadStatus = 'loading...';
             }, 0);
             htmlBody.animate({ scrollTop: 0 }, "slow"); // Scroll to top of page
+            gathering = false;
             lastID = null;
             noMoreResults = false;
             imagesAdded = 0;
@@ -258,14 +278,15 @@ angular.module('Redtiles.controllers', [])
             var getMethod = 'getPosts'; // Use jsonp for getting posts by default
             if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
             reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
-                $scope.loadStatus = '';
                 $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
-                console.log(response);
                 if(response.hasOwnProperty('error')) { // If there was an error
-                    $scope.loadStatus = 'oops... try again';
                     gathering = false;
+                    console.log(response.error.description);
+                    getTiles();
                     return;
                 }
+                console.log(response);
+                $scope.loadStatus = '';
                 lastID = response['after'];
                 if(response.posts.length == 0) { // No more results if there are no posts
                     onLastResults();

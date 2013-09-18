@@ -168,6 +168,7 @@ angular.module('Redtiles.services', [])
         return {
             postList: function(unparsed) {
                 var parsed = {};
+                if(unparsed == '""') { console.log('return was empty'); unparsed = {};}
                 if(!unparsed.hasOwnProperty('data') || unparsed.kind != 'Listing') {
                     parsed = unparsed;
                     parsed.error = {name: "Oh no!", description: "Something's wrong with the reddit service right now. They might be too busy! Try again."};

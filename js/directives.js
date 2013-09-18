@@ -41,14 +41,27 @@ angular.module('Redtiles.directives', [])
             }
         }
     })
-    .directive('sortDrop', function($parse) {
+    .directive('customDrop', function($parse) {
         return {
             restrict: 'A',
             link: function(scope, element, attrs) {
-                element.children('#sortDrop').click(function(event) {
-                    var invoker = $parse(attrs.sortFn);
+                element.children('.f-dropdown').click(function(event) {
+                    var invoker = $parse(attrs.callbackFn);
                     invoker(scope, {arg1: event.target.innerText} );
                 });
+            }
+        };
+    })
+    .directive('zurbSelect', function($compile){
+        return {
+            scope: {
+                clickCallback: '&',
+                options: '=',
+                selected: '='
+            },
+            restrict: 'E',
+            templateUrl: 'partials/zurb-select.html',
+            link: function(scope, element, attr) {
             }
         };
     })

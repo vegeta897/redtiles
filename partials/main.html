@@ -7,12 +7,16 @@
     <section data-section-toggle id="gallery">
         <h2><a><i class="icon-chevron-down"></i>Gallery</a></h2>
         <div>
-            <form class="custom">
-                <select id="collectionSelect">
-                    <option data-prevent-default>My Collection</option>
-                    <option data-prevent-default>Another Collection</option>
-                    <option data-prevent-default>Super secret</option>
-                </select>
+            <form ng-class="{disabled: loginStatus != 'logged'}" class="custom">
+
+                <zurb-Select selected="selectedColl" options="collections" click-callback="changeColl(value)"></zurb-Select>
+                
+                <!--<zurb-Select options="collectionList" click-callback="changeColl(value)"></zurb-Select>-->
+
+                <!--<select ng-disabled="loginStatus != 'logged'" id="collectionSelect">-->
+                    <!--<option>foo</option>-->
+                    <!--<option>bar</option>-->
+                <!--</select>-->
             </form>
             <div class="subreddits">
                 <ul>
@@ -31,15 +35,15 @@
                     <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add new">
                 </form>
             </div>
-            <div class="controls">
+            <div class="controls" ng-hide="loginStatus == 'notLogged'">
                 <div>
-                    <a href="#saveAsNew">Save as new</a>
-                    <a href="#share">Share</a>
-                    <div class="hidden" id="saveAsNew">
+                    <a ng-init="saveAsOpen = false" ng-click="saveAsOpen = !saveAsOpen; shareOpen = false">Save as new</a>
+                    <a ng-init="shareOpen = false" ng-click="shareOpen = !shareOpen; saveAsOpen = false">Share</a>
+                    <div ng-class="{hidden:!saveAsOpen}" id="saveAsNew">
                         <input type="text" placeholder="New Collection">
                         <button>Save</button>
                     </div>
-                    <div class="hidden share" id="share">
+                    <div ng-class="{hidden:!shareOpen}" class="share" id="share">
                         <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
                         <button>Copy</button>
                     </div>
@@ -71,7 +75,7 @@
 </div> <!-- /.side-bar -->
 
 <div class="top-bar">
-    <div data-sort-drop data-sort-fn="updateSort(arg1)" class="sorting">
+    <div data-custom-drop data-callback-fn="changeSort(arg1)" class="sorting">
         Sort by: <a data-dropdown="sortDrop">{{ sortBy }}</a>
         <ul id="sortDrop" class="f-dropdown" data-dropdown-content>
             <li><a>Hot</a></li>

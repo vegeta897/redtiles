@@ -1,0 +1,11 @@
+
+    <!--<select ng-change="">-->
+        <!--<option ng-repeat="(optionName,optionVal) in options">{{ optionName }}ac</option>-->
+    <!--</select>-->
+    <div class="custom dropdown" ng-init="menuOpen=false" ng-class="{open: menuOpen}" ng-click="menuOpen = !menuOpen">
+        <a href="#" class="current custom-select">{{ selected }}</a>
+        <a href="#" class="selector custom-select"></a>
+        <ul>
+            <li ng-repeat="(optionName,optionVal) in options" class="custom-select" ng-class="{selected:optionName==selected}" ng-click="clickCallback({value: optionName})">{{ optionName }}</li>
+        </ul>
+    </div>

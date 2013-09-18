@@ -54,6 +54,10 @@ h1.logo {
     margin-bottom: 0.2em;
 }
 
+.side-bar select {
+    display: none;
+}
+
 .subreddits {
     padding-left: 2px;
 }
@@ -124,6 +128,9 @@ h1.logo {
     display: inline-block;
     padding-left: 23px;
 }
+
+.side-bar section#gallery .controls a::selection { background: transparent; }
+.side-bar section#gallery .controls a::-moz-selection { background: transparent; }
 
 .side-bar section#gallery .controls i {
     padding-left: 1px;
@@ -744,6 +751,18 @@ img {
 .button:active {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; 
+}
+
+form.custom .custom.dropdown ul li {
+    font-size: 1em;
+}
+
+form.custom.disabled .custom.dropdown .current {
+    color: #aaa;
+}
+
+form.custom.disabled .custom.dropdown:hover .selector:after {
+    border-color: #aaa transparent transparent transparent;
 }
 
 .f-dropdown {

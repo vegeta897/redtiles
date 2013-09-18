@@ -113,7 +113,7 @@ class reddit{
      */
     public function getListing($sr, $sort, $limit, $after){
         $limit = "?limit=" . $limit;
-        $sort = !'best' ? $sort . "/" : "";
+        $sort = $sort != 'best' ? $sort . "/" : "";
         $after = (isset($after)) ? "&after=" . $after : "";
         if($sr == 'home' || $sr == 'reddit' || !isset($sr)){
             $urlListing = "http://www.reddit.com/{$sort}.json{$limit}{$after}";

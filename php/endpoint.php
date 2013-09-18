@@ -46,6 +46,7 @@ function getListing($sr, $sort, $limit, $after = null)
     }
     $reddit = $_SESSION['reddit'];
     $response = $reddit->getListing($sr, $sort, $limit, $after);
+    if(empty($response)) { $response = ""; }
     return $response;
 }
 
@@ -129,7 +130,7 @@ if (isset($_GET["action"]))
       case "getListing":
           if (isset($_GET["sr"],$_GET["sort"],$_GET["limit"]))
               if (isset($_GET["after"]))
-                  $value = getListing($_GET["sr"],$_GET["sort"],$_GET["after"],$_GET["limit"]);
+                  $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"],$_GET["after"]);
               else
                   $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"]);
           break;
