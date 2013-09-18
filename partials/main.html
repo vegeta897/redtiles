@@ -16,6 +16,9 @@
             </form>
             <div class="subreddits">
                 <ul>
+                    <li class="add-hint" ng-show="subreddits.length == 0">
+                        Add some subreddits!
+                    </li>
                     <li ng-repeat="sub in subreddits">
                         <a ng-click="removeSub(sub)" data-hover>
                             <i class="icon-minus"></i>/r/{{ sub }}
@@ -66,7 +69,7 @@
         </div>
     </section>
 </div> <!-- /.side-bar -->
-        
+
 <div class="top-bar">
     <div data-sort-drop data-sort-fn="updateSort(arg1)" class="sorting">
         Sort by: <a data-dropdown="sortDrop">{{ sortBy }}</a>
@@ -86,26 +89,28 @@
         </ul>
         <div class="size-label">bigger</div>
     </div>
-    <div class="user right">
-        <a ng-hide="redditUser" data-reveal-id="modalLogin" class="small button">reddit login</a>
-        <p ng-show="redditUser">Welcome back, <a data-dropdown="userDrop">{{ redditUser.name }}</a></p>
+    <div ng-hide="loginStatus == ''" class="user right">
+        <a ng-hide="loginStatus == 'logged'" data-reveal-id="modalLogin" class="small button">reddit login</a>
+        <p ng-show="loginStatus == 'logged'">Welcome back, <a data-dropdown="userDrop">{{ redditUser.name }}</a></p>
         <ul id="userDrop" class="f-dropdown" data-dropdown-content>
             <li><a ng-click="logout()">Log Out</a></li>
         </ul>
     </div>
 </div> <!-- /.top-bar -->
-        
+
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
-    <div data-display-size="{{ image.displaySize }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
+    <div data-display-size="{{ image.displaySize }}" data-faved="{{ image.saved }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div ng-click="viewImage(image)" class="tile-overlay">
-            <a class="add-favorite"><i class="icon-star-empty"></i></a>
+            <a ng-show="loginStatus == 'logged'" ng-click="fave(image)" class="add-favorite"><i class="icon-star-empty"></i></a>
             <div class="reddit-controls">
-                <a ng-class="{voted:image.voted == 1}" ng-click="vote(image, 1)" class="upvote"></a>{{ image.score }}
-                <a ng-class="{voted:image.voted == -1}" ng-click="vote(image, -1)" class="downvote"></a>
+                <a ng-show="loginStatus == 'logged'" ng-class="{voted:image.voted == 1}" ng-click="vote(image, 1)" class="upvote"></a>
+                {{ image.score }}
+                <a ng-show="loginStatus == 'logged'" ng-class="{voted:image.voted == -1}" ng-click="vote(image, -1)" class="downvote"></a>
                 <a ng-click="hideTile(image.id)" class="hide-tile"><i class="icon-eye-close"></i></a>
             </div>
             <div class="post-info">
                 <div ng-show="image.popular" class="post-date">{{ image.created_utc*1000 | date:'shortDate' }}</div>
+                <div ng-show="image.popular" class="domain">{{ image.domain }}</div>
                 <a title="{{ image.title }}" target="_blank" class="post-link" ng-href="http://reddit.com{{ image.permalink }}">
                     <span>{{ image.title }}</span><i class="icon-external-link"></i>
                 </a>
@@ -113,17 +118,18 @@
         </div>
         <img class="tile-image" ng-src="{{ image.thumbURL }}" />
     </div>
-    <div class="load-status">{{ loadStatus }}</div>
+    <div class="load-status"><i ng-show="subreddits.length == 0 && imageTiles.length == 0" class="icon-arrow-left"> </i>{{ loadStatus }}</div>
 </div> <!-- /.tile-area -->
-        
+
 <!-- Modals -->
-        
-<div id="modalLogin" class="reveal-modal">
+
+<div data-login-form="{{ loginStatus }}" id="modalLogin" class="reveal-modal">
     <h2>Log In <span class="small">with reddit</span></h2>
     <form id="loginForm" ng-submit="login(loginUser, loginPass)">
         <div class="row">
             <div class="large-12 columns">
                 Log in with your reddit account
+                <p id="loginError"><i class="icon-warning-sign"></i></p>
             </div>
         </div>
         <fieldset>
@@ -151,7 +157,7 @@
                 </p>
             </div>
             <div class="large-6 columns">
-                <input ng-disabled="logging" id="loginSubmit" type="submit" class="button" value="Log In">
+                <input ng-disabled="loginStatus=='logging'" id="loginSubmit" type="submit" class="button" value="Log In">
             </div>
         </div>
     </form>

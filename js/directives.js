@@ -52,6 +52,69 @@ angular.module('Redtiles.directives', [])
             }
         };
     })
+    .directive('loginForm', function() {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var errorMessage = ''; // Error message to show
+                var errorDisplay = element.find('#loginError'); // p element to display error message
+                var errorIcon = errorDisplay.html(); // Error icon html (in p element at start)
+                var userInput = element.find('#inputLoginUser');
+                var passInput = element.find('#inputLoginPass');
+                var loginButton = element.find('#loginSubmit'); // The log in button
+                attrs.$observe('loginForm',function(){
+                    loginButton.removeClass('disabled'); // Remove disabled/error classes
+                    userInput.removeClass('error');
+                    passInput.removeClass('error');
+                    var status = scope.loginStatus;
+                    if(status == '') { return; }
+                    console.log(status);
+                    switch(status) {
+                        case 'notLogged':
+                            loginButton.removeClass('disabled');
+                            passInput.val('');
+                            errorMessage = '';
+                            break;
+                        case 'logged':
+                            element.foundation('reveal', 'close');
+                            break;
+                        case 'logging':
+                            loginButton.addClass('disabled');
+                            break;
+                        case 'missingFields':
+                            errorMessage = 'Please fill in both fields.';
+                            if(jQuery.trim(userInput.val()) == '') { // User input blank
+                                userInput.addClass('error');
+                            }
+                            if(jQuery.trim(passInput.val()) == '') { // Password input blank
+                                passInput.addClass('error');
+                            }
+                            // If we got this error despite having both fields filled, there was an unknown error
+                            if(jQuery.trim(userInput.val()) != '' && jQuery.trim(passInput.val()) != '') {
+                                errorMessage = 'Oops... something bad happened. Please try again.';
+                            }
+                            break;
+                        case 'badPass':
+                            errorMessage = 'Wrong password. Please try again.';
+                            passInput.addClass('error');
+                            break;
+                        case 'unknownError':
+                            errorMessage = 'Oops... something bad happened. Please try again.';
+                            break;
+                    }
+                    if(status.substr(0,9) == 'rateLimit') {
+                        var wait = status.substring(9);
+                        errorMessage = 'Sorry, you\'ve tried logging in too many times. Try again in ' + wait;
+                    }
+                    if(errorMessage.length > 0) { // If there was an error, display it
+                        errorDisplay.slideDown(200).html(errorIcon + errorMessage);
+                    } else {
+                        errorDisplay.slideUp();
+                    }
+                });
+            }
+        };
+    })
     .directive('tileArea', function() {
         return {
             restrict: 'C',
@@ -131,6 +194,12 @@ angular.module('Redtiles.directives', [])
                 attrs.$observe('displaySize',function(){
                     applySize();
                     fitImage();
+                });
+                // Update fave icon when image is faved or un-faved
+                attrs.$observe('faved',function(){
+                    var removeClass = scope.image.saved ? 'icon-star-empty' : 'icon-star';
+                    var addClass = scope.image.saved ? 'icon-star' : 'icon-star-empty';
+                    overlay.children('.add-favorite').children('i').removeClass(removeClass).addClass(addClass);
                 });
                 // Show overlay when hovering on image
                 element.hover(function() {

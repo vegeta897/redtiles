@@ -3,6 +3,7 @@
  * Reddit PHP SDK
  * https://github.com/jcleblanc/reddit-php-sdk
  * Provides a SDK for accessing the Reddit APIs
+ * Modified by Devin Spikowski
  * Usage:
  *   $reddit = new reddit();
  *   $reddit->login("USERNAME", "PASSWORD");
@@ -35,8 +36,12 @@ class reddit{
             $password);
         $response = $this->runCurl($urlLogin, $postData);
 
+        if (!is_object($response)){
+            return $response;
+        }
+        
         if (count($response->json->errors) > 0){
-            return "login error";
+            return $response->json->errors[0];
         } else {
             $this->modHash = $response->json->data->modhash;
             $this->session = $response->json->data->cookie;
@@ -106,12 +111,14 @@ class reddit{
      * @link http://www.reddit.com/dev/api#GET_listing
      * @param string $sr The subreddit name. Ex: technology, limit (integer): The number of posts to gather
      */
-    public function getListing($sr, $limit = 5){
-        $limit = (isset($limit)) ? "?limit=".$limit : "";
+    public function getListing($sr, $sort, $limit, $after){
+        $limit = "?limit=" . $limit;
+        $sort = !'best' ? $sort . "/" : "";
+        $after = (isset($after)) ? "&after=" . $after : "";
         if($sr == 'home' || $sr == 'reddit' || !isset($sr)){
-            $urlListing = "http://www.reddit.com/.json{$limit}";
+            $urlListing = "http://www.reddit.com/{$sort}.json{$limit}{$after}";
         } else {
-            $urlListing = "http://www.reddit.com/r/{$sr}/.json{$limit}";
+            $urlListing = "http://www.reddit.com/r/{$sr}/{$sort}.json{$limit}{$after}";
         }
         return $this->runCurl($urlListing);
     }
@@ -371,7 +378,8 @@ class reddit{
         $options = array(
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_COOKIE => "reddit_session={$this->session}",
-            CURLOPT_TIMEOUT => 3
+            CURLOPT_TIMEOUT => 3,
+            CURLOPT_USERAGENT => 'Redtiles web-app by /u/vegeta897'
         );
 
         if ($postVals != null){
