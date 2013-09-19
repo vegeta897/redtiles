@@ -813,3 +813,10 @@ fieldset {
 .autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
 .autocomplete-selected { background: #eee; }
 .autocomplete-suggestions strong { font-weight: normal; color: #e43d00; }
+
+/* Fancybox Overrides */
+
+.fancybox-skin { background: #222; }
+.fancybox-skin a { color: #eee; }
+.fancybox-skin a:hover, .fancybox-skin a:focus { color: #ddd; text-decoration: underline; }
+.fancybox-title time { color:#999; margin-right: 1.5em; }

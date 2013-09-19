@@ -173,7 +173,7 @@ angular.module('Redtiles.directives', [])
             }
         }
     })
-    .directive('tile', function() {
+    .directive('tile', function($filter) {
         return {
             restrict: 'C',
             require: '^tileArea',
@@ -262,9 +262,14 @@ angular.module('Redtiles.directives', [])
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
-                        //    $('#modalImage').foundation('reveal', 'open');
                             var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
-                            $.fancybox.open(scope.fullImages, { index: imageIndex });
+                            $.fancybox(scope.fullImages, { padding: 4, index: imageIndex,  
+                                title:
+                                    '<time>' + $filter('date')(scope.imageViewed.created_utc*1000, 'yy/M/d') +
+                                    '</time><a target="_blank" href="http://reddit.com' + 
+                                    scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
+                            });
+                            //.open(scope.fullImages, { index: imageIndex });
                         }
                     })
                 }

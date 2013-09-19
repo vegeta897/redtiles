@@ -27,7 +27,7 @@
                     <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add subreddit">
                 </form>
             </div>
-            <div class="controls" ng-hide="loginStatus == 'notLogged'">
+            <div class="controls" ng-show="loginStatus == 'logged'">
                 <div>
                     <a id="saveAsNewLink" ng-init="saveAsOpen = false" ng-click="saveAsOpen = !saveAsOpen; shareOpen = false">Save as new</a>
                     <a ng-init="shareOpen = false" ng-click="shareOpen = !shareOpen; saveAsOpen = false">Share</a>
