@@ -35,13 +35,17 @@ angular.module('Redtiles.controllers', [])
         $scope.imageTiles = []; // List of image tiles currently loaded/shown
         $scope.imageIDs = []; // List of image IDs currently loaded/shown
         $scope.fullImages = []; // List of full size URLs to images, used in FancyBox image display
-        $scope.popularSubs = ['itookapicture','gifs','pictures','tumblr','awwnime','cosplay','pics','cats','art']; // Placeholder
+        $scope.popularSubs = []; // Holds ordered list of popular subs, acquired from firebase
+        $scope.popularEditSubs = []; // Same as above but for collection manager, manually filtered
+        $scope.currentPopPage = 0; // Holds which page of popular subs we're on in the sidebar
+        $scope.totalPopPages = 1;
         $scope.sortBy = 'Hot'; // Sort parameter used in reddit API request
         $scope.loadStatus = 'loading...'; // Status text displayed to user
         $scope.addSubName = ''; // Name of subreddit being added in input field
         $scope.addSubToggle = false; // Watched by blurring directive, to blur the input field on submission
         $scope.sizeLevel = 2; // Image tile size, from 0 to 4
         $scope.loginStatus = ''; // Track log-in status, eg. 'logging' 'badPass' 'missingFields'
+        $scope.popularSelect = 'Select a subreddit';
 
         // Links up firebase user - creates user if doesn't exist, gets data if it does
         var connectFireUser = function() {
@@ -100,14 +104,18 @@ angular.module('Redtiles.controllers', [])
         
         // Populate the subreddits scope property by finding the currently selected collection
         var getSubs = function(gettingTiles) {
-                if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
-                    angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
-                }
-                $scope.subreddits = utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs;
-                if(gettingTiles) {
-                    clearTiles();
-                    getTiles();
-                }
+            if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
+                angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
+            }
+            if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl).hasOwnProperty('subs')) {
+                $scope.subreddits = [];
+            } else {
+                $scope.subreddits = JSON.parse(JSON.stringify(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs));
+            }
+            if(gettingTiles) {
+                clearTiles();
+                getTiles();
+            }
         };
         if(!session) {getSubs(true);} // If not logged, populate the active subreddit list on app start
         
@@ -127,6 +135,10 @@ angular.module('Redtiles.controllers', [])
             fireUser.set( // Store collection info in firebase
                 {collections: angular.copy($scope.collections), selectedColl: $scope.selectedColl}
             );
+            getFirePopular();
+        };
+        
+        var getFirePopular = function() {
             // Update the popularSubs ranking in firebase
             fireRef.child('users').once('value', function(fireUsers) {
                 var users = fireUsers.val();
@@ -137,6 +149,7 @@ angular.module('Redtiles.controllers', [])
                     } else { continue; }
                     for(var j = 0; j < user.collections.length; j++) {
                         var collection = user.collections[j];
+                        if(!collection.hasOwnProperty('subs')) { continue; }
                         for(var k = 0; k < collection.subs.length; k++) {
                             var sub = collection.subs[k];
                             if(popularSubs.hasOwnProperty(sub)) {
@@ -148,7 +161,37 @@ angular.module('Redtiles.controllers', [])
                     }
                 }
                 fireRef.child('meta').child('popularSubs').set(popularSubs);
+                var popularSorted = utility.objToArray(popularSubs);
+                popularSorted = utility.sortArrayByProperty(popularSorted,'value',true);
+                var popularList = [];
+                for(var p = 0; p < popularSorted.length; p++) { // Only count subs with more than 1 occurrence
+                    if(popularSorted[p].value > 1) { popularList.push(popularSorted[p].name); }
+                }
+                $scope.popularSubs = popularList;
+                filterPopularSubs();
             });
+        };
+        getFirePopular(); // Get popular list when app loads
+
+        var filterPopularSubs = function() {
+                var tempPop = $scope.popularSubs;
+                $scope.popularSubs = [];
+                for(var i = 0; i < tempPop.length; i++) {
+                    if(jQuery.inArray(tempPop[i],$scope.subreddits) == -1) {
+                        $scope.popularSubs.push(tempPop[i]);
+                    }
+                }
+                $scope.currentPopPage = 0;
+                $scope.totalPopPages = Math.ceil($scope.popularSubs.length/10);
+        };
+        
+        var filterPopularEditSubs = function() {
+            $scope.popularEditSubs = [];
+            for(var i = 0; i < $scope.popularSubs.length; i++) {
+                if(jQuery.inArray($scope.popularSubs[i],$scope.editSubreddits) == -1) {
+                    $scope.popularEditSubs.push($scope.popularSubs[i]);
+                }
+            }
         };
         
         var updateEditedCollections = function() {
@@ -191,6 +234,7 @@ angular.module('Redtiles.controllers', [])
                 $scope.loginStatus = 'logged'; // If none of the above conditions were met, login was successful
                 $scope.redditUser = response.userInfo['data'];
                 connectFireUser();
+                getFirePopular();
                 localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
                 localStorageService.set('redditSession',response.session); // Set redditSession
             });
@@ -285,27 +329,34 @@ angular.module('Redtiles.controllers', [])
         };
         // When a subreddit is added to the edited collection
         $scope.addEditSub = function(sub) {
-            $scope.addEditSubName = sub.toLowerCase();
-            // If sub name not empty and not already in sub list
-            if($scope.addEditSubName !== '' && jQuery.inArray($scope.addEditSubName,$scope.editSubreddits) == -1) {
-                $scope.editSubreddits.push($scope.addEditSubName); // Add subreddit to collection
-                $scope.addEditSubName = ''; // Clear the field
-                $scope.addEditSubToggle = !$scope.addEditSubToggle; // Blur the field
-                updateEditedCollections();
-            }
+            $timeout(function() {
+                var popDropSel = $('#popularDropdown');
+                $scope.addEditSubName = sub.toLowerCase();
+                popDropSel.html('Select a subreddit'); // Fix the popular sub list
+                // If sub name not empty and not already in sub list
+                if($scope.addEditSubName !== '' && jQuery.inArray($scope.addEditSubName,$scope.editSubreddits) == -1) {
+                    $scope.editSubreddits.push($scope.addEditSubName); // Add subreddit to collection
+                    $scope.addEditSubName = ''; // Clear the field
+                    $scope.addEditSubToggle = !$scope.addEditSubToggle; // Blur the field
+                    updateEditedCollections();
+                    filterPopularEditSubs();
+                }
+            },0);
         };
         // When a subreddit is removed from the edited collection
         $scope.removeEditSub = function(sub) {
-            var position = jQuery.inArray(sub,$scope.editSubreddits);
-            if(position > -1) { // If in the sub list
-                $scope.editSubreddits.splice(position,1); // Remove subreddit from collection
-                updateEditedCollections();
-            }
+            $timeout(function() {
+                var position = jQuery.inArray(sub,$scope.editSubreddits);
+                if(position > -1) { // If in the sub list
+                    $scope.editSubreddits.splice(position,1); // Remove subreddit from collection
+                    updateEditedCollections();
+                    filterPopularEditSubs();
+                }
+            },0);
         };
         // When a collection is renamed in the manager
         $scope.renameCollection = function(newName) {
             $scope.renameName = jQuery.trim(newName);
-            console.log($scope.editSelectedColl,$scope.renameName);
             // If collection name not empty
             if($scope.renameName !== '') {
                 var renamed = utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl);
@@ -378,6 +429,7 @@ angular.module('Redtiles.controllers', [])
                 storeSubs();
                 $scope.addSubName = ''; // Clear the field
                 $scope.addSubToggle = !$scope.addSubToggle; // Blur the field
+                filterPopularSubs();
                 clearTiles();
                 getTiles();
             }
@@ -387,6 +439,7 @@ angular.module('Redtiles.controllers', [])
             if(position > -1) { // If in the sub list
                 $scope.subreddits.splice(position,1); // Remove subreddit from collection
                 storeSubs();
+                filterPopularSubs();
                 if($scope.subreddits.length >= 1) {
                     clearTiles();
                     getTiles();
@@ -397,10 +450,15 @@ angular.module('Redtiles.controllers', [])
         $scope.filterPopular = function(item) {
             return jQuery.inArray(item,$scope.subreddits) < 0;
         };
+        // Filters out subreddits already in edited collection from the manager popular subs list
+        $scope.filterManagerPopular = function(item) {
+            return jQuery.inArray(item,$scope.editSubreddits) < 0;
+        };
         // When the collections manager is opened
         $scope.openManager = function() {
             $timeout(function() {
                 $scope.editSelectedColl = $scope.selectedColl;
+                $scope.popularEditSubs = $scope.popularSubs;
                 $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
                 $scope.editCollections = JSON.parse(JSON.stringify($scope.collections)); // Deep copy, kill refs
                 angular.copy($scope.subreddits,$scope.editSubreddits);
@@ -411,7 +469,7 @@ angular.module('Redtiles.controllers', [])
             $scope.collections = JSON.parse(JSON.stringify($scope.editCollections)); // Deep copy, kill refs
             if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl)) {
                 $scope.selectedColl = $scope.collections[0].name;
-                $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
+                $('#collDropdown').html($scope.selectedColl); // Fix the selected collection
             }
             getSubs();
             if(edited) {
@@ -484,7 +542,7 @@ angular.module('Redtiles.controllers', [])
                 if(response.hasOwnProperty('error')) { // If there was an error
                     gathering = false;
                     console.log(response.error.description);
-                    $timeout(getTiles(),1000);
+                    $timeout(getTiles,1000);
                     return;
                 }
                 $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
@@ -518,7 +576,7 @@ angular.module('Redtiles.controllers', [])
             }, function(response) { // On error
                 gathering = false;
                 console.log('http error:',response.error.description);
-                $timeout(getTiles(),1000);
+                $timeout(getTiles,1000);
             });
         };
         

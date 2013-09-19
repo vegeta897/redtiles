@@ -60,7 +60,23 @@ angular.module('Redtiles.directives', [])
                 selected: '='
             },
             restrict: 'E',
-            templateUrl: 'partials/zurb-select.html',
+            templateUrl: 'partials/collection-select.html',
+            link: function(scope, element, attr) {
+                scope.selectId = attr.selectId; // Pass in the ID
+                element.click(function(event) { // Open the dropdown menu on click
+                    scope.menuOpen = !scope.menuOpen;
+                });
+            }
+        };
+    })
+    .directive('popSelect', function(){
+        return {
+            scope: {
+                clickCallback: '&',
+                options: '='
+            },
+            restrict: 'E',
+            templateUrl: 'partials/popular-select.html',
             link: function(scope, element, attr) {
                 scope.selectId = attr.selectId; // Pass in the ID
                 element.click(function(event) { // Open the dropdown menu on click
@@ -293,4 +309,10 @@ angular.module('Redtiles.directives', [])
             });
         };
     })
+    .filter('startFrom', function() {
+        return function(input, start) {
+            start = +start; //parse to int
+            return input.slice(start);
+        }
+    });
 ;

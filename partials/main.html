@@ -51,16 +51,16 @@
         <h2><a><i class="icon-chevron-down"></i>Popular</a></h2>
         <div class="subreddits">
             <ul>
-                <li ng-repeat="sub in popularSubs | filter:filterPopular">
+                <li ng-repeat="sub in popularSubs | startFrom:currentPopPage*10 | limitTo:10">
                     <a ng-click="addSub(sub)" data-hover>
                         <i class="icon-plus"></i>/r/{{ sub }}
                     </a>
                 </li>
             </ul>
             <div class="page-nav">
-                <a class="disabled"><i class="icon-caret-left"></i> prev</a>
-                <span>-</span>
-                <a>next <i class="icon-caret-right"></i></a>
+                <a ng-class="{disabled:currentPopPage == 0}" ng-disabled="currentPopPage == 0" ng-click="currentPopPage = currentPopPage-1"><i class="icon-caret-left"></i> prev</a>
+                <span> {{ currentPopPage+1 }}/{{ totalPopPages }} </span>
+                <a ng-class="{disabled:currentPopPage >= totalPopPages - 1}" ng-disabled="currentPopPage >= popularSubs.length/10 - 1" ng-click="currentPopPage = currentPopPage+1">next <i class="icon-caret-right"></i></a>
             </div>
         </div>
     </section>
@@ -169,7 +169,7 @@
     </div>
     <div class="row">
         <div ng-hide="renamingColl" class="large-6 columns">
-            <form ng-show="loginStatus == 'logged'" class="custom">
+            <form class="custom">
                 <zurb-Select select-id="editDropdown" selected="editSelectedColl" options="editCollections" click-callback="changeEditColl(value)"></zurb-Select>
             </form>
         </div>
@@ -186,7 +186,7 @@
             <a ng-click="cloneCollection()" class="tiny secondary button">Clone</a>
         </div>
         <div ng-hide="renamingColl" class="small-2 columns">
-            <a ng-click="deleteCollection()" class="tiny secondary button">Delete</a>
+            <a ng-class="{disabled:editCollections.length <= 1}" ng-disabled="editCollections.length <= 1" ng-click="deleteCollection()" class="tiny secondary button">Delete</a>
         </div>
     </div>
     <div class="row">
@@ -215,15 +215,9 @@
         <div class="large-12 columns">
             <h3>Add a popular subreddit to this collection</h3>
             <div class="add-subreddit">
-                <form class="custom">
+                <form ng-show="loginStatus == 'logged'" class="custom">
                     <i class="icon-plus"></i>
-                    <select id="popularDropdown">
-                        <option>/r/itookapicture</option>
-                        <option>/r/FiftyFifty</option>
-                        <option>/r/tumblr</option>
-                        <option>/r/awwnime</option>
-                        <option>/r/cosplay</option>
-                    </select>
+                    <pop-Select select-id="popularDropdown" options="popularEditSubs" click-callback="addEditSub(value)"></pop-Select>
                 </form>
             </div>
         </div>

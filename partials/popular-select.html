@@ -1,0 +1,7 @@
+<div class="custom dropdown" ng-class="{disabled:options.length==0}" ng-disabled="options.length==0" ng-init="menuOpen=false" ng-class="{open: menuOpen}">
+    <a ng-class="{hidden:options.length==0}" id="{{ selectId }}" href="#" class="current custom-select">Select a subreddit</a>
+    <a href="#" class="selector custom-select"></a>
+    <ul ng-class="{hidden:options.length==0}">
+        <li ng-repeat="option in options | limitTo:15" class="custom-select" ng-click="clickCallback({value: option})">/r/{{ option }}</li>
+    </ul>
+</div>

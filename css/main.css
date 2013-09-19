@@ -10,7 +10,7 @@ body {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
 }
 
 /* --- Sidebar --- */
@@ -204,7 +204,7 @@ section#popular .subreddits ul li i.hover {
 .side-bar section#popular .page-nav span {
     font-weight: normal;
     cursor: default;
-    color: #aaa;
+    color: #666;
 }
 .side-bar section#popular .page-nav a:last-child { margin-left: 0.4em; }
 .side-bar section#popular .page-nav a:last-child i { margin-left: 0.2em; }
@@ -635,8 +635,11 @@ section#popular .subreddits ul li i.hover {
 
 #modalCollections .add-subreddit form.custom .custom.dropdown .current {
     line-height: 26px;
-    color: #fd4400;
     margin-left: 7px;
+}
+
+#modalCollections .add-subreddit form.custom .custom.dropdown ul li {
+    color: #fd4400;
 }
 
 #modalCollections .add-subreddit form.custom .custom.dropdown .selector {
@@ -763,6 +766,10 @@ img {
 .button:active {
     -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2) inset; 
+}
+
+form.custom .custom.dropdown ul {
+    max-height: 400px;
 }
 
 form.custom .custom.dropdown ul li {

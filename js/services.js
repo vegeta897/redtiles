@@ -25,7 +25,6 @@ angular.module('Redtiles.services', [])
                     }).error(function(data, status, headers, config) {
                         results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
                         console.log('error!', data, status, headers, config);
-                        // TODO: Error handling/display
                         deferred.reject(results);
                     });
                 return deferred.promise;
@@ -257,11 +256,11 @@ angular.module('Redtiles.services', [])
     })
     .factory('utility', function() { // Utility containing various helper functions
         return {
-            objToArray: function(obj) { // Convert an object into an array, for proper ng-repeating
+            objToArray: function(obj) { // Convert an object's properties into an array of objects
                 var arr = [];
                 for(var key in obj) {
                     if(obj.hasOwnProperty(key)) {
-                        arr.push(obj[key]);
+                        arr.push({name:key,value:obj[key]});
                     }
                 }
                 return arr;
@@ -279,7 +278,7 @@ angular.module('Redtiles.services', [])
             findByProperty: function(array, propName, propValue){ // Look through an array for an object with this property/value pair
                 return jQuery.grep(array, function(item) {
                     return item[propName] == propValue;
-                })[0] // Return the item itself instead of a single-item array
+                })[0]; // Return the item itself instead of a single-item array
             },
             removeByProperty: function(array, propName, propValue){ // Return an array after removing the object with this property/value pair
                 return jQuery.grep(array, function(item) {
