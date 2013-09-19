@@ -140,7 +140,7 @@ h1.logo {
     line-height: 22px;
 }
 
-.side-bar section#gallery .controls div:first-child div {
+.side-bar section#gallery .controls div:first-child div, .side-bar section#gallery .controls div:first-child form {
     margin-top: 6px;
     margin-left: 20px;
 }
@@ -299,6 +299,11 @@ section#popular .subreddits ul li i.hover {
 .top-bar .user {
     height: 30px;
     text-align: right;
+}
+
+.top-bar .user p {
+    line-height: 30px;
+    margin: 0;
 }
 
 .top-bar .user .f-dropdown {
@@ -546,9 +551,9 @@ section#popular .subreddits ul li i.hover {
 #modalLogin {
     position: fixed;
     width: 325px;
-    top: 20%;
+    top: 20% !important;
     left: 50%;
-    margin: 163px 0 0 -138px;
+    margin: 0 0 0 -163px;
 }
 
 #loginError {
@@ -573,7 +578,7 @@ section#popular .subreddits ul li i.hover {
 #modalCollections {
     position: fixed;
     width: 410px;
-    top: 30%;
+    top: 10% !important;
     left: 50%;
     margin: 0 0 0 -205px;
 }
@@ -755,14 +760,6 @@ img {
 
 form.custom .custom.dropdown ul li {
     font-size: 1em;
-}
-
-form.custom.disabled .custom.dropdown .current {
-    color: #aaa;
-}
-
-form.custom.disabled .custom.dropdown:hover .selector:after {
-    border-color: #aaa transparent transparent transparent;
 }
 
 .f-dropdown {

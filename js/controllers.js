@@ -6,7 +6,7 @@ angular.module('Redtiles.controllers', [])
         // Default page controller stuff
         
     }])
-    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'localStorageService', function($scope, $timeout, $element, reddit, localStorageService) {
+    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'utility', 'localStorageService', function($scope, $timeout, $element, reddit, utility, localStorageService) {
 
         var gathering = false; // Keeps track of whether an API request is in process
         var lastID = null; // Last image ID, used in reddit API request
@@ -16,16 +16,22 @@ angular.module('Redtiles.controllers', [])
         var noMoreResults = false; // Indicates whether there are any more results to get
         var loadBuffer = true; // If true, prevents another API call
         var session = false; // Indicates whether a reddit session is active
+        var edited = false; // Indicates whether an edit was made in the collection manager
 
         var jqWindow = $(window); // jQuery object for the window
         var htmlBody = $('html, body');
         var tileArea = $('.tile-area'); // jQuery object for the tile area
 
+        // Create a reference to firebase for storing and retrieving user's collections
+        var fireRef = new Firebase('https://redtiles.firebaseio.com');
+
         $scope.selectedColl = 'Default Collection'; // Default selected collection name
-        $scope.collections = {'Another Collection':['blah']}; // Collections object, indexed by collection name
-        $scope.collections[$scope.selectedColl] = ['pics','funny','wallpapers']; // Add default subs
-        $scope.subreddits = $scope.collections['Default Collection']; // Get default subs
-        $scope.collectionList = ['Default Collection', 'Another Collection'];
+        $scope.collections = []; // Collections array
+        $scope.collections.push({name:$scope.selectedColl, subs: ['pics','funny','wallpapers']}); // Add default
+        $scope.subreddits = [];
+        $scope.editSelectedColl = '';
+        $scope.editCollections = [];
+        $scope.editSubreddits = [];
         $scope.imageTiles = []; // List of image tiles currently loaded/shown
         $scope.imageIDs = []; // List of image IDs currently loaded/shown
         $scope.fullImages = []; // List of full size URLs to images, used in FancyBox image display
@@ -37,20 +43,40 @@ angular.module('Redtiles.controllers', [])
         $scope.sizeLevel = 2; // Image tile size, from 0 to 4
         $scope.loginStatus = ''; // Track log-in status, eg. 'logging' 'badPass' 'missingFields'
 
-        // LocalStorage initialization TODO: Make this a looping array of params
-        if(localStorageService.get('defaultSubreddits')) { // Check for subreddits in localstorage/cookies
-            $scope.subreddits = localStorageService.get('defaultSubreddits'); // Get subreddits
-        } else { // If not found, initialize
-            localStorageService.set('defaultSubreddits',$scope.subreddits); // Set subreddits
-        }
+        // Links up firebase user - creates user if doesn't exist, gets data if it does
+        var connectFireUser = function() {
+            var fireUser = fireRef.child('users').child($scope.redditUser['name']);
+            fireUser.once('value', function(user) {
+                if(!user.val()) { // If the user doesn't exist, create it
+                    fireUser.set(
+                        {collections: angular.copy($scope.collections), selectedColl: $scope.selectedColl}
+                    )
+                } else {
+                    $scope.collections = user.val().collections;
+                    $scope.selectedColl = user.val().selectedColl;
+                    getSubs(true);
+                    localStorageService.set('collections',$scope.collections); // Set collections
+                    localStorageService.set('selectedColl',$scope.selectedColl); // Set selected collection
+                }
+            });
+        };
+        
+        // Check for default size
         if(localStorageService.get('defaultSize')) { // Check for sizeLevel in localstorage/cookies
             $scope.sizeLevel = parseInt(localStorageService.get('defaultSize')); // Get sizeLevel
         } else { // If not found, initialize
             localStorageService.set('defaultSize',$scope.sizeLevel); // Set sizeLevel
         }
+        // Check for collection list
+        if(localStorageService.get('collections')) { // Check for collections in localstorage/cookies
+            $scope.collections = localStorageService.get('collections'); // Get collections
+        } else { // If not found, initialize
+            localStorageService.set('collections',$scope.sizeLevel); // Set collections
+        }
         // Check for reddit user info
         if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
             $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
+            connectFireUser();
             if($scope.redditUser == null) { // If the user object is null, remove user and session
                 localStorageService.remove('redditUser'); // Remove redditUser from localstorage/cookies
                 localStorageService.remove('redditSession'); // Remove session from localstorage/cookies
@@ -63,10 +89,70 @@ angular.module('Redtiles.controllers', [])
             reddit.autoLogin(redditSession.modhash, redditSession.cookie).then(function(response) {
                 console.log('Resuming session');
                 $scope.loginStatus = 'logged';
-                getTiles(); // Get tiles when session is resumed
             });
         }
         if(!session) { $scope.loginStatus = 'notLogged'; } // If no session was found, we're not logged in
+        
+        // Populate the subreddits scope property by finding the currently selected collection
+        var getSubs = function(gettingTiles) {
+            $timeout(function() {
+                if($scope.editSelectedColl) {
+                    $scope.editSubreddits = angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs);
+                }
+                $scope.subreddits = angular.copy(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs);
+                if(gettingTiles) {
+                    getTiles();
+                }
+            }, 0);
+        };
+        getSubs(); // Populate the active subreddit list on app start
+        
+        // Store the subreddits into the collections property, and save that to localstorage and firebase
+        var storeSubs = function() {
+            for(var i = 0; i < $scope.collections.length; i++) {
+                if($scope.collections[i].name == $scope.selectedColl) {
+                    $scope.collections[i].subs = angular.copy($scope.subreddits);
+                    break;
+                }
+            }
+            var fireUser = fireRef.child('users').child($scope.redditUser['name']);
+            fireUser.set( // Store collection info in firebase
+                {collections: angular.copy($scope.collections), selectedColl: $scope.selectedColl}
+            );
+            // Update the popularSubs ranking in firebase
+            fireRef.child('users').once('value', function(fireUsers) {
+                var users = fireUsers.val();
+                var popularSubs = {};
+                for(var userKey in users) {
+                    if(users.hasOwnProperty(userKey)) {
+                        var user = users[userKey];
+                    } else { continue; }
+                    for(var j = 0; j < user.collections.length; j++) {
+                        var collection = user.collections[j];
+                        for(var k = 0; k < collection.subs.length; k++) {
+                            var sub = collection.subs[k];
+                            if(popularSubs.hasOwnProperty(sub)) {
+                                popularSubs[sub] = popularSubs[sub] + 1;
+                            } else {
+                                popularSubs[sub] = 1;
+                            }
+                        }
+                    }
+                }
+                fireRef.child('meta').child('popularSubs').set(popularSubs);
+            });
+            localStorageService.set('collections',$scope.collections); // Store collections in localstorage
+        };
+        
+        var updateEditedCollections = function() {
+            for(var i = 0; i < $scope.editCollections.length; i++) {
+                if($scope.editCollections[i].name == $scope.editSelectedColl) {
+                    $scope.editCollections[i].subs = $scope.editSubreddits;
+                    edited = true;
+                    break;
+                }
+            }
+        };
         
         // When clicking on an image for full view
         $scope.viewImage = function(img) {
@@ -77,7 +163,7 @@ angular.module('Redtiles.controllers', [])
             $scope.loginStatus = 'logging';
             reddit.login(username,password).then(function(response) {
                 console.log(response);
-                if(!response.hasOwnProperty('session')) {
+                if(!response.hasOwnProperty('session') || response['session'] == null) {
                     $scope.loginStatus = 'missingFields';
                     return;
                 }
@@ -91,12 +177,13 @@ angular.module('Redtiles.controllers', [])
                     $scope.loginStatus = 'rateLimit' + wait;
                     return;
                 }
-                if(!response.hasOwnProperty('userInfo')) { // Some other unhandled error
+                if(!response.hasOwnProperty('userInfo') || !response['userInfo']) { // Some other unhandled error
                     $scope.loginStatus = 'unknownError';
                     return;
                 }
                 $scope.loginStatus = 'logged'; // If none of the above conditions were met, login was successful
                 $scope.redditUser = response.userInfo['data'];
+                connectFireUser();
                 localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
                 localStorageService.set('redditSession',response.session); // Set redditSession
             });
@@ -107,6 +194,8 @@ angular.module('Redtiles.controllers', [])
                 console.log(response);
                 $scope.loginStatus = 'notLogged';
                 $scope.redditUser = null;
+                $scope.selectedColl = 'Default Collection'; // Default selected collection name
+                $scope.collections = [{name:'Default Collection',subs:$scope.subreddits}]; // Collections array
                 localStorageService.remove('redditUser'); // Remove redditUser from localstorage/cookies
                 localStorageService.remove('redditSession'); // Remove session from localstorage/cookies
             });
@@ -165,16 +254,75 @@ angular.module('Redtiles.controllers', [])
         $scope.changeColl = function(coll) {
             $timeout(function() { // Using timeout to force scope refresh
                 $scope.selectedColl = coll;
-                if(!$scope.collections.hasOwnProperty(coll)) {
+                var fireUser = fireRef.child('users').child($scope.redditUser['name']);
+                fireUser.set( // Store collection info in firebase
+                    {collections: angular.copy($scope.collections), selectedColl: $scope.selectedColl}
+                );
+                getSubs();
+                if(!$scope.subreddits) {
                     console.log(coll,'not found in',$scope.collections);
                     return;
                 }
-                $scope.subreddits = $scope.collections[coll];
                 if($scope.subreddits.length == 0) { return; }
-                console.log('selected:',coll,'which contains:',$scope.subreddits,'also heres this',$scope.collections);
                 clearTiles();
                 getTiles();
             }, 0);
+        };
+        // When a new collection is selected for editing
+        $scope.changeEditColl = function(coll) {
+            $timeout(function() { // Using timeout to force scope refresh
+                $scope.editSelectedColl = coll;
+                getSubs();
+            }, 0);
+        };
+        // When a subreddit is added to the edited collection
+        $scope.addEditSub = function(sub) {
+            $scope.addEditSubName = sub.toLowerCase();
+            // If sub name not empty and not already in sub list
+            if($scope.addEditSubName !== '' && jQuery.inArray($scope.addEditSubName,$scope.editSubreddits) == -1) {
+                $scope.editSubreddits.push($scope.addEditSubName); // Add subreddit to collection
+                $scope.addEditSubName = ''; // Clear the field
+                $scope.addEditSubToggle = !$scope.addEditSubToggle; // Blur the field
+                updateEditedCollections();
+            }
+        };
+        // When a subreddit is removed from the edited collection
+        $scope.removeEditSub = function(sub) {
+            var position = jQuery.inArray(sub,$scope.editSubreddits);
+            if(position > -1) { // If in the sub list
+                $scope.editSubreddits.splice(position,1); // Remove subreddit from collection
+                updateEditedCollections();
+            }
+        };
+        // When a collection is deleted in the manager
+        $scope.deleteCollection = function() {
+            if($scope.editCollections.length == 1) { return; } // Can't delete if only 1 collection
+            var position = -1;
+            for(var i = 0; i < $scope.editCollections.length; i++) {
+                if($scope.editCollections[i].name == $scope.editSelectedColl) {
+                    position = i;
+                    edited = true;
+                    break;
+                }
+            }
+            if(position > -1) { // If in the collection list
+                $scope.editCollections.splice(position,1); // Remove subreddit from collection
+                $scope.editSelectedColl = $scope.editCollections[0].name;
+                $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                getSubs();
+            }
+        };
+        // When a collection is "saved as" in the sidebar
+        $scope.addCollection = function(coll) {
+            $scope.saveNewName = jQuery.trim(coll);
+            // If sub name not empty and not already in sub list
+            if($scope.saveNewName !== '') {
+                $scope.collections.push({name:$scope.saveNewName,subs:angular.copy($scope.subreddits)}); // Add collection
+                $scope.selectedColl = $scope.saveNewName;
+                $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
+                $scope.saveNewName = ''; // Clear the field
+                $scope.saveAsOpen = false; // Close the section
+            }
         };
         // When one of the sizing buttons are clicked (amount is -1 or 1)
         $scope.changeSize = function(amount) {
@@ -196,7 +344,7 @@ angular.module('Redtiles.controllers', [])
             // If sub name not empty and not already in sub list
             if($scope.addSubName !== '' && jQuery.inArray($scope.addSubName,$scope.subreddits) == -1) {
                 $scope.subreddits.push($scope.addSubName); // Add subreddit to collection
-                localStorageService.set('defaultSubreddits',$scope.subreddits); // Store in localstorage
+                storeSubs();
                 $scope.addSubName = ''; // Clear the field
                 $scope.addSubToggle = !$scope.addSubToggle; // Blur the field
                 clearTiles();
@@ -204,11 +352,10 @@ angular.module('Redtiles.controllers', [])
             }
         };
         $scope.removeSub = function(sub) {
-        //    if($scope.subreddits.length == 1) { return; } // Cancel if last subreddit
             var position = jQuery.inArray(sub,$scope.subreddits);
             if(position > -1) { // If in the sub list
-                $scope.subreddits.splice(position,1); // remove subreddit from collection
-                localStorageService.set('defaultSubreddits',$scope.subreddits);
+                $scope.subreddits.splice(position,1); // Remove subreddit from collection
+                storeSubs();
                 if($scope.subreddits.length >= 1) {
                     clearTiles();
                     getTiles();
@@ -218,6 +365,15 @@ angular.module('Redtiles.controllers', [])
         // Filters out subreddits already in collection from the popular subs list
         $scope.filterPopular = function(item) {
             return jQuery.inArray(item,$scope.subreddits) < 0;
+        };
+        // When the collections manager is opened
+        $scope.openManager = function() {
+            $timeout(function() {
+                $scope.editSelectedColl = angular.copy($scope.selectedColl);
+                $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                $scope.editCollections = angular.copy($scope.collections);
+                $scope.editSubreddits = angular.copy($scope.subreddits);
+            },0);
         };
         // Determine post size based on sizeLevel
         var getPostSize = function(post) {
@@ -339,11 +495,27 @@ angular.module('Redtiles.controllers', [])
         this.reLayout = function reLayout() {
             msnry.layout();
         };
+        this.closeManager = function closeManager() {
+            $timeout(function() {
+                $scope.collections = angular.copy($scope.editCollections);
+                if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl)) {
+                    $scope.selectedColl = $scope.collections[0].name;
+                    $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
+                }
+                getSubs();
+                if(edited) {
+                    clearTiles();
+                    getTiles();
+                }
+                edited = false;
+                storeSubs();
+            },0);
+        };
         // Function run on each scroll event to determine whether to get more images
         var onScroll = function() {
             var tileAreaBottom = tileArea.offset().top + tileArea.height();
             if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
-                if(!noMoreResults) {
+                if(!noMoreResults && $scope.subreddits.length > 0) {
                     $timeout(function() { // Using timeout to force scope refresh
                         $scope.loadStatus = 'loading more...';
                     }, 0);

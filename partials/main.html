@@ -7,16 +7,8 @@
     <section data-section-toggle id="gallery">
         <h2><a><i class="icon-chevron-down"></i>Gallery</a></h2>
         <div>
-            <form ng-class="{disabled: loginStatus != 'logged'}" class="custom">
-
-                <zurb-Select selected="selectedColl" options="collections" click-callback="changeColl(value)"></zurb-Select>
-                
-                <!--<zurb-Select options="collectionList" click-callback="changeColl(value)"></zurb-Select>-->
-
-                <!--<select ng-disabled="loginStatus != 'logged'" id="collectionSelect">-->
-                    <!--<option>foo</option>-->
-                    <!--<option>bar</option>-->
-                <!--</select>-->
+            <form ng-show="loginStatus == 'logged'" class="custom">
+                <zurb-Select select-id="collDropdown" selected="selectedColl" options="collections" click-callback="changeColl(value)"></zurb-Select>
             </form>
             <div class="subreddits">
                 <ul>
@@ -32,25 +24,25 @@
                 <form name="addSubForm" ng-submit="addSub(addSubName)" class="add-subreddit">
                     <i class="icon-plus"></i>
                     <span class="prefix">/r/</span>
-                    <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add new">
+                    <input data-blur="addSubToggle" data-subreddit-autocomplete required name="addSubInput" ng-model="addSubName" type="text" placeholder="add subreddit">
                 </form>
             </div>
             <div class="controls" ng-hide="loginStatus == 'notLogged'">
                 <div>
-                    <a ng-init="saveAsOpen = false" ng-click="saveAsOpen = !saveAsOpen; shareOpen = false">Save as new</a>
+                    <a id="saveAsNewLink" ng-init="saveAsOpen = false" ng-click="saveAsOpen = !saveAsOpen; shareOpen = false">Save as new</a>
                     <a ng-init="shareOpen = false" ng-click="shareOpen = !shareOpen; saveAsOpen = false">Share</a>
-                    <div ng-class="{hidden:!saveAsOpen}" id="saveAsNew">
-                        <input type="text" placeholder="New Collection">
+                    <form ng-submit="addCollection(saveNewName)" ng-class="{hidden:!saveAsOpen}" id="saveAsNew">
+                        <input ng-model="saveNewName" type="text" placeholder="New Collection">
                         <button>Save</button>
-                    </div>
+                    </form>
                     <div ng-class="{hidden:!shareOpen}" class="share" id="share">
                         <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
-                        <button>Copy</button>
+                        <button type="submit">Copy</button>
                     </div>
                 </div>
                 <div>
                     <i class="icon-list"></i>
-                    <a data-reveal-id="modalCollections" id="manage">Manage Collections</a>
+                    <a ng-click="openManager()" data-reveal-id="modalCollections" id="manage">Manage Collections</a>
                 </div>
             </div>
         </div>
@@ -171,17 +163,13 @@
     <h2>My Collections</h2>
     <div class="row">
         <div class="large-12 columns">
-            <label for="editedCollection">Choose a collection to edit</label>
+            <label>Choose a collection to edit</label>
         </div>
     </div>
     <div class="row">
         <div class="large-6 columns">
-            <form class="custom">
-                <select id="editedCollection">
-                    <option>My Collection</option>
-                    <option>Another Collection</option>
-                    <option>Super secret</option>
-                </select>
+            <form ng-show="loginStatus == 'logged'" class="custom">
+                <zurb-Select select-id="editDropdown" selected="editSelectedColl" options="editCollections" click-callback="changeEditColl(value)"></zurb-Select>
             </form>
         </div>
         <div class="small-2 columns">
@@ -191,7 +179,7 @@
             <a class="tiny secondary button">Clear</a>
         </div>
         <div class="small-2 columns">
-            <a class="tiny secondary button">Delete</a>
+            <a ng-click="deleteCollection()" class="tiny secondary button">Delete</a>
         </div>
     </div>
     <div class="row">
@@ -199,16 +187,20 @@
             <h3>Subreddits in this collection</h3>
             <div class="subreddits">
                 <ul>
-                    <li><i class="icon-minus"></i><a>/r/pics</a></li>
-                    <li><i class="icon-minus"></i><a>/r/funny</a></li>
-                    <li><i class="icon-minus"></i><a>/r/1000words</a></li>
-                    <li><i class="icon-minus"></i><a>/r/wallpapers</a></li>
+                    <li class="add-hint" ng-show="editSubreddits.length == 0">
+                        Add some subreddits!
+                    </li>
+                    <li ng-repeat="editSub in editSubreddits">
+                        <a ng-click="removeEditSub(editSub)" data-hover>
+                            <i class="icon-minus"></i>/r/{{ editSub }}
+                        </a>
+                    </li>
                 </ul>
-                <div class="add-subreddit">
+                <form name="addEditSubForm" ng-submit="addEditSub(addEditSubName)" class="add-subreddit">
                     <i class="icon-plus"></i>
                     <span class="prefix">/r/</span>
-                    <input type="text" placeholder="add new">
-                </div>
+                    <input data-blur="addEditSubToggle" data-subreddit-autocomplete required name="addEditSubInput" ng-model="addEditSubName" type="text" placeholder="add subreddit">
+                </form>
             </div>
         </div>
     </div>

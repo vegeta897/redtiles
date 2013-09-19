@@ -255,4 +255,37 @@ angular.module('Redtiles.services', [])
             }
         };
     })
+    .factory('utility', function() { // Utility containing various helper functions
+        return {
+            objToArray: function(obj) { // Convert an object into an array, for proper ng-repeating
+                var arr = [];
+                for(var key in obj) {
+                    if(obj.hasOwnProperty(key)) {
+                        arr.push(obj[key]);
+                    }
+                }
+                return arr;
+            },
+            sortArrayByProperty: function(arr, sortby, descending) {
+                if(arr[0].hasOwnProperty(sortby)) {
+                    if(descending) {
+                        arr.sort(function(obj1, obj2) {return obj2[sortby] - obj1[sortby]})
+                    } else {
+                        arr.sort(function(obj1, obj2) {return obj1[sortby] - obj2[sortby]})
+                    }
+                }
+                return arr;
+            },
+            findByProperty: function(array, propName, propValue){ // Look through an array for an object with this property/value pair
+                return jQuery.grep(array, function(item) {
+                    return item[propName] == propValue;
+                })[0] // Return the item itself instead of a single-item array
+            },
+            removeByProperty: function(array, propName, propValue){ // Return an array after removing the object with this property/value pair
+                return jQuery.grep(array, function(item) {
+                    return item[propName] != propValue;
+                })
+            }
+        };
+    })
     ;

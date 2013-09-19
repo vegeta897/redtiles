@@ -52,7 +52,7 @@ angular.module('Redtiles.directives', [])
             }
         };
     })
-    .directive('zurbSelect', function($compile){
+    .directive('zurbSelect', function(){
         return {
             scope: {
                 clickCallback: '&',
@@ -62,6 +62,7 @@ angular.module('Redtiles.directives', [])
             restrict: 'E',
             templateUrl: 'partials/zurb-select.html',
             link: function(scope, element, attr) {
+                scope.selectId = attr.selectId; // Pass in the ID
             }
         };
     })
@@ -142,6 +143,15 @@ angular.module('Redtiles.directives', [])
                 });
                 element.masonry(options);
                 ctrl.initMasonry(element);
+                $('#modalCollections').on('opened',function() {
+                    // Collection editor opened
+                }).on('closed',function() {
+                    ctrl.closeManager();
+                });
+                var saveAsNewLink = $('#saveAsNewLink');
+                saveAsNewLink.click(function() {
+                    saveAsNewLink.siblings('form').children('input').focus();
+                })
             }
         }
     })
@@ -269,10 +279,14 @@ angular.module('Redtiles.directives', [])
     .directive('subredditAutocomplete', function () {
         return function (scope, element, attrs) {
             element.autocomplete({
-                lookup: ['pics','pictures','itookapicture','awwwnime','gifs','cosplay','wallpapers','memes','fffffffuuuuuuuuuuuu','aww','wtf','gaming','earthporn','roomporn','food','art','woahdude','comics','4chan','abandonedporn','cars','cats','cityporn','albumartporn','firstworldanarchists','foodporn','gentlemanboners','ladyboners','graffiti','humanporn','historyporn','machineporn','mapporn','quotesporn','spaceporn','tattoos','adviceanimals','lolcats','ecards','boardgames','books','circlejerk','creepy','facepalm','cringepics','freebies','frugal','geek','getmotivated','history','humor','jokes','justiceporn','shutupandtakemymoney','offbeat','philosophy','photography','nosleep','scifi'],
+                lookup: ['pics','pictures','tumblr','itookapicture','awwwnime','gifs','cosplay','wallpapers','memes','fffffffuuuuuuuuuuuu','aww','wtf','gaming','earthporn','roomporn','food','art','woahdude','comics','4chan','abandonedporn','cars','cats','cityporn','albumartporn','firstworldanarchists','foodporn','gentlemanboners','ladyboners','graffiti','humanporn','historyporn','machineporn','mapporn','quotesporn','spaceporn','tattoos','adviceanimals','lolcats','ecards','boardgames','books','circlejerk','creepy','facepalm','cringepics','freebies','frugal','geek','getmotivated','history','humor','jokes','justiceporn','shutupandtakemymoney','offbeat','philosophy','photography','nosleep','scifi'],
                 onSelect: function (suggestion) {
                     // When a suggestion is selected
-                    scope.addSubName = suggestion.value;
+                    if(element.attr('name') == 'addSubInput') {
+                        scope.addSubName = suggestion.value;
+                    } else {
+                        scope.addEditSubName = suggestion.value;
+                    }
                 }
             });
         };
