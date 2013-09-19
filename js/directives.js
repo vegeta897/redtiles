@@ -147,11 +147,7 @@ angular.module('Redtiles.directives', [])
                 element.masonry(options);
                 ctrl.initMasonry(element);
                 var modalCollections = $('#modalCollections');
-                modalCollections.on('opened',function() {
-                    // Collection editor opened
-                }).on('closed',function() {
-                    ctrl.closeManager();
-                }).find('#renameButton').click(function() {
+                modalCollections.find('#renameButton').click(function() {
                     setInterval(function(){modalCollections.find('#renameInput').focus();},50);
                 });
                 var saveAsNewLink = $('#saveAsNewLink');

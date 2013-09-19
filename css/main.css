@@ -654,15 +654,14 @@ section#popular .subreddits ul li i.hover {
 }
 
 #modalCollections #collectionsDone {
-    position: static;
-    background: #666;
     color: white;
     background: #666;
     border-color: #515151;
-    font-size: 18px;
-    font-weight: bold;
-    padding: 8px 25px;
+    font-size: 14px;
+    padding: 8px 0;
     margin-bottom: 0;
+    margin-top: 19px;
+    width: 120px;
 }
 
 #modalCollections #collectionsDone:hover, #modalCollections #collectionsDone:focus {

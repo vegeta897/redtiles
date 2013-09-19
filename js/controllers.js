@@ -100,16 +100,14 @@ angular.module('Redtiles.controllers', [])
         
         // Populate the subreddits scope property by finding the currently selected collection
         var getSubs = function(gettingTiles) {
-            $timeout(function() {
                 if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
-                    $scope.editSubreddits = angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs);
+                    angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
                 }
-                $scope.subreddits = angular.copy(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs);
+                $scope.subreddits = utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs;
                 if(gettingTiles) {
                     clearTiles();
                     getTiles();
                 }
-            }, 0);
         };
         if(!session) {getSubs(true);} // If not logged, populate the active subreddit list on app start
         
@@ -117,7 +115,7 @@ angular.module('Redtiles.controllers', [])
         var storeSubs = function() {
             for(var i = 0; i < $scope.collections.length; i++) {
                 if($scope.collections[i].name == $scope.selectedColl) {
-                    $scope.collections[i].subs = angular.copy($scope.subreddits);
+                    $scope.collections[i].subs = $scope.subreddits;
                     break;
                 }
             }
@@ -156,7 +154,7 @@ angular.module('Redtiles.controllers', [])
         var updateEditedCollections = function() {
             for(var i = 0; i < $scope.editCollections.length; i++) {
                 if($scope.editCollections[i].name == $scope.editSelectedColl) {
-                    $scope.editCollections[i].subs = $scope.editSubreddits;
+                    angular.copy($scope.editSubreddits, $scope.editCollections[i].subs)
                     edited = true;
                     break;
                 }
@@ -341,12 +339,21 @@ angular.module('Redtiles.controllers', [])
             $scope.saveNewName = jQuery.trim(coll);
             // If collection name not empty
             if($scope.saveNewName !== '') {
-                $scope.collections.push({name:$scope.saveNewName,subs:angular.copy($scope.subreddits)}); // Add collection
+                var newSubs = [];
+                angular.copy($scope.subreddits,newSubs);
+                $scope.collections.push({name:$scope.saveNewName,subs:newSubs}); // Add collection
                 $scope.selectedColl = $scope.saveNewName;
                 $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
                 $scope.saveNewName = ''; // Clear the field
                 $scope.saveAsOpen = false; // Close the section
             }
+        };
+        // When a collection is cloned
+        $scope.cloneCollection = function() {
+            var cloneName = 'Copy of ' + $scope.editSelectedColl;
+            $scope.editCollections.push({name:cloneName,subs:angular.copy($scope.editSubreddits)}); // Add collection
+            $scope.editSelectedColl = cloneName;
+            $('#editCollDropdown').html(cloneName); // Fix the edited collection
         };
         // When one of the sizing buttons are clicked (amount is -1 or 1)
         $scope.changeSize = function(amount) {
@@ -393,11 +400,26 @@ angular.module('Redtiles.controllers', [])
         // When the collections manager is opened
         $scope.openManager = function() {
             $timeout(function() {
-                $scope.editSelectedColl = angular.copy($scope.selectedColl);
+                $scope.editSelectedColl = $scope.selectedColl;
                 $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
-                $scope.editCollections = angular.copy($scope.collections);
-                $scope.editSubreddits = angular.copy($scope.subreddits);
+                $scope.editCollections = JSON.parse(JSON.stringify($scope.collections)); // Deep copy, kill refs
+                angular.copy($scope.subreddits,$scope.editSubreddits);
             },0);
+        };
+        // When the save changes button is clicked in the collection manager
+        $scope.saveChanges = function() {
+            $scope.collections = JSON.parse(JSON.stringify($scope.editCollections)); // Deep copy, kill refs
+            if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl)) {
+                $scope.selectedColl = $scope.collections[0].name;
+                $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
+            }
+            getSubs();
+            if(edited) {
+                clearTiles();
+                getTiles();
+            }
+            edited = false;
+            storeSubs();
         };
         // Determine post size based on sizeLevel
         var getPostSize = function(post) {
@@ -446,8 +468,9 @@ angular.module('Redtiles.controllers', [])
         // Get posts from reddit
         var getTiles = function() {
             if(gathering) { return; }
-            if($scope.subreddits.length == 0) {
-                $scope.loadStatus = 'add some subreddits!';
+            if(!$scope.subreddits || $scope.subreddits.length == 0) {
+                $scope.subreddits = [];
+                $timeout(function(){$scope.loadStatus = 'add some subreddits!';},0);
                 return;
             }
             gathering = true;
@@ -520,22 +543,6 @@ angular.module('Redtiles.controllers', [])
         };
         this.reLayout = function reLayout() {
             msnry.layout();
-        };
-        this.closeManager = function closeManager() {
-            $timeout(function() {
-                $scope.collections = angular.copy($scope.editCollections);
-                if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl)) {
-                    $scope.selectedColl = $scope.collections[0].name;
-                    $('#collDropdown').html($scope.selectedColl); // Fix the edited collection
-                }
-                getSubs();
-                if(edited) {
-                    clearTiles();
-                    getTiles();
-                }
-                edited = false;
-                storeSubs();
-            },0);
         };
         // Function run on each scroll event to determine whether to get more images
         var onScroll = function() {

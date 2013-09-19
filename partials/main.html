@@ -183,7 +183,7 @@
             <a id="renameButton" ng-init="renamingColl = false" ng-click="renamingColl = !renamingColl" class="tiny secondary button"><span ng-show="renamingColl">Cancel</span><span ng-hide="renamingColl">Rename</span></a>
         </div>
         <div ng-hide="renamingColl" class="small-2 columns">
-            <a class="tiny secondary button">Clone</a>
+            <a ng-click="cloneCollection()" class="tiny secondary button">Clone</a>
         </div>
         <div ng-hide="renamingColl" class="small-2 columns">
             <a ng-click="deleteCollection()" class="tiny secondary button">Delete</a>
@@ -229,20 +229,15 @@
         </div>
     </div>
     <div class="row">
-        <div class="large-12 columns">
+        <div class="large-7 columns">
             <h3>Share this collection</h3>
             <div class="share">
                 <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
                 <button>Copy</button>
             </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="large-5 large-offset-4 columns">
-            <p>Changes are saved automatically</p>
-        </div>
         <div class="large-3 columns">
-            <a id="collectionsDone" class="button close-reveal-modal secondary">Done</a>
+            <a ng-click="saveChanges()" id="collectionsDone" class="button close-reveal-modal">Save Changes</a>
         </div>
     </div>
     <a class="close-reveal-modal"><i class="icon-remove"></i></a>
