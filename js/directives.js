@@ -63,6 +63,9 @@ angular.module('Redtiles.directives', [])
             templateUrl: 'partials/zurb-select.html',
             link: function(scope, element, attr) {
                 scope.selectId = attr.selectId; // Pass in the ID
+                element.click(function(event) { // Open the dropdown menu on click
+                    scope.menuOpen = !scope.menuOpen;
+                });
             }
         };
     })
@@ -143,15 +146,18 @@ angular.module('Redtiles.directives', [])
                 });
                 element.masonry(options);
                 ctrl.initMasonry(element);
-                $('#modalCollections').on('opened',function() {
+                var modalCollections = $('#modalCollections');
+                modalCollections.on('opened',function() {
                     // Collection editor opened
                 }).on('closed',function() {
                     ctrl.closeManager();
+                }).find('#renameButton').click(function() {
+                    setInterval(function(){modalCollections.find('#renameInput').focus();},50);
                 });
                 var saveAsNewLink = $('#saveAsNewLink');
                 saveAsNewLink.click(function() {
                     saveAsNewLink.siblings('form').children('input').focus();
-                })
+                });
             }
         }
     })

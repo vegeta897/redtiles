@@ -379,7 +379,7 @@ class reddit{
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_COOKIE => "reddit_session={$this->session}",
             CURLOPT_TIMEOUT => 3,
-            CURLOPT_USERAGENT => 'Redtiles web-app by /u/vegeta897'
+            CURLOPT_USERAGENT => 'Redtiles web-app 0.9 by /u/vegeta897'
         );
 
         if ($postVals != null){

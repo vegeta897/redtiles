@@ -145,14 +145,18 @@ h1.logo {
     margin-left: 20px;
 }
 
-.side-bar section#gallery .controls input, #modalCollections .share input {
+.side-bar section#gallery .controls input, #modalCollections .share input, #modalCollections #renameForm input {
     font-size: 14px;
     float: left;
     width: 127px;
     height: 28px;
 }
 
-.side-bar section#gallery .controls button, #modalCollections .share button {
+#modalCollections #renameForm input {
+    width: 155px;
+}
+
+.side-bar section#gallery .controls button, #modalCollections .share button, #modalCollections #renameForm button {
     box-sizing: border-box;
     height: 28px;
     width: 36px;
@@ -161,6 +165,10 @@ h1.logo {
     padding: 0;
     background: #666;
     border-color: #515151;
+}
+
+#modalCollections #renameForm button {
+    width: 56px;
 }
 
 .side-bar section#gallery .controls .share input, #modalCollections .share input {

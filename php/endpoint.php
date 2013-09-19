@@ -20,9 +20,10 @@ function autoLogin($modhash,$cookie)
 {
     $reddit = new reddit();
     $reddit->resume($modhash,$cookie);
+    $user_info = $reddit->getUser();
     session_start();
     $_SESSION['reddit'] = $reddit;
-    return 'Reddit session resumed';
+    return $user_info;
 }
 
 function logout()

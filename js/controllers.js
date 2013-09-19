@@ -71,12 +71,11 @@ angular.module('Redtiles.controllers', [])
         if(localStorageService.get('collections')) { // Check for collections in localstorage/cookies
             $scope.collections = localStorageService.get('collections'); // Get collections
         } else { // If not found, initialize
-            localStorageService.set('collections',$scope.sizeLevel); // Set collections
+            localStorageService.set('collections',$scope.collections); // Set collections
         }
         // Check for reddit user info
         if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
             $scope.redditUser = localStorageService.get('redditUser'); // Get redditUser
-            connectFireUser();
             if($scope.redditUser == null) { // If the user object is null, remove user and session
                 localStorageService.remove('redditUser'); // Remove redditUser from localstorage/cookies
                 localStorageService.remove('redditSession'); // Remove session from localstorage/cookies
@@ -85,8 +84,14 @@ angular.module('Redtiles.controllers', [])
         // Check for reddit session info
         if(localStorageService.get('redditSession')) { // Check for redditSession in localstorage/cookies
             session = true; // Session found
+            $scope.loadStatus = 'logging in...';
             var redditSession = localStorageService.get('redditSession'); // Get redditSession
             reddit.autoLogin(redditSession.modhash, redditSession.cookie).then(function(response) {
+                if(!response.hasOwnProperty('data')) { return; }
+                $scope.redditUser = response['data'];
+                $scope.loadStatus = 'loading...';
+                connectFireUser();
+                localStorageService.set('redditUser',$scope.redditUser); // Set redditUser
                 console.log('Resuming session');
                 $scope.loginStatus = 'logged';
             });
@@ -96,16 +101,17 @@ angular.module('Redtiles.controllers', [])
         // Populate the subreddits scope property by finding the currently selected collection
         var getSubs = function(gettingTiles) {
             $timeout(function() {
-                if($scope.editSelectedColl) {
+                if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
                     $scope.editSubreddits = angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs);
                 }
                 $scope.subreddits = angular.copy(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs);
                 if(gettingTiles) {
+                    clearTiles();
                     getTiles();
                 }
             }, 0);
         };
-        getSubs(); // Populate the active subreddit list on app start
+        if(!session) {getSubs(true);} // If not logged, populate the active subreddit list on app start
         
         // Store the subreddits into the collections property, and save that to localstorage and firebase
         var storeSubs = function() {
@@ -199,6 +205,7 @@ angular.module('Redtiles.controllers', [])
                 $scope.redditUser = null;
                 $scope.selectedColl = 'Default Collection'; // Default selected collection name
                 $scope.collections = [{name:'Default Collection',subs:$scope.subreddits}]; // Collections array
+                localStorageService.set('collections',$scope.collections); // Set collections
                 localStorageService.remove('redditUser'); // Remove redditUser from localstorage/cookies
                 localStorageService.remove('redditSession'); // Remove session from localstorage/cookies
             });
@@ -297,6 +304,20 @@ angular.module('Redtiles.controllers', [])
                 updateEditedCollections();
             }
         };
+        // When a collection is renamed in the manager
+        $scope.renameCollection = function(newName) {
+            $scope.renameName = jQuery.trim(newName);
+            console.log($scope.editSelectedColl,$scope.renameName);
+            // If collection name not empty
+            if($scope.renameName !== '') {
+                var renamed = utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl);
+                renamed.name = $scope.renameName;
+                $scope.editSelectedColl = $scope.renameName;
+                $('#collDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                $scope.renameName = ''; // Clear the field
+                $scope.renamingColl = false; // Close the section
+            }
+        };
         // When a collection is deleted in the manager
         $scope.deleteCollection = function() {
             if($scope.editCollections.length == 1) { return; } // Can't delete if only 1 collection
@@ -318,7 +339,7 @@ angular.module('Redtiles.controllers', [])
         // When a collection is "saved as" in the sidebar
         $scope.addCollection = function(coll) {
             $scope.saveNewName = jQuery.trim(coll);
-            // If sub name not empty and not already in sub list
+            // If collection name not empty
             if($scope.saveNewName !== '') {
                 $scope.collections.push({name:$scope.saveNewName,subs:angular.copy($scope.subreddits)}); // Add collection
                 $scope.selectedColl = $scope.saveNewName;
@@ -437,13 +458,13 @@ angular.module('Redtiles.controllers', [])
             var getMethod = 'getPosts'; // Use jsonp for getting posts by default
             if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
             reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
-                $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
                 if(response.hasOwnProperty('error')) { // If there was an error
                     gathering = false;
                     console.log(response.error.description);
-                    getTiles();
+                    $timeout(getTiles(),1000);
                     return;
                 }
+                $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
                 console.log(response);
                 $scope.loadStatus = '';
                 lastID = response['after'];
@@ -471,10 +492,12 @@ angular.module('Redtiles.controllers', [])
                 if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
                 gathering = false;
                 console.log('added',addCount,'- there are',$scope.imageIDs.length,'image tiles');
+            }, function(response) { // On error
+                gathering = false;
+                console.log('http error:',response.error.description);
+                $timeout(getTiles(),1000);
             });
         };
-        
-        if(!session) { console.log('No session'); getTiles(); } // Get tiles when app starts if there is no session
         
         // Executed by directive, sets masonry variable for manipulation in this controller
         this.initMasonry = function initMasonry(element) {
