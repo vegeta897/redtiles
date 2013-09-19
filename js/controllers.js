@@ -318,6 +318,7 @@ angular.module('Redtiles.controllers', [])
                 if($scope.subreddits.length == 0) { return; }
                 clearTiles();
                 getTiles();
+                filterPopularSubs();
             }, 0);
         };
         // When a new collection is selected for editing
@@ -325,6 +326,7 @@ angular.module('Redtiles.controllers', [])
             $timeout(function() { // Using timeout to force scope refresh
                 $scope.editSelectedColl = coll;
                 getSubs();
+                filterPopularEditSubs();
             }, 0);
         };
         // When a subreddit is added to the edited collection
@@ -453,6 +455,12 @@ angular.module('Redtiles.controllers', [])
         // Filters out subreddits already in edited collection from the manager popular subs list
         $scope.filterManagerPopular = function(item) {
             return jQuery.inArray(item,$scope.editSubreddits) < 0;
+        };
+        // Changes which popular subreddit page we're viewing
+        $scope.changePopPage = function(dir) {
+            $scope.currentPopPage += dir;
+            $scope.currentPopPage = $scope.currentPopPage < 0 ? 0 : $scope.currentPopPage;
+            $scope.currentPopPage = $scope.currentPopPage >= $scope.totalPopPages ? $scope.totalPopPages-1 : $scope.currentPopPage;
         };
         // When the collections manager is opened
         $scope.openManager = function() {

@@ -58,9 +58,9 @@
                 </li>
             </ul>
             <div class="page-nav">
-                <a ng-class="{disabled:currentPopPage == 0}" ng-disabled="currentPopPage == 0" ng-click="currentPopPage = currentPopPage-1"><i class="icon-caret-left"></i> prev</a>
+                <a ng-class="{disabled:currentPopPage == 0}" ng-click="changePopPage(-1)"><i class="icon-caret-left"></i> prev</a>
                 <span> {{ currentPopPage+1 }}/{{ totalPopPages }} </span>
-                <a ng-class="{disabled:currentPopPage >= totalPopPages - 1}" ng-disabled="currentPopPage >= popularSubs.length/10 - 1" ng-click="currentPopPage = currentPopPage+1">next <i class="icon-caret-right"></i></a>
+                <a ng-class="{disabled:currentPopPage >= totalPopPages - 1}" ng-click="changePopPage(1)">next <i class="icon-caret-right"></i></a>
             </div>
         </div>
     </section>
