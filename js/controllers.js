@@ -115,6 +115,10 @@ angular.module('Redtiles.controllers', [])
                     break;
                 }
             }
+            localStorageService.set('collections',$scope.collections); // Store collections in localstorage
+            if($scope.loginStatus != 'logged') {
+                return;
+            }
             var fireUser = fireRef.child('users').child($scope.redditUser['name']);
             fireUser.set( // Store collection info in firebase
                 {collections: angular.copy($scope.collections), selectedColl: $scope.selectedColl}
@@ -141,7 +145,6 @@ angular.module('Redtiles.controllers', [])
                 }
                 fireRef.child('meta').child('popularSubs').set(popularSubs);
             });
-            localStorageService.set('collections',$scope.collections); // Store collections in localstorage
         };
         
         var updateEditedCollections = function() {
