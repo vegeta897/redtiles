@@ -1,4 +1,5 @@
 <?php
+session_save_path('/home/users/web/b1197/ipg.isotownnet/cgi-bin/tmp');
 require_once("reddit.php");
 
 function login($user,$pass)

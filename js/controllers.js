@@ -135,14 +135,14 @@ angular.module('Redtiles.controllers', [])
             var getMethod = 'getPosts'; // Use jsonp for getting posts by default
             if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
             reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
-                if(response.hasOwnProperty('error')) { // If there was an error
+                console.log(response);
+                if(response.hasOwnProperty('error') || !response.hasOwnProperty('posts')) { // If there was an error
                     gathering = false;
                     console.log(response.error.description);
                     $timeout(getTiles,1000);
                     return;
                 }
                 $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
-                console.log(response);
                 $scope.loadStatus = '';
                 lastID = response['after'];
                 if(response.posts.length == 0) { // No more results if there are no posts
