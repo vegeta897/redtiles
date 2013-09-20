@@ -102,6 +102,79 @@ angular.module('Redtiles.controllers', [])
         }
         if(!session) { $scope.loginStatus = 'notLogged'; } // If no session was found, we're not logged in
         
+
+        // Clear tile area and reset necessary variables
+        var clearTiles = function() {
+            $timeout(function() { // Using timeout to force scope refresh
+                $scope.loadStatus = 'loading...';
+            }, 0);
+            htmlBody.animate({ scrollTop: 0 }, "slow"); // Scroll to top of page
+            gathering = false;
+            lastID = null;
+            noMoreResults = false;
+            imagesAdded = 0;
+            $scope.imageTiles = [];
+            $scope.imageIDs = [];
+            $scope.fullImages = [];
+            msnry.remove(msnry.getItemElements());
+            msnry.layout();
+        };
+        // Get posts from reddit
+        var getTiles = function() {
+            if(gathering) { return; }
+            if(!$scope.subreddits || $scope.subreddits.length == 0) {
+                $scope.subreddits = [];
+                $timeout(function(){$scope.loadStatus = 'add some subreddits!';},0);
+                return;
+            }
+            gathering = true;
+            allImagesAdded = false;
+            loadBuffer = true;
+            // Refresh masonry layout to fill any gaps left by previous deletions
+            if(imagesAdded > 0) { msnry.layout(); }
+            var getMethod = 'getPosts'; // Use jsonp for getting posts by default
+            if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
+            reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
+                if(response.hasOwnProperty('error')) { // If there was an error
+                    gathering = false;
+                    console.log(response.error.description);
+                    $timeout(getTiles,1000);
+                    return;
+                }
+                $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
+                console.log(response);
+                $scope.loadStatus = '';
+                lastID = response['after'];
+                if(response.posts.length == 0) { // No more results if there are no posts
+                    onLastResults();
+                    return;
+                }
+
+                var addCount = 0; // Keeps track of how many posts are added to the tile pool
+                // Iterate through each post in the response
+                for(var i = 0; i < response.posts.length; i++) {
+                    var post = response.posts[i];
+                    var postID = post.id;
+                    if(jQuery.inArray(postID,$scope.imageIDs) == -1) { // If image isn't already in pool
+                        addCount += 1;
+                        post.displaySize = getPostSize(post);
+                        $scope.imageTiles.push(post);
+                        $scope.imageIDs.push(postID);
+                        $scope.fullImages.push({
+                            href: post.fixedURL,
+                            title: post.title
+                        })
+                    }
+                }
+                if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
+                gathering = false;
+                console.log('added',addCount,'- there are',$scope.imageIDs.length,'image tiles');
+            }, function(response) { // On error
+                gathering = false;
+                console.log('http error:',response.error.description);
+                $timeout(getTiles,1000);
+            });
+        };
         // Populate the subreddits scope property by finding the currently selected collection
         var getSubs = function(gettingTiles) {
             if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
@@ -113,7 +186,7 @@ angular.module('Redtiles.controllers', [])
                 $scope.subreddits = JSON.parse(JSON.stringify(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs));
             }
             if(gettingTiles) {
-                clearTiles();
+                if($scope.imageTiles.length > 0) { clearTiles(); }
                 getTiles();
             }
         };
@@ -509,85 +582,12 @@ angular.module('Redtiles.controllers', [])
             }
             return displaySize;
         };
-        // Clear tile area and reset necessary variables
-        var clearTiles = function() {
-            $timeout(function() { // Using timeout to force scope refresh
-                $scope.loadStatus = 'loading...';
-            }, 0);
-            htmlBody.animate({ scrollTop: 0 }, "slow"); // Scroll to top of page
-            gathering = false;
-            lastID = null;
-            noMoreResults = false;
-            imagesAdded = 0;
-            $scope.imageTiles = [];
-            $scope.imageIDs = [];
-            $scope.fullImages = [];
-            msnry.remove(msnry.getItemElements());
-            msnry.layout();
-        };
         // Function run when there are no more results
         var onLastResults = function() {
             noMoreResults = true;
             console.log('no more results!');
             $scope.loadStatus = 'no more images to load!'; // Tell the user
         };
-        // Get posts from reddit
-        var getTiles = function() {
-            if(gathering) { return; }
-            if(!$scope.subreddits || $scope.subreddits.length == 0) {
-                $scope.subreddits = [];
-                $timeout(function(){$scope.loadStatus = 'add some subreddits!';},0);
-                return;
-            }
-            gathering = true;
-            allImagesAdded = false;
-            loadBuffer = true;
-            // Refresh masonry layout to fill any gaps left by previous deletions
-            if(imagesAdded > 0) { msnry.layout(); }
-            var getMethod = 'getPosts'; // Use jsonp for getting posts by default
-            if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
-            reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
-                if(response.hasOwnProperty('error')) { // If there was an error
-                    gathering = false;
-                    console.log(response.error.description);
-                    $timeout(getTiles,1000);
-                    return;
-                }
-                $timeout(onLoadBuffer, 2500); // Can't make a request for 2.5 seconds
-                console.log(response);
-                $scope.loadStatus = '';
-                lastID = response['after'];
-                if(response.posts.length == 0) { // No more results if there are no posts
-                    onLastResults();
-                    return;
-                }
-
-                var addCount = 0; // Keeps track of how many posts are added to the tile pool
-                // Iterate through each post in the response
-                for(var i = 0; i < response.posts.length; i++) {
-                    var post = response.posts[i];
-                    var postID = post.id;
-                    if(jQuery.inArray(postID,$scope.imageIDs) == -1) { // If image isn't already in pool
-                        addCount += 1;
-                        post.displaySize = getPostSize(post);
-                        $scope.imageTiles.push(post);
-                        $scope.imageIDs.push(postID);
-                        $scope.fullImages.push({
-                            href: post.fixedURL,
-                            title: post.title
-                        })
-                    }
-                }
-                if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
-                gathering = false;
-                console.log('added',addCount,'- there are',$scope.imageIDs.length,'image tiles');
-            }, function(response) { // On error
-                gathering = false;
-                console.log('http error:',response.error.description);
-                $timeout(getTiles,1000);
-            });
-        };
-        
         // Executed by directive, sets masonry variable for manipulation in this controller
         this.initMasonry = function initMasonry(element) {
             msnry = element.data('masonry');
