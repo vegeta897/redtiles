@@ -85,6 +85,16 @@ angular.module('Redtiles.directives', [])
             }
         };
     })
+    .directive('share', function(){
+        return {
+            restrict: 'C',
+            link: function(scope, element, attr) {
+                var clip = new ZeroClipboard(element.children('button'), {
+                    moviePath: "js/vendor/ZeroClipboard.swf"
+                });
+            }
+        };
+    })
     .directive('loginForm', function() {
         return {
             restrict: 'A',

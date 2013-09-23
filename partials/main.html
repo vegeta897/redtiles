@@ -33,14 +33,14 @@
             <div class="controls" ng-show="loginStatus == 'logged'">
                 <div>
                     <a id="saveAsNewLink" ng-init="saveAsOpen = false" ng-click="saveAsOpen = !saveAsOpen; shareOpen = false">Save as new</a>
-                    <a ng-init="shareOpen = false" ng-click="shareOpen = !shareOpen; saveAsOpen = false">Share</a>
+                    <a ng-init="shareOpen = false" ng-hide="shared" ng-click="shareOpen = !shareOpen; saveAsOpen = false">Share</a>
                     <form ng-submit="addCollection(saveNewName)" ng-class="{hidden:!saveAsOpen}" id="saveAsNew">
                         <input ng-model="saveNewName" type="text" placeholder="New Collection">
                         <button>Save</button>
                     </form>
                     <div ng-class="{hidden:!shareOpen}" class="share" id="share">
-                        <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
-                        <button type="submit">Copy</button>
+                        <input disabled type="text" value="{{ shareURL }}">
+                        <button data-clipboard-text="{{ shareURL }}">Copy</button>
                     </div>
                 </div>
                 <div>
@@ -173,7 +173,7 @@
     <div class="row">
         <div ng-hide="renamingColl" class="large-6 columns">
             <form class="custom">
-                <zurb-Select select-id="editDropdown" selected="editSelectedColl" options="editCollections" click-callback="changeEditColl(value)"></zurb-Select>
+                <zurb-Select select-id="editCollDropdown" selected="editSelectedColl" options="editCollections" click-callback="changeEditColl(value)"></zurb-Select>
             </form>
         </div>
         <div ng-show="renamingColl" class="large-7 columns">
@@ -229,8 +229,8 @@
         <div class="large-7 columns">
             <h3>Share this collection</h3>
             <div class="share">
-                <input disabled type="text" value="redtiles.com/cooldude/c/MyCollection">
-                <button>Copy</button>
+                <input disabled type="text" value="{{ shareURL }}">
+                <button data-clipboard-text="{{ shareURL }}">Copy</button>
             </div>
         </div>
         <div class="large-3 columns">

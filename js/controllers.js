@@ -6,7 +6,7 @@ angular.module('Redtiles.controllers', [])
         // Default page controller stuff
         
     }])
-    .controller('ImageTiles', ['$scope', '$timeout', '$element', '$routeParams', 'reddit', 'utility', 'localStorageService', function($scope, $timeout, $element, $routeParams, reddit, utility, localStorageService) {
+    .controller('ImageTiles', ['$scope', '$timeout', '$element', '$routeParams', '$location', 'reddit', 'utility', 'localStorageService', function($scope, $timeout, $element, $routeParams, $location, reddit, utility, localStorageService) {
         
         var gathering = false; // Keeps track of whether an API request is in process
         var lastID = null; // Last image ID, used in reddit API request
@@ -17,6 +17,7 @@ angular.module('Redtiles.controllers', [])
         var loadBuffer = true; // If true, prevents another API call
         var session = false; // Indicates whether a reddit session is active
         var edited = false; // Indicates whether an edit was made in the collection manager
+        var gettingShared = $routeParams['user'] && $routeParams['collection'] ? true : false; // Share URL?
 
         var jqWindow = $(window); // jQuery object for the window
         var htmlBody = $('html, body');
@@ -46,7 +47,8 @@ angular.module('Redtiles.controllers', [])
         $scope.sizeLevel = 2; // Image tile size, from 0 to 4
         $scope.loginStatus = ''; // Track log-in status, eg. 'logging' 'badPass' 'missingFields'
         $scope.popularSelect = 'Select a subreddit';
-        $scope.shared = $routeParams['user'] && $routeParams['collection'] ? true : false; // Is this a share URL?
+        $scope.shared = gettingShared;
+        $scope.shareURL = ''; // Holds the URL to share the selected collection (when logged in)
 
         // Links up firebase user - creates user if doesn't exist, gets data if it does
         var connectFireUser = function() {
@@ -89,7 +91,7 @@ angular.module('Redtiles.controllers', [])
                         }
                     }
                 }
-                $scope.shared = false; // We're done (trying) to get the shared collection
+                gettingShared = false; // We're done (trying) to get the shared collection
                 getSubs(true);
             })
         };
@@ -206,13 +208,17 @@ angular.module('Redtiles.controllers', [])
                 if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
                     angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
                 }
+                var theCollection = utility.findByProperty($scope.collections,'name',$scope.selectedColl);
                 // If the selected collection is found in the collections, load its subreddits
-                if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl).hasOwnProperty('subs')) {
+                if(!theCollection.hasOwnProperty('subs')) {
                     $scope.subreddits = [];
                 } else {
-                    $scope.subreddits = JSON.parse(JSON.stringify(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs));
+                    $scope.shared = theCollection.hasOwnProperty('shared');
+                    $scope.subreddits = JSON.parse(JSON.stringify(theCollection.subs));
                 }
-                if($scope.shared) { // If we're viewing a share URL, get the shared collection
+                $scope.shareURL = $location.host() + '/redtiles/#/' + $scope.redditUser.name + // Build share URL
+                    '/c/' + encodeURI($scope.selectedColl);
+                if(gettingShared) { // If we're viewing a share URL, get the shared collection
                     getSharedCollection();
                     return; // End function here, because getSharedCollection will run getTiles again
                 }
@@ -225,7 +231,7 @@ angular.module('Redtiles.controllers', [])
             
         };
         // If not logged, and not viewing a shared URL, populate the active subreddit list on app start
-        if(!session && !$scope.shared) {getSubs(true);} 
+        if(!session && !gettingShared) {getSubs(true);} 
         
         // Store the subreddits into the collections property, and save that to localstorage and firebase
         var storeSubs = function() {
@@ -418,11 +424,9 @@ angular.module('Redtiles.controllers', [])
         };
         // When a new collection is selected for editing
         $scope.changeEditColl = function(coll) {
-            $timeout(function() { // Using timeout to force scope refresh
-                $scope.editSelectedColl = coll;
-                getSubs();
-                filterPopularEditSubs();
-            }, 0);
+            $scope.editSelectedColl = coll;
+            getSubs();
+            filterPopularEditSubs();
         };
         // When a subreddit is added to the edited collection
         $scope.addEditSub = function(sub) {
@@ -456,12 +460,14 @@ angular.module('Redtiles.controllers', [])
             $scope.renameName = jQuery.trim(newName);
             // If collection name not empty
             if($scope.renameName !== '') {
-                var renamed = utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl);
-                renamed.name = $scope.renameName;
-                $scope.editSelectedColl = $scope.renameName;
-                $('#collDropdown').html($scope.editSelectedColl); // Fix the edited collection
-                $scope.renameName = ''; // Clear the field
-                $scope.renamingColl = false; // Close the section
+                $timeout(function() {
+                    var renamed = utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl);
+                    renamed.name = $scope.renameName;
+                    $scope.editSelectedColl = $scope.renameName;
+                    $('#editCollDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                    $scope.renameName = ''; // Clear the field
+                    $scope.renamingColl = false; // Close the section
+                },0);
             }
         };
         // When a collection is deleted in the manager
@@ -478,7 +484,7 @@ angular.module('Redtiles.controllers', [])
             if(position > -1) { // If in the collection list
                 $scope.editCollections.splice(position,1); // Remove subreddit from collection
                 $scope.editSelectedColl = $scope.editCollections[0].name;
-                $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                $('#editCollDropdown').html($scope.editSelectedColl); // Fix the edited collection
                 getSubs();
             }
         };
@@ -563,7 +569,7 @@ angular.module('Redtiles.controllers', [])
             $timeout(function() {
                 $scope.editSelectedColl = $scope.selectedColl;
                 $scope.popularEditSubs = $scope.popularSubs;
-                $('#editDropdown').html($scope.editSelectedColl); // Fix the edited collection
+                $('#editCollDropdown').html($scope.editSelectedColl); // Fix the edited collection
                 $scope.editCollections = JSON.parse(JSON.stringify($scope.collections)); // Deep copy, kill refs
                 angular.copy($scope.subreddits,$scope.editSubreddits);
             },0);
@@ -637,6 +643,7 @@ angular.module('Redtiles.controllers', [])
         var onScroll = function() {
             var tileAreaBottom = tileArea.offset().top + tileArea.height();
             if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
+                console.log(jqWindow.scrollTop(),jqWindow.height(),tileAreaBottom);
                 if(!noMoreResults && $scope.subreddits.length > 0) {
                     $timeout(function() { // Using timeout to force scope refresh
                         $scope.loadStatus = 'loading more...';
