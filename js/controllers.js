@@ -6,8 +6,8 @@ angular.module('Redtiles.controllers', [])
         // Default page controller stuff
         
     }])
-    .controller('ImageTiles', ['$scope', '$timeout', '$element', 'reddit', 'utility', 'localStorageService', function($scope, $timeout, $element, reddit, utility, localStorageService) {
-
+    .controller('ImageTiles', ['$scope', '$timeout', '$element', '$routeParams', 'reddit', 'utility', 'localStorageService', function($scope, $timeout, $element, $routeParams, reddit, utility, localStorageService) {
+        
         var gathering = false; // Keeps track of whether an API request is in process
         var lastID = null; // Last image ID, used in reddit API request
         var msnry = null; // Stores the masonry instance for image tiles
@@ -28,17 +28,17 @@ angular.module('Redtiles.controllers', [])
         $scope.selectedColl = 'Default Collection'; // Default selected collection name
         $scope.collections = []; // Collections array
         $scope.collections.push({name:$scope.selectedColl, subs: ['pics','funny','wallpapers']}); // Add default
-        $scope.subreddits = [];
-        $scope.editSelectedColl = '';
-        $scope.editCollections = [];
-        $scope.editSubreddits = [];
+        $scope.subreddits = []; // Holds the currently viewed subreddits
+        $scope.editSelectedColl = ''; // Name of the selected collection in the manager
+        $scope.editCollections = []; // Holds collections in the manager
+        $scope.editSubreddits = []; // Holds subreddits in selected collection in the manager
         $scope.imageTiles = []; // List of image tiles currently loaded/shown
         $scope.imageIDs = []; // List of image IDs currently loaded/shown
         $scope.fullImages = []; // List of full size URLs to images, used in FancyBox image display
         $scope.popularSubs = []; // Holds ordered list of popular subs, acquired from firebase
         $scope.popularEditSubs = []; // Same as above but for collection manager, manually filtered
         $scope.currentPopPage = 0; // Holds which page of popular subs we're on in the sidebar
-        $scope.totalPopPages = 1;
+        $scope.totalPopPages = 1; // How many pages are in the popular list (updated when list is updated)
         $scope.sortBy = 'Hot'; // Sort parameter used in reddit API request
         $scope.loadStatus = 'loading...'; // Status text displayed to user
         $scope.addSubName = ''; // Name of subreddit being added in input field
@@ -46,6 +46,9 @@ angular.module('Redtiles.controllers', [])
         $scope.sizeLevel = 2; // Image tile size, from 0 to 4
         $scope.loginStatus = ''; // Track log-in status, eg. 'logging' 'badPass' 'missingFields'
         $scope.popularSelect = 'Select a subreddit';
+        $scope.shared = $routeParams['user'] && $routeParams['collection'] ? true : false; // Is this a share URL?
+        
+        console.log($scope.shared);
 
         // Links up firebase user - creates user if doesn't exist, gets data if it does
         var connectFireUser = function() {
@@ -68,14 +71,10 @@ angular.module('Redtiles.controllers', [])
         // Check for default size
         if(localStorageService.get('defaultSize')) { // Check for sizeLevel in localstorage/cookies
             $scope.sizeLevel = parseInt(localStorageService.get('defaultSize')); // Get sizeLevel
-        } else { // If not found, initialize
-            localStorageService.set('defaultSize',$scope.sizeLevel); // Set sizeLevel
         }
         // Check for collection list
         if(localStorageService.get('collections')) { // Check for collections in localstorage/cookies
             $scope.collections = localStorageService.get('collections'); // Get collections
-        } else { // If not found, initialize
-            localStorageService.set('collections',$scope.collections); // Set collections
         }
         // Check for reddit user info
         if(localStorageService.get('redditUser')) { // Check for redditUser in localstorage/cookies
@@ -89,6 +88,7 @@ angular.module('Redtiles.controllers', [])
         if(localStorageService.get('redditSession')) { // Check for redditSession in localstorage/cookies
             session = true; // Session found
             $scope.loadStatus = 'logging in...';
+            $scope.loginStatus = 'logging';
             var redditSession = localStorageService.get('redditSession'); // Get redditSession
             reddit.autoLogin(redditSession.modhash, redditSession.cookie).then(function(response) {
                 if(!response.hasOwnProperty('data')) { return; }
@@ -177,20 +177,24 @@ angular.module('Redtiles.controllers', [])
         };
         // Populate the subreddits scope property by finding the currently selected collection
         var getSubs = function(gettingTiles) {
-            if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
-                angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
-            }
-            if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl).hasOwnProperty('subs')) {
-                $scope.subreddits = [];
-            } else {
-                $scope.subreddits = JSON.parse(JSON.stringify(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs));
-            }
-            if(gettingTiles) {
-                if($scope.imageTiles.length > 0) { clearTiles(); }
-                getTiles();
-            }
+            $timeout(function() {
+                if($scope.editSelectedColl) { // If we're editing, update the edited subreddit list
+                    angular.copy(utility.findByProperty($scope.editCollections,'name',$scope.editSelectedColl).subs, $scope.editSubreddits);
+                }
+                if(!utility.findByProperty($scope.collections,'name',$scope.selectedColl).hasOwnProperty('subs')) {
+                    $scope.subreddits = [];
+                } else {
+                    $scope.subreddits = JSON.parse(JSON.stringify(utility.findByProperty($scope.collections,'name',$scope.selectedColl).subs));
+                }
+                if(gettingTiles) {
+                    if($scope.imageTiles.length > 0) { clearTiles(); }
+                    getTiles();
+                }
+            },0);
+            
         };
-        if(!session) {getSubs(true);} // If not logged, populate the active subreddit list on app start
+        // If not logged, and not viewing a shared URL, populate the active subreddit list on app start
+        if(!session && !$scope.shared) {getSubs(true);} 
         
         // Store the subreddits into the collections property, and save that to localstorage and firebase
         var storeSubs = function() {

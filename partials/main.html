@@ -12,8 +12,11 @@
             </form>
             <div class="subreddits">
                 <ul>
-                    <li class="add-hint" ng-show="subreddits.length == 0">
+                    <li class="add-hint" ng-show="subreddits.length == 0 && (loginStatus == 'logged' || loginStatus == 'notLogged')">
                         Add some subreddits!
+                    </li>
+                    <li class="add-hint" ng-show="subreddits.length == 0 && loginStatus == 'logging'">
+                        Loading collections...
                     </li>
                     <li ng-repeat="sub in subreddits">
                         <a ng-click="removeSub(sub)" data-hover>
@@ -86,7 +89,7 @@
         <div class="size-label">bigger</div>
     </div>
     <div ng-hide="loginStatus == ''" class="user right">
-        <a ng-hide="loginStatus == 'logged'" data-reveal-id="modalLogin" class="small button">reddit login</a>
+        <a ng-show="loginStatus == 'notLogged'" data-reveal-id="modalLogin" class="small button">reddit login</a>
         <p ng-show="loginStatus == 'logged'">Welcome back, <a data-dropdown="userDrop">{{ redditUser.name }}</a></p>
         <ul id="userDrop" class="f-dropdown" data-dropdown-content>
             <li><a ng-click="logout()">Log Out</a></li>
