@@ -247,6 +247,15 @@ angular.module('Redtiles.directives', [])
                     overlay.fadeIn(100);
                 }, function() {
                     overlay.fadeOut(100);
+                }).css('display','block'); // Display tile;
+                
+                overlay.on('mousedown', function(e) {
+                    if(e.target == overlay.get()[0] && e.which == 2) { // Middle mouse, not an overlay control
+                        var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
+                        window.open(scope.fullImages[imageIndex].href, '_blank'); // Open full image in new tab
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
                 });
                 
                 function onImageLoad() { // When the image is loaded
@@ -273,7 +282,6 @@ angular.module('Redtiles.directives', [])
                         }
                     })
                 }
-                element.css('display','block'); // Display tile
                 ctrl.appendTile(element); // Append tile to masonry
                 element.imagesLoaded(onImageLoad); // When image loads...
             }
