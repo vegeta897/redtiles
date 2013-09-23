@@ -274,7 +274,7 @@ angular.module('Redtiles.directives', [])
                             var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
                             $.fancybox(scope.fullImages, { padding: 4, index: imageIndex,  
                                 title:
-                                    '<time>' + $filter('date')(scope.imageViewed.created_utc*1000, 'yy/M/d') +
+                                    '<time>' + $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
                                     '</time><a target="_blank" href="http://reddit.com' + 
                                     scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
                             });

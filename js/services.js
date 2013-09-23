@@ -23,7 +23,7 @@ angular.module('Redtiles.services', [])
                     .success(function(data, status, headers, config) {
                         deferred.resolve(parse.postList(data));
                     }).error(function(data, status, headers, config) {
-                        results.error = {name: "Oh no!", description: "It looks like reddit is having problems right now, please try again later."};
+                        results.error = {name: "Oh no!", description: "No response from reddit"};
                         console.log('error!', data, status, headers, config);
                         deferred.reject(results);
                     });
@@ -94,7 +94,7 @@ angular.module('Redtiles.services', [])
                     .success(function (data, status, headers, config) {
                         deferred.resolve(parse.postList(data));
                     }).error(function (data, status, headers, config) {
-                        results.error = {name: "Oh no!", description: "Unknown error, please try again!"};
+                        results.error = {name: "Oh no!", description: "Unknown error"};
                         console.log('error!', data, status, headers, config);
                         deferred.reject(data);
                     });
@@ -170,7 +170,7 @@ angular.module('Redtiles.services', [])
                 if(unparsed == '""') { unparsed = {};}
                 if(!unparsed.hasOwnProperty('data') || unparsed.kind != 'Listing') {
                     parsed = unparsed;
-                    parsed.error = {name: "Oh no!", description: "Something's wrong with the reddit service right now. They might be too busy! Try again."};
+                    parsed.error = {name: "Oh no!", description: "No response from reddit"};
                     return parsed;
                 }
                 parsed.after = unparsed.data.after;
