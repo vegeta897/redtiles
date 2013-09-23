@@ -11,6 +11,7 @@
                 <zurb-Select select-id="collDropdown" selected="selectedColl" options="collections" click-callback="changeColl(value)"></zurb-Select>
             </form>
             <div class="subreddits">
+                <p ng-show="shared">Shared from <strong>{{ shareUser }}</strong></p>
                 <ul>
                     <li class="add-hint" ng-show="subreddits.length == 0 && (loginStatus == 'logged' || loginStatus == 'notLogged')">
                         Add some subreddits!
@@ -151,7 +152,7 @@
         </fieldset>
         <div class="row">
             <div class="large-6 columns">
-                <p>Don't have a reddit account? <br/>
+                <p class="aside">Don't have a reddit account? <br/>
                     <a target="_blank" href="http://www.reddit.com/register">Create one here!</a>
                 </p>
             </div>
@@ -196,6 +197,7 @@
         <div class="large-12 columns">
             <h3>Subreddits in this collection</h3>
             <div class="subreddits">
+                <p ng-show="shared">Shared from <strong>{{ shareUser }}</strong></p>
                 <ul>
                     <li class="add-hint" ng-show="editSubreddits.length == 0">
                         Add some subreddits!

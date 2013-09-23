@@ -62,6 +62,17 @@ h1.logo {
     padding-left: 2px;
 }
 
+.subreddits p {
+    float: none;
+    color: #666;
+    margin-bottom: -3px;
+    font-size: 12px;
+}
+
+.subreddits p strong {
+    color: #484848;
+}
+
 .subreddits ul {
     list-style: none;
     margin-bottom: 4px;
@@ -648,14 +659,6 @@ section#popular .subreddits ul li i.hover {
 
 #modalCollections .share input { width: 146px; }
 
-#modalCollections p {
-    text-align: right;
-    color: #999;
-    width: auto;
-    padding-top: 1px;
-    padding-right: 1em;
-}
-
 #modalCollections #collectionsDone {
     color: white;
     background: #666;
@@ -707,7 +710,7 @@ section#popular .subreddits ul li i.hover {
     margin-bottom: 12px;
 }
 
-.reveal-modal p {
+.reveal-modal p.aside {
     float: left;
     width: 106px;
     font-size: 13px;

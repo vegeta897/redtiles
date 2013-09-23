@@ -49,6 +49,7 @@ angular.module('Redtiles.controllers', [])
         $scope.popularSelect = 'Select a subreddit';
         $scope.shared = gettingShared;
         $scope.shareURL = ''; // Holds the URL to share the selected collection (when logged in)
+        $scope.shareUser = $routeParams['user']; // For displaying who the collection was shared from
 
         // Links up firebase user - creates user if doesn't exist, gets data if it does
         var connectFireUser = function() {
@@ -79,9 +80,9 @@ angular.module('Redtiles.controllers', [])
                             if(userColls[i]['name'].toLowerCase() == shareCollName.toLowerCase()) {
                                 $timeout(function() {
                                     console.log('share URL collection found');
-                                    $scope.selectedColl = shareCollName;
+                                    $scope.selectedColl = userColls[i]['name'] + ' (Shared)';
                                     $scope.collections.push({
-                                        name: shareCollName,
+                                        name: userColls[i]['name'] + ' (Shared)',
                                         subs: userColls[i].subs,
                                         shared: true
                                     });
