@@ -88,7 +88,7 @@ angular.module('Redtiles.directives', [])
     .directive('share', function(){
         return {
             restrict: 'C',
-            link: function(scope, element, attr) {
+            link: function(scope, element) {
                 var clip = new ZeroClipboard(element.children('button'), {
                     moviePath: "js/vendor/ZeroClipboard.swf"
                 });
@@ -187,12 +187,10 @@ angular.module('Redtiles.directives', [])
         return {
             restrict: 'C',
             require: '^tileArea',
-//            scope: {
-//                displaySize: '='
-//            },
             link: function(scope, element, attrs, ctrl) {
                 var length = 101;
                 var overlay = element.children('.tile-overlay');
+                var controls = overlay.children('.reddit-controls');
                 var image = element.children('.tile-image');
                 var realSize = [];
                 var ratio = 0;
@@ -246,19 +244,37 @@ angular.module('Redtiles.directives', [])
                     applySize();
                     fitImage();
                 });
-                // Update fave icon when image is faved or un-faved
-                attrs.$observe('faved',function(){
-                    var removeClass = scope.image.saved ? 'icon-star-empty' : 'icon-star';
-                    var addClass = scope.image.saved ? 'icon-star' : 'icon-star-empty';
-                    overlay.children('.add-favorite').children('i').removeClass(removeClass).addClass(addClass);
-                });
                 // Show overlay when hovering on image
                 element.hover(function() {
                     overlay.fadeIn(100);
                 }, function() {
                     overlay.fadeOut(100);
                 }).css('display','block'); // Display tile;
-                
+                // Update fave icon when image is faved or un-faved
+                attrs.$observe('faved',function(){
+                    var removeClass = scope.image.saved ? 'icon-star-empty' : 'icon-star';
+                    var addClass = scope.image.saved ? 'icon-star' : 'icon-star-empty';
+                    overlay.children('.add-favorite').children('i').removeClass(removeClass).addClass(addClass);
+                    $('.fancybox-title').children('span').children('.add-favorite') // Modify fancybox title
+                        .children('i').removeClass(removeClass).addClass(addClass);
+                });
+                // Update voting icons when image is up-voted/down-voted/un-voted
+                attrs.$observe('voted',function(){
+                    var fancyUpvote = $('.fancybox-title').children('span').children('.upvote');
+                    var fancyDownvote = fancyUpvote.siblings('.downvote');
+                    // First remove all voted classes
+                    controls.children('.downvote').removeClass('voted').siblings('.upvote').removeClass('voted');
+                    fancyUpvote.removeClass('voted'); fancyDownvote.removeClass('voted');
+                    if(scope.image.voted == 1) { // If up-voted, apply voted classes to upvote links
+                        controls.children('.upvote').addClass('voted');
+                        fancyUpvote.addClass('voted');
+                    } else if(scope.image.voted == -1) { // If down-voted, apply voted classes to downvote links
+                        controls.children('.downvote').addClass('voted');
+                        fancyDownvote.addClass('voted');
+                    }
+                    fancyUpvote.siblings('span').text(scope.image.score);
+                });
+                // When overlay is middle-clicked, open the image in a new tab
                 overlay.on('mousedown', function(e) {
                     if(e.target == overlay.get()[0] && e.which == 2) { // Middle mouse, not an overlay control
                         var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
@@ -282,13 +298,32 @@ angular.module('Redtiles.directives', [])
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
                             var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
-                            $.fancybox(scope.fullImages, { padding: 4, index: imageIndex,  
-                                title:
-                                    '<time>' + $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
-                                    '</time><a target="_blank" href="http://reddit.com' + 
-                                    scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
+                            var fancyHTML = '<time>' + 
+                                $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
+                                '</time><a class="post-link" target="_blank" href="http://reddit.com' +
+                                scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
+                            if(scope.loginStatus == 'logged') { // If logged in, show reddit controls
+                                var faved = scope.imageViewed.saved ? '' : '-empty'; // Is the image faved?
+                                fancyHTML += '<a class="add-favorite"><i class="icon-star' + faved + '"></i></a>';
+                                var upVoted = scope.imageViewed.voted == 1 ? ' voted' : ''; // Conditional classes
+                                var downVoted = scope.imageViewed.voted == -1 ? ' voted' : '';
+                                fancyHTML += '<a class="downvote' + downVoted + '"></a>' + '<span>' +
+                                    scope.imageViewed.score + '</span>' + '<a class="upvote' + upVoted + '"></a>';
+                            }
+                            var afterShowCallback = function() {
+                                if(scope.loginStatus != 'logged') { return; }
+                                var fancyTitle = $('.fancybox-title').children('span');
+                                fancyTitle.children('.add-favorite').click(function() { // Fave function
+                                    scope.fave(scope.imageViewed);
+                                }).siblings('.upvote').click(function() { // Upvote function
+                                        scope.vote(scope.imageViewed, 1);
+                                    }).siblings('.downvote').click(function() { // Downvote function
+                                        scope.vote(scope.imageViewed, -1);
+                                    })
+                            };
+                            jQuery.fancybox(scope.fullImages, { padding: 4, index: imageIndex, title: fancyHTML,
+                                afterShow: afterShowCallback
                             });
-                            //.open(scope.fullImages, { index: imageIndex });
                         }
                     })
                 }
@@ -318,7 +353,7 @@ angular.module('Redtiles.directives', [])
         };
     })
     .directive('subredditAutocomplete', function () {
-        return function (scope, element, attrs) {
+        return function (scope, element) {
             element.autocomplete({
                 lookup: ['pics','pictures','tumblr','itookapicture','awwwnime','gifs','cosplay','wallpapers','memes','fffffffuuuuuuuuuuuu','aww','wtf','gaming','earthporn','roomporn','food','art','woahdude','comics','4chan','abandonedporn','cars','cats','cityporn','albumartporn','firstworldanarchists','foodporn','gentlemanboners','ladyboners','graffiti','humanporn','historyporn','machineporn','mapporn','quotesporn','spaceporn','tattoos','adviceanimals','lolcats','ecards','boardgames','books','circlejerk','creepy','facepalm','cringepics','freebies','frugal','geek','getmotivated','history','humor','jokes','justiceporn','shutupandtakemymoney','offbeat','philosophy','photography','nosleep','scifi'],
                 onSelect: function (suggestion) {

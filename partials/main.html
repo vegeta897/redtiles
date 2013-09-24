@@ -99,13 +99,13 @@
 </div> <!-- /.top-bar -->
 
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
-    <div data-display-size="{{ image.displaySize }}" data-faved="{{ image.saved }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
+    <div data-display-size="{{ image.displaySize }}" data-faved="{{ image.saved }}" data-voted="{{ image.voted }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div ng-click="viewImage(image)" class="tile-overlay">
             <a ng-show="loginStatus == 'logged'" ng-click="fave(image)" class="add-favorite"><i class="icon-star-empty"></i></a>
             <div class="reddit-controls">
-                <a ng-show="loginStatus == 'logged'" ng-class="{voted:image.voted == 1}" ng-click="vote(image, 1)" class="upvote"></a>
+                <a ng-show="loginStatus == 'logged'" ng-click="vote(image, 1)" class="upvote"></a>
                 {{ image.score }}
-                <a ng-show="loginStatus == 'logged'" ng-class="{voted:image.voted == -1}" ng-click="vote(image, -1)" class="downvote"></a>
+                <a ng-show="loginStatus == 'logged'" ng-click="vote(image, -1)" class="downvote"></a>
                 <a ng-click="hideTile(image.id)" class="hide-tile"><i class="icon-eye-close"></i></a>
             </div>
             <div class="post-info">

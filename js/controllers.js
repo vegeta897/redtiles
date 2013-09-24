@@ -86,7 +86,7 @@ angular.module('Redtiles.controllers', [])
                                         subs: userColls[i].subs,
                                         shared: true
                                     });
-                                },0);
+                                });
                                 break;
                             }
                         }
@@ -152,7 +152,7 @@ angular.module('Redtiles.controllers', [])
             if(gathering) { return; }
             if(!$scope.subreddits || $scope.subreddits.length == 0) {
                 $scope.subreddits = [];
-                $timeout(function(){$scope.loadStatus = 'add some subreddits!';},0);
+                $timeout(function(){$scope.loadStatus = 'add some subreddits!';});
                 return;
             }
             gathering = true;
@@ -228,7 +228,7 @@ angular.module('Redtiles.controllers', [])
                     if($scope.imageTiles.length > 0) { clearTiles(); }
                     getTiles();
                 }
-            },0);
+            });
             
         };
         // If not logged, and not viewing a shared URL, populate the active subreddit list on app start
@@ -381,7 +381,7 @@ angular.module('Redtiles.controllers', [])
             img.voted = dir; // Indicate the image was voted on, or voting undone
             reddit.vote(img.name,dir).then(function(response) { // Send the vote request to reddit
                 if(jQuery.isEmptyObject(response)) {
-                    console.log('vote successful!');
+                    console.log(dir == 1 ? 'up' : dir == -1 ? 'down' : 'undo', 'vote successful!');
                 } else {
                     console.log('vote failed!');
                 }
@@ -395,7 +395,7 @@ angular.module('Redtiles.controllers', [])
             if(unfaving) { methodName = 'unfave'; } // If we're unfaving, change the method
             reddit[methodName](img.name).then(function(response) { // Send the vote request to reddit
                 if(jQuery.isEmptyObject(response)) {
-                    console.log('fave successful!');
+                    console.log(unfaving ? 'unfave' : 'fave', 'successful!');
                 } else {
                     console.log('fave failed!');
                 }
@@ -443,7 +443,7 @@ angular.module('Redtiles.controllers', [])
                     updateEditedCollections();
                     filterPopularEditSubs();
                 }
-            },0);
+            });
         };
         // When a subreddit is removed from the edited collection
         $scope.removeEditSub = function(sub) {
@@ -454,7 +454,7 @@ angular.module('Redtiles.controllers', [])
                     updateEditedCollections();
                     filterPopularEditSubs();
                 }
-            },0);
+            });
         };
         // When a collection is renamed in the manager
         $scope.renameCollection = function(newName) {
@@ -468,7 +468,7 @@ angular.module('Redtiles.controllers', [])
                     $('#editCollDropdown').html($scope.editSelectedColl); // Fix the edited collection
                     $scope.renameName = ''; // Clear the field
                     $scope.renamingColl = false; // Close the section
-                },0);
+                });
             }
         };
         // When a collection is deleted in the manager
@@ -524,7 +524,7 @@ angular.module('Redtiles.controllers', [])
             for(var i = 0; i < $scope.imageTiles.length; i++) {
                 $scope.imageTiles[i].displaySize = getPostSize($scope.imageTiles[i]);
             }
-            $timeout(function() { msnry.layout(); },0); // Re-layout tiles after css changes take effect
+            $timeout(function() { msnry.layout(); }); // Re-layout tiles after css changes take effect
         };
         $scope.addSub = function(sub) {
             $scope.addSubName = sub.toLowerCase();
@@ -573,7 +573,7 @@ angular.module('Redtiles.controllers', [])
                 $('#editCollDropdown').html($scope.editSelectedColl); // Fix the edited collection
                 $scope.editCollections = JSON.parse(JSON.stringify($scope.collections)); // Deep copy, kill refs
                 angular.copy($scope.subreddits,$scope.editSubreddits);
-            },0);
+            });
         };
         // When the save changes button is clicked in the collection manager
         $scope.saveChanges = function() {

@@ -436,7 +436,7 @@ section#popular .subreddits ul li i.hover {
     padding: 6px 4px;
 }
 
-.reddit-controls .upvote, .reddit-controls .downvote {
+.upvote, .downvote {
     display: block;
     width: 19px;
     height: 9px;
@@ -444,26 +444,26 @@ section#popular .subreddits ul li i.hover {
     background: url('../img/redtiles-icons.png') no-repeat -116px 0;
 }
 
-.reddit-controls .downvote { background-position: -135px 0; }
-.reddit-controls .upvote:hover, .reddit-controls .upvote:focus { background-position: -154px 0; }
-.reddit-controls .downvote:hover, .reddit-controls .downvote:focus { background-position: -173px 0; }
-.reddit-controls .upvote.voted { background-position: -250px 0; }
-.reddit-controls .downvote.voted { background-position: -269px 0; }
+.downvote { background-position: -135px 0; }
+.upvote:hover, .upvote:focus { background-position: -154px 0; }
+.downvote:hover, .downvote:focus { background-position: -173px 0; }
+.upvote.voted { background-position: -250px 0; }
+.downvote.voted { background-position: -269px 0; }
 
-.big-tile .reddit-controls .upvote, .big-tile .reddit-controls .downvote {
+.big-tile .upvote, .big-tile .downvote {
     background-position: 0 0;
     width: 29px;
     height: 14px;
     margin-left: 0;
 }
 
-.big-tile .reddit-controls .upvote:hover, .reddit-controls .upvote:focus { background-position: -29px 0; }
-.big-tile .reddit-controls .downvote:hover, .reddit-controls .downvote:focus { background-position: -87px 0; }
-.big-tile .reddit-controls .downvote { background-position: -58px 0; }
-.big-tile .reddit-controls .upvote.voted { background-position: -192px 0; }
-.big-tile .reddit-controls .downvote.voted { background-position: -221px 0; }
+.big-tile .upvote:hover, .big-tile .upvote:focus { background-position: -29px 0; }
+.big-tile .downvote:hover, .big-tile .downvote:focus { background-position: -87px 0; }
+.big-tile .downvote { background-position: -58px 0; }
+.big-tile .upvote.voted { background-position: -192px 0; }
+.big-tile .downvote.voted { background-position: -221px 0; }
 
-.reddit-controls .hide-tile {
+.hide-tile {
      display: block;
      margin-top: 10px;
      margin-left: 1px;
@@ -472,13 +472,13 @@ section#popular .subreddits ul li i.hover {
      font-size: 18px;
  }
 
-.big-tile .reddit-controls .hide-tile {
+.big-tile .hide-tile {
     margin-top: 16px;
     line-height: 24px;
     font-size: 26px;
 }
 
-.reddit-controls .hide-tile:hover, .reddit-controls .hide-tile:focus {
+.hide-tile:hover, .hide-tile:focus {
     color: #eee;
 }
 
@@ -820,6 +820,9 @@ fieldset {
 /* Fancybox Overrides */
 
 .fancybox-skin { background: #222; }
-.fancybox-skin a { color: #eee; }
-.fancybox-skin a:hover, .fancybox-skin a:focus { color: #ddd; text-decoration: underline; }
-.fancybox-title time { color:#999; margin-right: 1.5em; }
+.fancybox-title a.post-link { color: #eee; margin-right: 1.5em; }
+.fancybox-title a.post-link:hover, .fancybox-skin a.post-link:focus { color: #ddd; text-decoration: underline; }
+.fancybox-title time { color:#999; margin-right: 1.5em; line-height: 22px; font-size: 12px; }
+.fancybox-title a.add-favorite { color: #ccc; margin-right: 1em; font-size: 18px; top: 2px; position: relative; }
+.fancybox-title a.add-favorite:hover, .fancybox-title a.add-favorite:focus { color: #eee; }
+.fancybox-title .upvote, .fancybox-title .downvote { display: inline-block; margin: 0 5px; }
