@@ -1,20 +1,17 @@
 /* Services */
 'use strict';
 angular.module('Redtiles.services', [])
-    .factory('reddit', function($http, $q, parse) {
+    .factory('reddit', function($http, $q, parse, localStorageService) {
         var phpEndpoint = './php/endpoint.php';
         return {
             // Get posts via jsonp, when user is not logged in
             getPosts: function(subreddits, sort, limit, afterID, logged) {
                 var deferred = $q.defer();
-                var requestCode = subreddits+'-'+sort+'-'+limit+'-'+afterID+logged;
-//                if(resultCache.hasOwnProperty(requestCode)) {
-//                    deferred.resolve(resultCache[requestCode]);
-//                    return deferred.promise;
-//                }
-                console.log(requestCode);
-                var baseURL = 'http://reddit.com/r/';
-                var subs = subreddits.join('+') + '/';
+                var requestCode = subreddits+'-'+sort+'-'+limit+'-'+afterID+logged; // Caching by this code
+                var cached = parse.getCache(requestCode); // Try to get cache for this request, clean out expired
+                // If non-expired cache found for this requestCode, return it
+                if(cached) { console.log('found cached results'); deferred.resolve(cached); return deferred.promise; } 
+                // Proceeding if no non-expired cache was found
                 var sorting = logged ? 'best' : '';
                 if(jQuery.inArray(sort,['New','Rising','Controversial','Top']) > -1) {
                     sorting = sort.toLowerCase() + '/';
@@ -24,23 +21,33 @@ angular.module('Redtiles.services', [])
                 };
                 params.after = afterID ? afterID : undefined;
                 var results = {};
-                if(logged) {
+                if(logged) { // Logged in, post list request with modhash
                     params.action = 'getListing';
                     params.sr = subreddits.join('+');
                     params.sort = sorting;
                     $http({method: 'GET', url: phpEndpoint, params: params})
-                        .success(function (data, status, headers, config) {
-                            deferred.resolve(parse.postList(data));
+                        .success(function (data) {
+                            var returnData = parse.postList(data);
+                            if(returnData.hasOwnProperty('posts')) { // If the result contains posts
+                                parse.storeCache(requestCode, returnData); // Cache the results
+                            }
+                            deferred.resolve(returnData);
                         }).error(function (data, status, headers, config) {
                             results.error = {name: "Oh no!", description: "Unknown error"};
                             console.log('error!', data, status, headers, config);
                             deferred.reject(data);
                         });
-                } else {
+                } else { // Not logged in, basic post list request
+                    var baseURL = 'http://reddit.com/r/';
+                    var subs = subreddits.join('+') + '/';
                     params.jsonp = 'JSON_CALLBACK';
                     $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
-                        .success(function(data, status, headers, config) {
-                            deferred.resolve(parse.postList(data));
+                        .success(function(data) {
+                            var returnData = parse.postList(data);
+                            if(returnData.hasOwnProperty('posts')) { // If the result contains posts
+                                parse.storeCache(requestCode, returnData); // Cache the results
+                            }
+                            deferred.resolve(returnData);
                         }).error(function(data, status, headers, config) {
                             results.error = {name: "Oh no!", description: "No response from reddit"};
                             console.log('error!', data, status, headers, config);
@@ -57,7 +64,7 @@ angular.module('Redtiles.services', [])
                     pass: password
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
                         console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
@@ -71,10 +78,10 @@ angular.module('Redtiles.services', [])
                     action: 'logout'
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        console.log('logout error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                         deferred.reject(data);
                     });
                 return deferred.promise;
@@ -87,10 +94,10 @@ angular.module('Redtiles.services', [])
                     cookie: cookie
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        console.log('auto-login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                         deferred.reject(data);
                     });
                 return deferred.promise;
@@ -103,7 +110,7 @@ angular.module('Redtiles.services', [])
                     dir: direction
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
                         console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
@@ -118,10 +125,10 @@ angular.module('Redtiles.services', [])
                     id: postID
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        console.log('fave error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                         deferred.reject(data);
                     });
                 return deferred.promise;
@@ -133,10 +140,10 @@ angular.module('Redtiles.services', [])
                     id: postID
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        console.log('unfave error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                         deferred.reject(data);
                     });
                 return deferred.promise;
@@ -148,20 +155,22 @@ angular.module('Redtiles.services', [])
                     id: postID
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
+                    .success(function (data) {
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
+                        console.log('hide error:',data, 'status:',status, 'headers:',headers, 'config:',config);
                         deferred.reject(data);
                     });
                 return deferred.promise;
             }
         }
     })
-    .factory('parse', function() {
+    .factory('parse', function(localStorageService) {
         return {
             postList: function(unparsed) {
-                var parsed = {};
+                var parsed = {}; // Empty object for the parsed results
+                // List of properties we're going to delete from each post because we don't need them
+                var unusedProperties = ['banned_by','media_embed','selftext_html','selftext','secure_media','secure_media_embed','clicked','stickied','media','approved_by','thumbnail','subreddit_id','edited','link_flair_css_class','is_self','created','author_flair_text','link_flair_text','num_comments','num_reports','distinguished'];
                 if(unparsed == '""') { unparsed = {};}
                 if(!unparsed.hasOwnProperty('data') || unparsed.kind != 'Listing') {
                     parsed = unparsed;
@@ -170,7 +179,7 @@ angular.module('Redtiles.services', [])
                 }
                 parsed.after = unparsed.data.after;
                 parsed.before = unparsed.data.before;
-                parsed.posts = [];
+                parsed.posts = []; // Empty array property for the list of parsed posts
                 var voteRatios = []; // Array of upvote/downvote ratios
                 // Populate the voteRatios array
                 for(var j = 0; j < unparsed.data.children.length; j++) {
@@ -240,12 +249,38 @@ angular.module('Redtiles.services', [])
                     }
                     // Qualify the image if a thumbnail URL was created
                     if(post.hasOwnProperty('thumbURL')) { 
-                        parsed.posts.push(post);
-                    } else {
-                        // No image URL found
+                        for(var k = 0; k < unusedProperties.length; k++) { // Iterate through unused property names
+                            delete post[unusedProperties[k]]; // Delete each property from the post
+                        }
+                        parsed.posts.push(post); // Push the post into the parsed posts array
                     }
                 }
                 return parsed;
+            },
+            getCache: function(requestCode) {
+                var d = new Date(); // Date object for getTime()
+                var cacheIndex = localStorageService.get('cacheIndex');
+                if(cacheIndex) { // If the cacheIndex exists
+                    var cleanCacheIndex = [];
+                    for(var i = 0; i < cacheIndex.length; i++) { // Clean out expired caches
+                        if(cacheIndex[i]['expires'] < d.getTime()) { // If this entry has expired
+                            localStorageService.remove(cacheIndex[i]['requestCode']); // Remove the cached data
+                        } else { // If this entry hasn't expired
+                            cleanCacheIndex.push(cacheIndex[i]); // Put it in the cleaned index
+                        }
+                    }
+                    localStorageService.set('cacheIndex',cleanCacheIndex); // Put the cleaned index back in storage
+                }
+                return localStorageService.get(requestCode); // Return cached data (returns falsey if cache not found)
+            },
+            storeCache: function(requestCode, resultData) {
+                var d = new Date(); // Date object for getTime()
+                localStorageService.set(requestCode, resultData); // Store it under its requestCode
+                var cacheIndex = localStorageService.get('cacheIndex');
+                if(!cacheIndex) { cacheIndex = []; } // If the cacheIndex doesn't exist, initialize it
+                // Add the cache entry to the index
+                cacheIndex.push({requestCode: requestCode, expires: d.getTime() + 30000}); // Expires 30s from now
+                localStorageService.set('cacheIndex',cacheIndex); // Put the index back in storage
             }
         };
     })
