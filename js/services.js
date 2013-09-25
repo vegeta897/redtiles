@@ -27,7 +27,7 @@ angular.module('Redtiles.services', [])
                     params.sort = sorting;
                     $http({method: 'GET', url: phpEndpoint, params: params})
                         .success(function (data) {
-                            var returnData = parse.postList(data);
+                            var returnData = parse.postList(data, requestCode);
                             if(returnData.hasOwnProperty('posts')) { // If the result contains posts
                                 parse.storeCache(requestCode, returnData); // Cache the results
                             }
@@ -39,7 +39,7 @@ angular.module('Redtiles.services', [])
                     params.jsonp = 'JSON_CALLBACK';
                     $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
                         .success(function(data) {
-                            var returnData = parse.postList(data);
+                            var returnData = parse.postList(data, requestCode);
                             if(returnData.hasOwnProperty('posts')) { // If the result contains posts
                                 parse.storeCache(requestCode, returnData); // Cache the results
                             }
@@ -90,7 +90,7 @@ angular.module('Redtiles.services', [])
     })
     .factory('parse', function(localStorageService) {
         return {
-            postList: function(unparsed) {
+            postList: function(unparsed, requestCode) {
                 var parsed = {}; // Empty object for the parsed results
                 // List of properties we're going to delete from each post because we don't need them
                 var unusedProperties = ['banned_by','media_embed','selftext_html','selftext','secure_media','secure_media_embed','clicked','stickied','media','approved_by','thumbnail','subreddit_id','edited','link_flair_css_class','is_self','created','author_flair_text','link_flair_text','num_comments','num_reports','distinguished'];
@@ -124,6 +124,7 @@ angular.module('Redtiles.services', [])
                     } else if(post.likes === false) {
                         post.voted = -1;
                     }
+                    post.requestCode = requestCode; // Attach the requestCode to the post for later cache modifications
                     // If a post has more than the minimum popularity, tag it popular
                     if(post.ups/(post.downs+1)>minPopularity) { post.popular = true; }
                     if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }

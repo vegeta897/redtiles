@@ -19,7 +19,7 @@ class reddit{
         $this->modHash = $modhash;
         $this->session = $cookie;
     }
-    
+
     /**
      * Log in
      *
@@ -39,7 +39,7 @@ class reddit{
         if (!is_object($response)){
             return $response;
         }
-        
+
         if (count($response->json->errors) > 0){
             return $response->json->errors[0];
         } else {
@@ -379,7 +379,7 @@ class reddit{
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_COOKIE => "reddit_session={$this->session}",
             CURLOPT_TIMEOUT => 3,
-            CURLOPT_USERAGENT => 'Redtiles web-app 0.9 by /u/vegeta897'
+            CURLOPT_USERAGENT => 'Redtiles web-app 1.0 by /u/vegeta897'
         );
 
         if ($postVals != null){

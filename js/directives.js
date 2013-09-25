@@ -63,7 +63,7 @@ angular.module('Redtiles.directives', [])
             templateUrl: 'partials/collection-select.html',
             link: function(scope, element, attr) {
                 scope.selectId = attr.selectId; // Pass in the ID
-                element.click(function(event) { // Open the dropdown menu on click
+                element.click(function() { // Open the dropdown menu on click
                     scope.menuOpen = !scope.menuOpen;
                 });
             }
@@ -79,7 +79,7 @@ angular.module('Redtiles.directives', [])
             templateUrl: 'partials/popular-select.html',
             link: function(scope, element, attr) {
                 scope.selectId = attr.selectId; // Pass in the ID
-                element.click(function(event) { // Open the dropdown menu on click
+                element.click(function() { // Open the dropdown menu on click
                     scope.menuOpen = !scope.menuOpen;
                 });
             }
@@ -284,16 +284,15 @@ angular.module('Redtiles.directives', [])
                 // When overlay is middle-clicked, open the image in a new tab
                 overlay.on('mousedown', function(e) {
                     if(e.target == overlay.get()[0] && e.which == 2) { // Middle mouse, not an overlay control
-                        var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
-                        window.open(scope.fullImages[imageIndex].href, '_blank'); // Open full image in new tab
+                        window.open(scope.fullImages[scope.image.arrayIndex].href, '_blank'); // Open full image in new tab
                         e.stopPropagation();
                         e.preventDefault();
                     }
                 });
                 function onImageLoad() { // When the image is loaded
                     realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
-                    // If image failed to load or is hidden
-                    if(realSize[0] == 0 || scope.image['hidden']) { 
+                    // If image failed to load
+                    if(realSize[0] == 0) { 
                         ctrl.removeTile(element);
                         console.log('post id',element.attr('id'),'did not load');
                         return;
@@ -304,7 +303,6 @@ angular.module('Redtiles.directives', [])
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
-                            var imageIndex = jQuery.inArray(element.attr('id'), scope.imageIDs);
                             var fancyHTML = '<time>' + 
                                 $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
                                 '</time><a class="post-link" target="_blank" href="http://reddit.com' +
@@ -328,14 +326,15 @@ angular.module('Redtiles.directives', [])
                                         scope.vote(scope.imageViewed, -1);
                                     })
                             };
-                            jQuery.fancybox(scope.fullImages, { padding: 4, index: imageIndex, title: fancyHTML,
+                            jQuery.fancybox(scope.fullImages, { padding: 4, index: scope.image.arrayIndex, title: fancyHTML,
                                 afterShow: afterShowCallback
                             });
                         }
                     })
                 }
                 ctrl.appendTile(element); // Append tile to masonry
-                if(!scope.image['ajax']) {
+                // If the image isn't waiting on AJAX, and is not hidden
+                if(!scope.image['ajax']) { 
                     image.attr('src',scope.image.thumbURL);
                     element.imagesLoaded(onImageLoad); // When image loads...
                 }
@@ -382,5 +381,5 @@ angular.module('Redtiles.directives', [])
             start = +start; //parse to int
             return input.slice(start);
         }
-    });
+    })
 ;

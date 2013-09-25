@@ -106,46 +106,65 @@ function hide($id)
     return $response;
 }
 
+function imgAjax($url)
+{
+    $ch = curl_init();
+    $options = array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_USERAGENT => 'Redtiles web-app 1.0 by /u/vegeta897',
+        CURLOPT_URL => $url . '.json'
+    );
+    curl_setopt_array($ch, $options);
+    $response = json_decode(curl_exec($ch));
+    curl_close($ch);
+    return $response;
+}
+
 $value = "MissingParams";
 
 if (isset($_GET["action"]))
 {
-  switch ($_GET["action"])
+    switch ($_GET["action"])
     {
-      case "cast_vote":
-        if (isset($_GET["id"],$_GET["dir"]))
-          $value = cast_vote($_GET["id"],$_GET["dir"]);
-        break;
-      case "fave":
-          if (isset($_GET["id"]))
-              $value = fave($_GET["id"]);
-          break;
-      case "unfave":
-          if (isset($_GET["id"]))
-              $value = unfave($_GET["id"]);
-          break;
-      case "hide":
-          if (isset($_GET["id"]))
-              $value = hide($_GET["id"]);
-          break;
-      case "login":
-        if (isset($_GET["user"],$_GET["pass"]))
-          $value = login($_GET["user"],$_GET["pass"]);
-        break;
-      case "autoLogin":
-          if (isset($_GET["modhash"],$_GET["cookie"]))
-              $value = autoLogin($_GET["modhash"],$_GET["cookie"]);
-          break;
-      case "logout":
-          $value = logout();
-          break;
-      case "getListing":
-          if (isset($_GET["sr"],$_GET["sort"],$_GET["limit"]))
-              if (isset($_GET["after"]))
-                  $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"],$_GET["after"]);
-              else
-                  $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"]);
-          break;
+        case "cast_vote":
+            if (isset($_GET["id"],$_GET["dir"]))
+                $value = cast_vote($_GET["id"],$_GET["dir"]);
+            break;
+        case "fave":
+            if (isset($_GET["id"]))
+                $value = fave($_GET["id"]);
+            break;
+        case "unfave":
+            if (isset($_GET["id"]))
+                $value = unfave($_GET["id"]);
+            break;
+        case "hide":
+            if (isset($_GET["id"]))
+                $value = hide($_GET["id"]);
+            break;
+        case "login":
+            if (isset($_GET["user"],$_GET["pass"]))
+                $value = login($_GET["user"],$_GET["pass"]);
+            break;
+        case "autoLogin":
+            if (isset($_GET["modhash"],$_GET["cookie"]))
+                $value = autoLogin($_GET["modhash"],$_GET["cookie"]);
+            break;
+        case "logout":
+            $value = logout();
+            break;
+        case "getListing":
+            if (isset($_GET["sr"],$_GET["sort"],$_GET["limit"]))
+                if (isset($_GET["after"]))
+                    $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"],$_GET["after"]);
+                else
+                    $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"]);
+            break;
+        case "imgAjax":
+            if (isset($_GET["url"]))
+                $value = imgAjax($_GET["url"]);
+            break;
     }
 }
 

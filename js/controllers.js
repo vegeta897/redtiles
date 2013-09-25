@@ -182,9 +182,11 @@ angular.module('Redtiles.controllers', [])
                 for(var i = 0; i < response.posts.length; i++) {
                     var post = response.posts[i];
                     var postID = post.id;
-                    if(jQuery.inArray(postID,$scope.imageIDs) == -1) { // If image isn't already in pool
+                    // If image isn't already in pool, and not hidden
+                    if(jQuery.inArray(postID,$scope.imageIDs) == -1 && !post['hidden']) { 
                         addCount += 1;
                         post.displaySize = getPostSize(post);
+                        post.arrayIndex = $scope.imageTiles.length;
                         $scope.imageTiles.push(post);
                         $scope.imageIDs.push(postID);
                         $scope.fullImages.push({
@@ -393,7 +395,11 @@ angular.module('Redtiles.controllers', [])
                 img.score += dir; // Apply the vote score change
             }
             img.voted = dir; // Indicate the image was voted on, or voting undone
-            // TODO: set vote status in cache
+            var cache = localStorageService.get(img.requestCode); // Get the cache containing this image
+            if(cache) { // If it's still there...
+                cache.posts[img.arrayIndex].score = img.score; cache.posts[img.arrayIndex].voted = img.voted;
+                localStorageService.set(img.requestCode, cache); // Put it back in the cache
+            }
             // Send the vote request to reddit
             reddit.generic({action: 'cast_vote', id: img.name, dir: dir}).then(function(response) { 
                 if(jQuery.isEmptyObject(response)) {
@@ -405,7 +411,11 @@ angular.module('Redtiles.controllers', [])
         $scope.fave = function(img) {
             var unfaving = img.saved ? true : false; // Is the image already faved? (are we unfaving?)
             img.saved = !unfaving; // Set fave state
-            // TODO: set fave status in cache
+            var cache = localStorageService.get(img.requestCode); // Get the cache containing this image
+            if(cache) { // If it's still there...
+                cache.posts[img.arrayIndex].saved = img.saved;
+                localStorageService.set(img.requestCode, cache); // Put it back in the cache
+            }
             var methodName = 'fave'; // By default the method will fave the image
             if(unfaving) { methodName = 'unfave'; } // If we're unfaving, change the method
             // Send the fave/unfave request to reddit
@@ -419,7 +429,11 @@ angular.module('Redtiles.controllers', [])
         $scope.hideTile = function(img) {
             that.removeTile($('#'+img.id)); // Remove the tile from the masonry layout
             img['hidden'] = true;
-            // TODO: set hide status in cache
+            var cache = localStorageService.get(img.requestCode); // Get the cache containing this image
+            if(cache) { // If it's still there...
+                cache.posts[img.arrayIndex]['hidden'] = img['hidden'];
+                localStorageService.set(img.requestCode, cache); // Put it back in the cache
+            }
             if($scope.loginStatus == 'logged') { // If we're logged in
                 reddit.generic({action: 'hide', id: 't3_'+img.id}); // Hide the image on the user's reddit account
             }

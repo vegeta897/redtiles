@@ -111,7 +111,7 @@ function imgAjax($url)
     $options = array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT => 3,
-        CURLOPT_USERAGENT => 'Redtiles web-app 0.9 by /u/vegeta897',
+        CURLOPT_USERAGENT => 'Redtiles web-app 1.0 by /u/vegeta897',
         CURLOPT_URL => $url . '.json'
     );
     curl_setopt_array($ch, $options);
