@@ -192,9 +192,16 @@ angular.module('Redtiles.controllers', [])
                             title: post.title
                         });
                         if(post.hasOwnProperty('ajax')) {
-                            console.log('ajaxing album...',post.thumbURL);
-                            reddit.imgAjax(post.thumbURL).then(function(response) {
-                                console.log(response);
+                            reddit.imgAjax(postID, post.thumbURL).then(function(response) {
+                                var imgIndex = jQuery.inArray(response.id,$scope.imageIDs);
+                                if(response.hasOwnProperty('thumbURL')) {
+                                    $scope.imageTiles[imgIndex].ajaxed = true;
+                                    $scope.imageTiles[imgIndex].thumbURL = response.thumbURL;
+                                    $scope.imageTiles[imgIndex].fixedURL = response.fixedURL;
+                                    $scope.fullImages[imgIndex].href = response.fixedURL;
+                                } else {
+                                    console.log('AJAX image couldn\'t be resolved');
+                                }
                             });
                         }
                     }
@@ -625,7 +632,9 @@ angular.module('Redtiles.controllers', [])
         var onLastResults = function() {
             noMoreResults = true;
             console.log('no more results!');
-            $scope.loadStatus = 'no more images to load!'; // Tell the user
+            $timeout(function() {
+                $scope.loadStatus = 'no more images to load!'; // Tell the user
+            });
         };
         // Executed by directive, sets masonry variable for manipulation in this controller
         this.initMasonry = function initMasonry(element) {

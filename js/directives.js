@@ -274,6 +274,13 @@ angular.module('Redtiles.directives', [])
                     }
                     fancyUpvote.siblings('span').text(scope.image.score);
                 });
+                // Watch for AJAX loading
+                attrs.$observe('ajaxed',function(){
+                    if(scope.image.ajaxed) { // If the new URL was acquired
+                        image.attr('src',scope.image.thumbURL);
+                        element.imagesLoaded(onImageLoad); // Bind the onImageLoad function
+                    }
+                });
                 // When overlay is middle-clicked, open the image in a new tab
                 overlay.on('mousedown', function(e) {
                     if(e.target == overlay.get()[0] && e.which == 2) { // Middle mouse, not an overlay control
@@ -283,11 +290,10 @@ angular.module('Redtiles.directives', [])
                         e.preventDefault();
                     }
                 });
-                
                 function onImageLoad() { // When the image is loaded
                     realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
-                    // If image failed to load and not waiting on ajax, or is hidden
-                    if((realSize[0] == 0 && !scope.image['ajax']) || scope.image['hidden']) { 
+                    // If image failed to load or is hidden
+                    if(realSize[0] == 0 || scope.image['hidden']) { 
                         ctrl.removeTile(element);
                         console.log('post id',element.attr('id'),'did not load');
                         return;
@@ -329,7 +335,10 @@ angular.module('Redtiles.directives', [])
                     })
                 }
                 ctrl.appendTile(element); // Append tile to masonry
-                element.imagesLoaded(onImageLoad); // When image loads...
+                if(!scope.image['ajax']) {
+                    image.attr('src',scope.image.thumbURL);
+                    element.imagesLoaded(onImageLoad); // When image loads...
+                }
             }
         }
     })

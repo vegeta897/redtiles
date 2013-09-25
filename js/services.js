@@ -60,7 +60,7 @@ angular.module('Redtiles.services', [])
                     });
                 return deferred.promise;
             },
-            imgAjax: function(url) {
+            imgAjax: function(id, url) {
                 var deferred = $q.defer();
                 var params = {
                     action: 'imgAjax',
@@ -68,7 +68,21 @@ angular.module('Redtiles.services', [])
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
                     .success(function (data) {
-                        deferred.resolve(data);
+                        var imageURLs = {id: id};
+                        var baseURL = 'http://i.imgur.com/';
+                        if(data.hasOwnProperty('data')) {
+                            if(data.data.image.album_cover) {
+                                imageURLs.thumbURL = baseURL + data.data.image.album_cover + 'l' + data.data.image.ext;
+                                imageURLs.fixedURL = baseURL + data.data.image.album_cover + data.data.image.ext;
+                            } else {
+                                imageURLs.thumbURL = baseURL + data.data.image.hash + 'l' + data.data.image.ext;
+                                imageURLs.fixedURL = baseURL + data.data.image.hash + data.data.image.ext;
+                            }
+                        } else if(data.hasOwnProperty('album')) {
+                            imageURLs.thumbURL = baseURL + data.album.cover + 'l.jpg';
+                            imageURLs.fixedURL = baseURL + data.album.cover + '.jpg';
+                        }
+                        deferred.resolve(imageURLs);
                     });
                 return deferred.promise;
             }
@@ -115,8 +129,6 @@ angular.module('Redtiles.services', [])
                     if(post.ups/(post.downs+1)>minSuperPopularity) { post.superPopular = true; }
                     var size = 'l'; // Imgur sizing suffix
                     
-                    // TODO: Replace this stuff with regular expressions
-                    
                     // Is the URL a jpg, gif, or png?
                     if(post.url.indexOf('.jpg') > 0 ||
                         post.url.indexOf('.jpeg') > 0 ||
@@ -127,13 +139,13 @@ angular.module('Redtiles.services', [])
                     } else {
                         // Is it an imgur album?
                         if(post.url.indexOf('http://imgur.com/a/') == 0) {
-                            console.log('album found!');
                             post.thumbURL = 'http://api.imgur.com/2/album/' + post.url.substring(19,post.url.length);
                             post['ajax'] = true; // The image will have to be acquired later
                         // Is it an imgur gallery?
                         } else if(post.url.indexOf('http://imgur.com/gallery') == 0) {
-                            console.log('gallery found!');
-                            post.thumbURL = post.url;
+                            if(post.url.lastIndexOf('/') == post.url.length-1) { // If there is a trailing slash
+                                post.thumbURL = post.url.substr(0,post.url.length-1); // Remove it
+                            } else { post.thumbURL = post.url; }
                             post['ajax'] = true; // The image will have to be acquired later
                         // Or is it just an imgur page?
                         } else if(post.url.indexOf('http://imgur.com') == 0) {
@@ -143,7 +155,7 @@ angular.module('Redtiles.services', [])
                                     post.url.substring(17,post.url.indexOf(',')) + size + '.jpg';
                                 post.fixedURL = 'http://i.imgur.com/' +
                                     post.url.substring(17,post.url.indexOf(',')) + '.jpg';
-                            } else {
+                            } else { // If nothing else, it's a normal direct image URL
                                 post.thumbURL = 'http://i.imgur.com/' +
                                     post.url.substring(17,post.url.length) + size + '.jpg';
                                 post.fixedURL = 'http://i.imgur.com/' +
@@ -158,11 +170,17 @@ angular.module('Redtiles.services', [])
                                 post.url.substring(19,post.url.length) + '.jpg';
                         }
                     }
-                    // If a gif imgur post, use the thumbnail version
+                    // If a non-gif imgur post, use the thumbnail version
                     if(post.url.indexOf('http://i.imgur.com') == 0 && post.url.indexOf('.gif') < 0) {
-                        post.thumbURL = post.url.substr(0,post.url.lastIndexOf('.')) + size + 
-                            post.url.substring(post.url.lastIndexOf('.'),post.url.length)
+                        var extDot = post.url.lastIndexOf('.');
+                        if(extDot == 27) {
+                            post.thumbURL = post.url.substr(0,extDot-1) + size + post.url.substring(extDot,post.url.length)
+                        } else {
+                            post.thumbURL = post.url.substr(0,extDot) + size + post.url.substring(extDot,post.url.length)
+                        }
                     }
+                    // If a facebook photo URL, disqualify
+                    if(post.url.indexOf('facebook.com/photo.php') > 0) { delete post.thumbURL; }
                     // Qualify the image if a thumbnail URL was created
                     if(post.hasOwnProperty('thumbURL')) { 
                         for(var k = 0; k < unusedProperties.length; k++) { // Iterate through unused property names
@@ -225,11 +243,6 @@ angular.module('Redtiles.services', [])
                 return jQuery.grep(array, function(item) {
                     return item[propName] == propValue;
                 })[0]; // Return the item itself instead of a single-item array
-            },
-            removeByProperty: function(array, propName, propValue){ // Return an array after removing the object with this property/value pair
-                return jQuery.grep(array, function(item) {
-                    return item[propName] != propValue;
-                })
             }
         };
     })

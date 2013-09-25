@@ -99,7 +99,7 @@
 </div> <!-- /.top-bar -->
 
 <div data-options="{'columnWidth': 101, 'gutter': 4}" class="tile-area">
-    <div data-display-size="{{ image.displaySize }}" data-faved="{{ image.saved }}" data-voted="{{ image.voted }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
+    <div data-display-size="{{ image.displaySize }}" data-faved="{{ image.saved }}" data-voted="{{ image.voted }}" data-ajaxed="{{ image.ajaxed }}" ng-class="{remove:image.disabled}" style="display:none;" id="{{ image.id }}" class="tile" ng-repeat="image in imageTiles">
         <div ng-click="viewImage(image)" class="tile-overlay">
             <a ng-show="loginStatus == 'logged'" ng-click="fave(image)" class="add-favorite"><i class="icon-star-empty"></i></a>
             <div class="reddit-controls">
@@ -116,7 +116,7 @@
                 </a>
             </div>
         </div>
-        <img class="tile-image" ng-src="{{ image.thumbURL }}" />
+        <img class="tile-image" />
     </div>
     <div class="load-status"><i ng-show="loadStatus == 'add some subreddits!'" class="icon-arrow-left"> </i>{{ loadStatus }}</div>
 </div> <!-- /.tile-area -->
