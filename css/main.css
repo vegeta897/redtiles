@@ -820,9 +820,9 @@ fieldset {
 /* Fancybox Overrides */
 
 .fancybox-skin { background: #222; }
-.fancybox-title a.post-link { color: #eee; margin-right: 1.5em; }
+.fancybox-title a.post-link { color: #eee;}
 .fancybox-title a.post-link:hover, .fancybox-skin a.post-link:focus { color: #ddd; text-decoration: underline; }
 .fancybox-title time { color:#999; margin-right: 1.5em; line-height: 22px; font-size: 12px; }
-.fancybox-title a.add-favorite { color: #ccc; margin-right: 1em; font-size: 18px; top: 2px; position: relative; }
+.fancybox-title a.add-favorite { color: #ccc; margin: 0 12px 0 19px; font-size: 18px; top: 2px; position: relative; }
 .fancybox-title a.add-favorite:hover, .fancybox-title a.add-favorite:focus { color: #eee; }
 .fancybox-title .upvote, .fancybox-title .downvote { display: inline-block; margin: 0 5px; }

@@ -5,28 +5,48 @@ angular.module('Redtiles.services', [])
         var phpEndpoint = './php/endpoint.php';
         return {
             // Get posts via jsonp, when user is not logged in
-            getPosts: function(subreddits, sort, limit, afterID) {
+            getPosts: function(subreddits, sort, limit, afterID, logged) {
                 var deferred = $q.defer();
+                var requestCode = subreddits+'-'+sort+'-'+limit+'-'+afterID+logged;
+//                if(resultCache.hasOwnProperty(requestCode)) {
+//                    deferred.resolve(resultCache[requestCode]);
+//                    return deferred.promise;
+//                }
+                console.log(requestCode);
                 var baseURL = 'http://reddit.com/r/';
                 var subs = subreddits.join('+') + '/';
-                var sorting = '';
+                var sorting = logged ? 'best' : '';
                 if(jQuery.inArray(sort,['New','Rising','Controversial','Top']) > -1) {
                     sorting = sort.toLowerCase() + '/';
                 }
                 var params = {
-                    jsonp: 'JSON_CALLBACK',
                     limit: limit
                 };
                 params.after = afterID ? afterID : undefined;
                 var results = {};
-                $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
-                    .success(function(data, status, headers, config) {
-                        deferred.resolve(parse.postList(data));
-                    }).error(function(data, status, headers, config) {
-                        results.error = {name: "Oh no!", description: "No response from reddit"};
-                        console.log('error!', data, status, headers, config);
-                        deferred.reject(results);
-                    });
+                if(logged) {
+                    params.action = 'getListing';
+                    params.sr = subreddits.join('+');
+                    params.sort = sorting;
+                    $http({method: 'GET', url: phpEndpoint, params: params})
+                        .success(function (data, status, headers, config) {
+                            deferred.resolve(parse.postList(data));
+                        }).error(function (data, status, headers, config) {
+                            results.error = {name: "Oh no!", description: "Unknown error"};
+                            console.log('error!', data, status, headers, config);
+                            deferred.reject(data);
+                        });
+                } else {
+                    params.jsonp = 'JSON_CALLBACK';
+                    $http.jsonp(baseURL+subs+sorting+'.json', {params: params})
+                        .success(function(data, status, headers, config) {
+                            deferred.resolve(parse.postList(data));
+                        }).error(function(data, status, headers, config) {
+                            results.error = {name: "Oh no!", description: "No response from reddit"};
+                            console.log('error!', data, status, headers, config);
+                            deferred.reject(results);
+                        });
+                }
                 return deferred.promise;
             },
             login: function(username, password) {
@@ -71,31 +91,6 @@ angular.module('Redtiles.services', [])
                         deferred.resolve(data);
                     }).error(function (data, status, headers, config) {
                         console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            // Get posts via PHP, when user is logged in
-            phpGetPosts: function(subreddits, sort, limit, afterID) {
-                var deferred = $q.defer();
-                var sorting = 'best';
-                if(jQuery.inArray(sort,['New','Rising','Controversial','Top']) > -1) {
-                    sorting = sort.toLowerCase() + '/';
-                }
-                var params = {
-                    action: 'getListing',
-                    sr: subreddits.join('+'),
-                    sort: sorting,
-                    limit: limit
-                };
-                params.after = afterID ? afterID : undefined;
-                var results = {};
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data, status, headers, config) {
-                        deferred.resolve(parse.postList(data));
-                    }).error(function (data, status, headers, config) {
-                        results.error = {name: "Oh no!", description: "Unknown error"};
-                        console.log('error!', data, status, headers, config);
                         deferred.reject(data);
                     });
                 return deferred.promise;

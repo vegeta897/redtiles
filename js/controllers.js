@@ -160,9 +160,8 @@ angular.module('Redtiles.controllers', [])
             loadBuffer = true;
             // Refresh masonry layout to fill any gaps left by previous deletions
             if(imagesAdded > 0) { msnry.layout(); }
-            var getMethod = 'getPosts'; // Use jsonp for getting posts by default
-            if($scope.loginStatus == 'logged') { getMethod = 'phpGetPosts' } // If we're logged in, use PHP for getting posts
-            reddit[getMethod]($scope.subreddits, $scope.sortBy, 100, lastID).then(function (response) {
+            var loggedIn = ($scope.loginStatus == 'logged'); // If we're logged in, use PHP for getting posts
+            reddit.getPosts($scope.subreddits, $scope.sortBy, 100, lastID, loggedIn).then(function (response) {
                 console.log(response);
                 if(response.hasOwnProperty('error') || !response.hasOwnProperty('posts')) { // If there was an error
                     gathering = false;
@@ -217,8 +216,10 @@ angular.module('Redtiles.controllers', [])
                     $scope.shared = theCollection.hasOwnProperty('shared');
                     $scope.subreddits = JSON.parse(JSON.stringify(theCollection.subs));
                 }
-                $scope.shareURL = $location.host() + '/redtiles/#/' + $scope.redditUser.name + // Build share URL
-                    '/c/' + encodeURI($scope.selectedColl);
+                if($scope.loginStatus == 'logged') { // If logged in...
+                    $scope.shareURL = $location.host() + '/redtiles/#/' + // Build share URL
+                        $scope.redditUser.name + '/c/' + encodeURI($scope.selectedColl);
+                }
                 if(gettingShared) { // If we're viewing a share URL, get the shared collection
                     getSharedCollection();
                     return; // End function here, because getSharedCollection will run getTiles again
@@ -231,8 +232,8 @@ angular.module('Redtiles.controllers', [])
             });
             
         };
-        // If not logged, and not viewing a shared URL, populate the active subreddit list on app start
-        if(!session && !gettingShared) {getSubs(true);} 
+        // If not logged populate the active subreddit list on app start
+        if(!session) {getSubs(true);} 
         
         // Store the subreddits into the collections property, and save that to localstorage and firebase
         var storeSubs = function() {
@@ -644,7 +645,6 @@ angular.module('Redtiles.controllers', [])
         var onScroll = function() {
             var tileAreaBottom = tileArea.offset().top + tileArea.height();
             if(jqWindow.scrollTop() + jqWindow.height() > tileAreaBottom - 100) {
-                console.log(jqWindow.scrollTop(),jqWindow.height(),tileAreaBottom);
                 if(!noMoreResults && $scope.subreddits.length > 0) {
                     $timeout(function() { // Using timeout to force scope refresh
                         $scope.loadStatus = 'loading more...';
