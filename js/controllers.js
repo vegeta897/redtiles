@@ -118,7 +118,7 @@ angular.module('Redtiles.controllers', [])
             $scope.loadStatus = 'logging in...';
             $scope.loginStatus = 'logging';
             var redditSession = localStorageService.get('redditSession'); // Get redditSession
-            reddit.autoLogin(redditSession.modhash, redditSession.cookie).then(function(response) {
+            reddit.generic({action: 'autoLogin', modhash: redditSession.modhash, cookie: redditSession.cookie}).then(function(response) {
                 if(!response.hasOwnProperty('data')) { return; }
                 $scope.redditUser = response['data'];
                 $scope.loadStatus = 'loading...';
@@ -161,7 +161,7 @@ angular.module('Redtiles.controllers', [])
             // Refresh masonry layout to fill any gaps left by previous deletions
             if(imagesAdded > 0) { msnry.layout(); }
             var loggedIn = ($scope.loginStatus == 'logged'); // If we're logged in, use PHP for getting posts
-            reddit.getPosts($scope.subreddits, $scope.sortBy, 100, lastID, loggedIn).then(function (response) {
+            reddit.getPosts($scope.subreddits, $scope.sortBy, 100, lastID, loggedIn).then(function(response) {
                 console.log(response);
                 if(response.hasOwnProperty('error') || !response.hasOwnProperty('posts')) { // If there was an error
                     gathering = false;
@@ -190,7 +190,13 @@ angular.module('Redtiles.controllers', [])
                         $scope.fullImages.push({
                             href: post.fixedURL,
                             title: post.title
-                        })
+                        });
+                        if(post.hasOwnProperty('ajax')) {
+                            console.log('ajaxing album...',post.thumbURL);
+                            reddit.imgAjax(post.thumbURL).then(function(response) {
+                                console.log(response);
+                            });
+                        }
                     }
                 }
                 if(addCount == 0) { onLastResults(); } // Check if no new images were in the response
@@ -329,7 +335,7 @@ angular.module('Redtiles.controllers', [])
         // Authenticates the user with reddit
         $scope.login = function(username, password) {
             $scope.loginStatus = 'logging';
-            reddit.login(username,password).then(function(response) {
+            reddit.generic({action: 'login', user: username, pass: password}).then(function(response) {
                 console.log(response);
                 if(!response.hasOwnProperty('session') || response['session'] == null) {
                     $scope.loginStatus = 'missingFields';
@@ -358,7 +364,7 @@ angular.module('Redtiles.controllers', [])
         };
         // Log the user out of reddit
         $scope.logout = function() {
-            reddit.logout().then(function(response) {
+            reddit.generic({action: 'logout'}).then(function(response) {
                 console.log(response);
                 $scope.loginStatus = 'notLogged';
                 $scope.redditUser = null;
@@ -380,33 +386,35 @@ angular.module('Redtiles.controllers', [])
                 img.score += dir; // Apply the vote score change
             }
             img.voted = dir; // Indicate the image was voted on, or voting undone
-            reddit.vote(img.name,dir).then(function(response) { // Send the vote request to reddit
+            // TODO: set vote status in cache
+            // Send the vote request to reddit
+            reddit.generic({action: 'cast_vote', id: img.name, dir: dir}).then(function(response) { 
                 if(jQuery.isEmptyObject(response)) {
                     console.log(dir == 1 ? 'up' : dir == -1 ? 'down' : 'undo', 'vote successful!');
-                } else {
-                    console.log('vote failed!');
-                }
+                } else { console.log('vote failed!'); }
             });
         };
         // Favorites or un-favorites a post through reddit
         $scope.fave = function(img) {
             var unfaving = img.saved ? true : false; // Is the image already faved? (are we unfaving?)
             img.saved = !unfaving; // Set fave state
+            // TODO: set fave status in cache
             var methodName = 'fave'; // By default the method will fave the image
             if(unfaving) { methodName = 'unfave'; } // If we're unfaving, change the method
-            reddit[methodName](img.name).then(function(response) { // Send the vote request to reddit
+            // Send the fave/unfave request to reddit
+            reddit.generic({action: methodName, id: img.name}).then(function(response) { 
                 if(jQuery.isEmptyObject(response)) {
                     console.log(unfaving ? 'unfave' : 'fave', 'successful!');
-                } else {
-                    console.log('fave failed!');
-                }
+                } else { console.log('fave failed!'); }
             });
         };
         // When a user clicks the hide button on a tile
-        $scope.hideTile = function(imgID) {
-            that.removeTile($('#'+imgID)); // Remove the tile from the masonry layout
+        $scope.hideTile = function(img) {
+            that.removeTile($('#'+img.id)); // Remove the tile from the masonry layout
+            img['hidden'] = true;
+            // TODO: set hide status in cache
             if($scope.loginStatus == 'logged') { // If we're logged in
-                reddit.hide('t3_'+imgID); // Hide the image on the user's reddit account
+                reddit.generic({action: 'hide', id: 't3_'+img.id}); // Hide the image on the user's reddit account
             }
         };
         // When a new sort option is selected

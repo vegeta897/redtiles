@@ -286,7 +286,8 @@ angular.module('Redtiles.directives', [])
                 
                 function onImageLoad() { // When the image is loaded
                     realSize = [image.prop('naturalWidth'),image.prop('naturalHeight')]; // Real dimensions
-                    if(realSize[0] == 0) { // If image failed to load, don't add tile
+                    // If image failed to load and not waiting on ajax, or is hidden
+                    if((realSize[0] == 0 && !scope.image['ajax']) || scope.image['hidden']) { 
                         ctrl.removeTile(element);
                         console.log('post id',element.attr('id'),'did not load');
                         return;

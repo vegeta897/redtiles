@@ -1,7 +1,7 @@
 /* Services */
 'use strict';
 angular.module('Redtiles.services', [])
-    .factory('reddit', function($http, $q, parse, localStorageService) {
+    .factory('reddit', function($http, $q, parse) {
         var phpEndpoint = './php/endpoint.php';
         return {
             // Get posts via jsonp, when user is not logged in
@@ -32,10 +32,6 @@ angular.module('Redtiles.services', [])
                                 parse.storeCache(requestCode, returnData); // Cache the results
                             }
                             deferred.resolve(returnData);
-                        }).error(function (data, status, headers, config) {
-                            results.error = {name: "Oh no!", description: "Unknown error"};
-                            console.log('error!', data, status, headers, config);
-                            deferred.reject(data);
                         });
                 } else { // Not logged in, basic post list request
                     var baseURL = 'http://reddit.com/r/';
@@ -56,110 +52,23 @@ angular.module('Redtiles.services', [])
                 }
                 return deferred.promise;
             },
-            login: function(username, password) {
+            generic: function(params) {
                 var deferred = $q.defer();
-                var params = {
-                    action: 'login',
-                    user: username,
-                    pass: password
-                };
                 $http({method: 'GET', url: phpEndpoint, params: params})
                     .success(function (data) {
                         deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
                     });
                 return deferred.promise;
             },
-            logout: function() {
+            imgAjax: function(url) {
                 var deferred = $q.defer();
                 var params = {
-                    action: 'logout'
+                    action: 'imgAjax',
+                    url: url
                 };
                 $http({method: 'GET', url: phpEndpoint, params: params})
                     .success(function (data) {
                         deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('logout error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            autoLogin: function(modhash, cookie) {
-                var deferred = $q.defer();
-                var params = {
-                    action: 'autoLogin',
-                    modhash: modhash,
-                    cookie: cookie
-                };
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data) {
-                        deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('auto-login error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            vote: function(postID, direction) {
-                var deferred = $q.defer();
-                var params = {
-                    action: 'cast_vote',
-                    id: postID,
-                    dir: direction
-                };
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data) {
-                        deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('vote error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            fave: function(postID) {
-                var deferred = $q.defer();
-                var params = {
-                    action: 'fave',
-                    id: postID
-                };
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data) {
-                        deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('fave error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            unfave: function(postID) {
-                var deferred = $q.defer();
-                var params = {
-                    action: 'unfave',
-                    id: postID
-                };
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data) {
-                        deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('unfave error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
-                    });
-                return deferred.promise;
-            },
-            hide: function(postID) {
-                var deferred = $q.defer();
-                var params = {
-                    action: 'hide',
-                    id: postID
-                };
-                $http({method: 'GET', url: phpEndpoint, params: params})
-                    .success(function (data) {
-                        deferred.resolve(data);
-                    }).error(function (data, status, headers, config) {
-                        console.log('hide error:',data, 'status:',status, 'headers:',headers, 'config:',config);
-                        deferred.reject(data);
                     });
                 return deferred.promise;
             }
@@ -216,9 +125,16 @@ angular.module('Redtiles.services', [])
                         post.thumbURL = post.url;
                         post.fixedURL = post.url;
                     } else {
-                        // Is it an imgur album/gallery?
-                        if(post.url.indexOf('http://imgur.com/a') == 0 || post.url.indexOf('http://imgur.com/gallery') == 0) {
-                            // TODO: Album/Gallery stuff here
+                        // Is it an imgur album?
+                        if(post.url.indexOf('http://imgur.com/a/') == 0) {
+                            console.log('album found!');
+                            post.thumbURL = 'http://api.imgur.com/2/album/' + post.url.substring(19,post.url.length);
+                            post['ajax'] = true; // The image will have to be acquired later
+                        // Is it an imgur gallery?
+                        } else if(post.url.indexOf('http://imgur.com/gallery') == 0) {
+                            console.log('gallery found!');
+                            post.thumbURL = post.url;
+                            post['ajax'] = true; // The image will have to be acquired later
                         // Or is it just an imgur page?
                         } else if(post.url.indexOf('http://imgur.com') == 0) {
                             // Is it a list of image IDs?
@@ -279,7 +195,7 @@ angular.module('Redtiles.services', [])
                 var cacheIndex = localStorageService.get('cacheIndex');
                 if(!cacheIndex) { cacheIndex = []; } // If the cacheIndex doesn't exist, initialize it
                 // Add the cache entry to the index
-                cacheIndex.push({requestCode: requestCode, expires: d.getTime() + 30000}); // Expires 30s from now
+                cacheIndex.push({requestCode: requestCode, expires: d.getTime() + 120000}); // Expires 120s from now
                 localStorageService.set('cacheIndex',cacheIndex); // Put the index back in storage
             }
         };

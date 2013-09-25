@@ -105,6 +105,21 @@ function hide($id)
     return $response;
 }
 
+function imgAjax($url)
+{
+    $ch = curl_init();
+    $options = array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_USERAGENT => 'Redtiles web-app 0.9 by /u/vegeta897',
+        CURLOPT_URL => $url . '.json'
+    );
+    curl_setopt_array($ch, $options);
+    $response = json_decode(curl_exec($ch));
+    curl_close($ch);
+    return $response;
+}
+
 $value = "MissingParams";
 
 if (isset($_GET["action"]))
@@ -144,6 +159,10 @@ if (isset($_GET["action"]))
                   $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"],$_GET["after"]);
               else
                   $value = getListing($_GET["sr"],$_GET["sort"],$_GET["limit"]);
+          break;
+      case "imgAjax":
+          if (isset($_GET["url"]))
+              $value = imgAjax($_GET["url"]);
           break;
     }
 }

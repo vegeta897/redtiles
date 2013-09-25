@@ -106,7 +106,7 @@
                 <a ng-show="loginStatus == 'logged'" ng-click="vote(image, 1)" class="upvote"></a>
                 {{ image.score }}
                 <a ng-show="loginStatus == 'logged'" ng-click="vote(image, -1)" class="downvote"></a>
-                <a ng-click="hideTile(image.id)" class="hide-tile"><i class="icon-eye-close"></i></a>
+                <a ng-click="hideTile(image)" class="hide-tile"><i class="icon-eye-close"></i></a>
             </div>
             <div class="post-info">
                 <div ng-show="image.popular" class="post-date">{{ image.created_utc*1000 | date:'shortDate' }}</div>
