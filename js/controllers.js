@@ -203,6 +203,8 @@ angular.module('Redtiles.controllers', [])
                                     $scope.fullImages[imgIndex].href = response.fixedURL;
                                 } else {
                                     console.log('AJAX image couldn\'t be resolved');
+                                    // Remove the tile from the masonry layout
+                                    that.removeTile($('#'+$scope.imageTiles[imgIndex].id)); 
                                 }
                             });
                         }

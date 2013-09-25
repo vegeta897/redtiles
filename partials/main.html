@@ -110,7 +110,7 @@
             </div>
             <div class="post-info">
                 <div ng-show="image.popular" class="post-date">{{ image.created_utc*1000 | date:'shortDate' }}</div>
-                <div ng-show="image.popular" class="domain">{{ image.domain }}</div>
+                <div ng-show="image.popular" class="subreddit">{{ image.subreddit }}</div>
                 <a title="{{ image.title }}" target="_blank" class="post-link" ng-href="http://reddit.com{{ image.permalink }}">
                     <span ng-bind-html-unsafe="image.title"></span><i class="icon-external-link"></i>
                 </a>

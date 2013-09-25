@@ -303,19 +303,26 @@ angular.module('Redtiles.directives', [])
                     overlay.click(function(e) {
                         e.stopPropagation();
                         if(e.target == overlay.get()[0]) { // Make sure nothing else was clicked
-                            var fancyHTML = '<time>' + 
-                                $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
-                                '</time><a class="post-link" target="_blank" href="http://reddit.com' +
-                                scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
-                            if(scope.loginStatus == 'logged') { // If logged in, show reddit controls
-                                var faved = scope.imageViewed.saved ? '' : '-empty'; // Is the image faved?
-                                fancyHTML += '<a class="add-favorite"><i class="icon-star' + faved + '"></i></a>';
-                                var upVoted = scope.imageViewed.voted == 1 ? ' voted' : ''; // Conditional classes
-                                var downVoted = scope.imageViewed.voted == -1 ? ' voted' : '';
-                                fancyHTML += '<a class="downvote' + downVoted + '"></a>' + '<span>' +
-                                    scope.imageViewed.score + '</span>' + '<a class="upvote' + upVoted + '"></a>';
-                            }
-                            var afterShowCallback = function() {
+                            var getFancyHTML = function() {
+                                var fancyHTML = '<time>' +
+                                    $filter('date')(scope.imageViewed.created_utc*1000, 'M/d/yy') +
+                                    '</time><a class="post-link" target="_blank" href="http://reddit.com' +
+                                    scope.imageViewed.permalink + '">' + scope.imageViewed.title + '</a>'
+                                if(scope.loginStatus == 'logged') { // If logged in, show reddit controls
+                                    var faved = scope.imageViewed.saved ? '' : '-empty'; // Is the image faved?
+                                    fancyHTML += '<a class="add-favorite"><i class="icon-star' + 
+                                        faved + '"></i></a>';
+                                    var upVoted = scope.imageViewed.voted == 1 ? ' voted' : ''; // Voted classes
+                                    var downVoted = scope.imageViewed.voted == -1 ? ' voted' : '';
+                                    fancyHTML += '<a class="downvote' + downVoted + '"></a>' + '<span>' +
+                                        scope.imageViewed.score + '</span>' + '<a class="upvote' + 
+                                        upVoted + '"></a>';
+                                }
+                                return fancyHTML;
+                            };
+                            var afterLoadCallback = function(upcoming) {
+                                scope.imageViewed = scope.imageTiles[upcoming.index];
+                                upcoming.title = getFancyHTML();
                                 if(scope.loginStatus != 'logged') { return; }
                                 var fancyTitle = $('.fancybox-title').children('span');
                                 fancyTitle.children('.add-favorite').click(function() { // Fave function
@@ -326,8 +333,8 @@ angular.module('Redtiles.directives', [])
                                         scope.vote(scope.imageViewed, -1);
                                     })
                             };
-                            jQuery.fancybox(scope.fullImages, { padding: 4, index: scope.image.arrayIndex, title: fancyHTML,
-                                afterShow: afterShowCallback
+                            jQuery.fancybox(scope.fullImages, { padding: 4, index: scope.image.arrayIndex, 
+                                title: getFancyHTML(), afterLoad: afterLoadCallback
                             });
                         }
                     })

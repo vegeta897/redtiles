@@ -431,7 +431,7 @@ section#popular .subreddits ul li i.hover {
 }
 
 .big-tile .tile-overlay .reddit-controls {
-    width: 35px;
+    width: 41px;
     font-size: 14px;
     padding: 6px 4px;
 }
@@ -454,7 +454,6 @@ section#popular .subreddits ul li i.hover {
     background-position: 0 0;
     width: 29px;
     height: 14px;
-    margin-left: 0;
 }
 
 .big-tile .upvote:hover, .big-tile .upvote:focus { background-position: -29px 0; }
@@ -509,7 +508,7 @@ section#popular .subreddits ul li i.hover {
     font-size: 11px;
 }
 
-.big-tile .tile-overlay .post-info .domain {
+.big-tile .tile-overlay .post-info .subreddit {
     float: right;
     color: #ccc;
     font-size: 11px;
